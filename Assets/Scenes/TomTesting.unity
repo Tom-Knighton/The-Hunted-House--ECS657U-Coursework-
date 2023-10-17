@@ -795,17 +795,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   patrolPoints:
-  - position: {fileID: 2118887446}
+  - transform: {fileID: 2118887446}
     pauseForSeconds: 0
-  - position: {fileID: 709086988}
+  - transform: {fileID: 709086988}
     pauseForSeconds: 0
-  - position: {fileID: 2118887446}
+  - transform: {fileID: 2048007142}
     pauseForSeconds: 0
-  - position: {fileID: 2048007142}
+  - transform: {fileID: 1940536287}
     pauseForSeconds: 0
-  - position: {fileID: 2036278793}
+  - transform: {fileID: 2036278793}
     pauseForSeconds: 0
-  - position: {fileID: 1205008999}
+  - transform: {fileID: 1205008999}
     pauseForSeconds: 0
 --- !u!1 &1789912505
 GameObject:
