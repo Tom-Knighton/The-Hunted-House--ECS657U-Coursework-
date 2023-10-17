@@ -19,12 +19,14 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool canCrouch = true;
     [SerializeField] private bool canUseHeadbob = true;
     [SerializeField] private bool WillSlideOnSlopes = true;
+    [SerializeField] private bool canZoom = true;
 
     // Key bindings for controls
     [Header("Controls")]
     [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
+    [SerializeField] private KeyCode zoomKey = KeyCode.Mouse1;
 
     // Movement speed settings
     [Header("Movement Parameters")]
@@ -66,6 +68,15 @@ public class FirstPersonController : MonoBehaviour
     private float defaultYpos = 0;
     private float timer;
 
+    // Zoom settings
+    [Header("Zoom Parameters")]
+    [SerializeField] private bool enableZoomToggle = false;
+    [SerializeField] private float timeToZoom = 0.3f;
+    [SerializeField] private float zoomFOV = 30f;
+    private float defaultFOV;
+    private Coroutine zoomRoutine;
+
+
     // SLIDING PARAMETERS
 
     private Vector3 hitPointNormal;
@@ -106,6 +117,7 @@ public class FirstPersonController : MonoBehaviour
         playerCamera = GetComponentInChildren<Camera>();
         characterController = GetComponent<CharacterController>();
         defaultYpos = playerCamera.transform.localPosition.y;
+        defaultFOV = playerCamera.fieldOfView;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -131,6 +143,11 @@ public class FirstPersonController : MonoBehaviour
             if (canUseHeadbob)
             {
                 HandleHeadbob();
+            }
+
+            if (canZoom)
+            {
+                HandleZoom();
             }
 
             ApplyFinalMovements();
@@ -200,6 +217,54 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    // Handles zooming in and out
+    private void HandleZoom()
+    {
+        // If zoom toggle is enabled
+        if (enableZoomToggle)
+        {
+            // On pressing the zoom key
+            if (Input.GetKeyDown(zoomKey))
+            {   
+                // If currently at default FOV, zoom in. Otherwise, zoom out.
+                if (playerCamera.fieldOfView == defaultFOV)
+                {
+                    StartZoom(true);
+                }
+                else
+                {
+                    StartZoom(false);
+                }
+            }
+        }
+        else // If hold-to-zoom is enabled
+        {
+            // Zoom in on key press
+            if (Input.GetKeyDown(zoomKey))
+            {
+                StartZoom(true);
+            }
+            // Zoom out on key release
+            if (Input.GetKeyUp(zoomKey))
+            {
+                StartZoom(false);
+            }
+        }
+    }
+
+    // Initiates the zoom coroutine, ensuring any previous zoom routine is stopped.
+    private void StartZoom(bool isEnter)
+    {
+        // If a zoom routine is already running, stop it.
+        if (zoomRoutine != null)
+        {
+            StopCoroutine(zoomRoutine);
+            zoomRoutine = null;
+        }
+        // Start the zoom coroutine.
+        zoomRoutine = StartCoroutine(ToggleZoom(isEnter));
+    }
+
     // Apply movement and gravity
     private void ApplyFinalMovements()
     {
@@ -251,4 +316,25 @@ public class FirstPersonController : MonoBehaviour
         duringCrouchAnimation = false;
     }
 
+    private IEnumerator ToggleZoom (bool isEnter)
+    {
+        // Determine target FOV based on zooming in or out
+        float targetFOV = isEnter ? zoomFOV : defaultFOV;
+        // Get the current FOV
+        float startingFOV = playerCamera.fieldOfView;
+        // Initialize elapsed time
+        float timeElapsed = 0;
+
+        // Lerp FOV over the specified duration
+        while (timeElapsed < timeToZoom)
+        {
+            playerCamera.fieldOfView = Mathf.Lerp(startingFOV, targetFOV, timeElapsed / timeToZoom);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+        // Ensure FOV is set to the target at the end
+        playerCamera.fieldOfView = targetFOV;
+        // Clear the zoom coroutine reference
+        zoomRoutine = null;
+    }
 }
