@@ -4,40 +4,61 @@ using UnityEngine;
 
 public class FirstPersonController : MonoBehaviour
 {
+    // Player movement and action state checks
     public bool CanMove { get; private set; } = true;
     private bool IsSprinting => canSprint && Input.GetKey(sprintKey);
     private bool ShouldJump => Input.GetKeyDown(jumpKey) && characterController.isGrounded;
+    private bool ShouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && characterController.isGrounded;
 
-    // Movement and control settings
+    // Options to enable or disable functionalities
     [Header("Functional Options")]
     [SerializeField] private bool canSprint = true;
     [SerializeField] private bool canJump = true;
+    [SerializeField] private bool canCrouch = true;
 
+    // Key bindings for controls
     [Header("Controls")]
     [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
 
+    // Movement speed settings
     [Header("Movement Parameters")]
     [SerializeField] private float walkSpeed = 3.0f;
     [SerializeField] private float sprintSpeed = 6.0f;
+    [SerializeField] private float crouchSpeed = 1.5f;
 
-    // Mouse look settings
+    // Mouse look sensitivity and constraints
     [Header("Look Parameters")]
     [SerializeField, Range(1, 10)] private float lookSpeedX = 2.0f;
     [SerializeField, Range(1, 10)] private float lookSpeedY = 2.0f;
     [SerializeField, Range(1, 180)] private float upperLookLimit = 80.0f;
     [SerializeField, Range(1, 180)] private float lowerLookLimit = 80.0f;
 
+    // Jumping settings
     [Header("Jumping Parameters")]
     [SerializeField] private float jumpForce = 8.0f;
     [SerializeField] private float gravity = 30.0f;
 
+    // Crouching settings and state flags
+    [Header("Crouch Parameters")]
+    [SerializeField] private float crouchHeight = 0.5f;
+    [SerializeField] private float standingHeight = 2f;
+    [SerializeField] private float timeToCrouch = 0.25f;
+    [SerializeField] private Vector3 crouchingCenter = new Vector3(0, 0.5f, 0);
+    [SerializeField] private Vector3 standingCenter = new Vector3(0, 0, 0);
+    private bool isCrouching;
+    private bool duringCrouchAnimation;
+
+    // References to essential components
     private Camera playerCamera;
     private CharacterController characterController;
 
+    // Movement direction and input
     private Vector3 moveDirection;
     private Vector2 currentInput;
 
+    // Current rotation in the X-axis (for looking up and down)
     private float rotationX = 0;
 
     // Awake is called when the script instance is being loaded
@@ -62,6 +83,11 @@ public class FirstPersonController : MonoBehaviour
                 HandleJump();
             }
 
+            if (canCrouch)
+            {
+                HandleCrouch();
+            }
+
             ApplyFinalMovements();
         }
     }
@@ -69,18 +95,17 @@ public class FirstPersonController : MonoBehaviour
     // Calculate player movement based on input
     private void HandleMovementInput()
     {
-        currentInput = new Vector2((IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical"), (IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal"));
+        currentInput = new Vector2((isCrouching ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical"), (isCrouching ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal"));
 
         // Calculates the move directions and makes sure vertical movement isn't affected.
         float moveDirectionY = moveDirection.y;
         moveDirection = (transform.TransformDirection(Vector3.forward) * currentInput.x) + (transform.TransformDirection(Vector3.right) * currentInput.y);
 
         // Makes sure the player doesn't move faster diagonally.
-        float currentSpeed = IsSprinting ? sprintSpeed : walkSpeed;
+        float currentSpeed = isCrouching ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed;
         moveDirection = moveDirection.normalized * Mathf.Clamp(moveDirection.magnitude, 0, currentSpeed);
 
         moveDirection.y = moveDirectionY;
-
 
     }
 
@@ -102,6 +127,14 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    private void HandleCrouch()
+    {
+        if (ShouldCrouch)
+        {
+            StartCoroutine(CrouchStand());
+        }
+    }
+
     // Apply movement and gravity
     private void ApplyFinalMovements()
     {
@@ -110,6 +143,42 @@ public class FirstPersonController : MonoBehaviour
             moveDirection.y -= gravity * Time.deltaTime;
         }
         characterController.Move(moveDirection * Time.deltaTime);
+    }
+
+    private IEnumerator CrouchStand()
+    {
+        // Check for obstacle above when uncrouching
+        if (isCrouching && Physics.Raycast(playerCamera.transform.position, Vector3.up, 1f))
+        {
+            yield break;
+        }
+
+        duringCrouchAnimation = true;
+
+        // Initialize crouch/stand parameters
+        float timeElapesd = 0;
+        float targetHeight = isCrouching ? standingHeight : crouchHeight;
+        float currentHeight = characterController.height;
+        Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
+        Vector3 currentCenter = characterController.center;
+
+        // Lerp height and center during crouch/stand transition
+        while (timeElapesd < timeToCrouch)
+        {
+            characterController.height = Mathf.Lerp(currentHeight, targetHeight, timeElapesd/timeToCrouch);
+            characterController.center = Vector3.Lerp(currentCenter, targetCenter, timeElapesd / timeToCrouch);
+            timeElapesd += Time.deltaTime;
+            yield return null;
+        }
+
+        // Set final height and center after animation
+        characterController.height = targetHeight; 
+        characterController.center = targetCenter;
+
+        // Toggle crouching state
+        isCrouching = !isCrouching;
+
+        duringCrouchAnimation = false;
     }
 
 }
