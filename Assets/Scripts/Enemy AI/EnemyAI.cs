@@ -7,6 +7,9 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
+
+    public float MovementSpeed = 1f;
+    
     private EnemyState _state = EnemyState.Patrolling;
     private EnemyState _previousState;
 
@@ -59,11 +62,11 @@ public class EnemyAI : MonoBehaviour
         transform.LookAt(_nextPatrolPoint.position);
 
         // Move towards next point
-        var step = 10f * Time.deltaTime;
+        var step = MovementSpeed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, _nextPatrolPoint.position, step);
         
         // If we've reached the next point, pause for the specified amount of time
-        if (Vector3.Distance(transform.position, _nextPatrolPoint.position) < 0.001f)
+        if (Vector3.Distance(transform.position, _nextPatrolPoint.position) < 0.1f)
         {
             _lookAroundTimer = _nextPatrolPoint.pauseForSeconds;
             _state = EnemyState.LookAround;
