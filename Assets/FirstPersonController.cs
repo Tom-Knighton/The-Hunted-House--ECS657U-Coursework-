@@ -9,7 +9,7 @@ public class FirstPersonController : MonoBehaviour
     // Player movement and action state checks
     public bool CanMove { get; private set; } = true;
     private bool IsSprinting => canSprint && Input.GetKey(sprintKey);
-    private bool ShouldJump => Input.GetKeyDown(jumpKey) && characterController.isGrounded;
+    private bool ShouldJump => Input.GetKeyDown(jumpKey) && characterController.isGrounded && !IsSliding;
     private bool ShouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && characterController.isGrounded;
 
     // Options to enable or disable functionalities
@@ -18,6 +18,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool canJump = true;
     [SerializeField] private bool canCrouch = true;
     [SerializeField] private bool canUseHeadbob = true;
+    [SerializeField] private bool WillSlideOnSlopes = true;
 
     // Key bindings for controls
     [Header("Controls")]
@@ -30,6 +31,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float walkSpeed = 3.0f;
     [SerializeField] private float sprintSpeed = 6.0f;
     [SerializeField] private float crouchSpeed = 1.5f;
+    [SerializeField] private float slopeSpeed = 6f;
 
     // Mouse look sensitivity and constraints
     [Header("Look Parameters")]
@@ -64,6 +66,28 @@ public class FirstPersonController : MonoBehaviour
     private float defaultYpos = 0;
     private float timer;
 
+    // SLIDING PARAMETERS
+
+    private Vector3 hitPointNormal;
+
+    // Check if player is sliding on a slope
+    private bool IsSliding
+    {
+        get
+        {   
+            // If grounded and on a slope
+            if (characterController.isGrounded && Physics.Raycast(transform.position, Vector3.down, out RaycastHit slopeHit, 2f))
+            {
+                hitPointNormal = slopeHit.normal;
+                // True if slope angle exceeds the limit
+                return Vector3.Angle(hitPointNormal, Vector3.up) > characterController.slopeLimit;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
 
     // References to essential components
     private Camera playerCamera;
@@ -183,6 +207,11 @@ public class FirstPersonController : MonoBehaviour
         {
             moveDirection.y -= gravity * Time.deltaTime;
         }
+        if(WillSlideOnSlopes && IsSliding)
+        {
+            moveDirection += new Vector3(hitPointNormal.x, -hitPointNormal.y, hitPointNormal.z) * slopeSpeed;
+        }
+
         characterController.Move(moveDirection * Time.deltaTime);
     }
 
