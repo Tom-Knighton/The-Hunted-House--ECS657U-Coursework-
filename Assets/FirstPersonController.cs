@@ -21,12 +21,14 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool canUseHeadbob = true;
     [SerializeField] private bool WillSlideOnSlopes = true;
     [SerializeField] private bool canZoom = true;
+    [SerializeField] private bool canInteract = true;
 
     // Key bindings for controls
     [Header("Controls")]
     [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
+    [SerializeField] private KeyCode interactKey = KeyCode.Mouse0;
     [SerializeField] private KeyCode zoomKey = KeyCode.Mouse1;
 
     // Movement speed settings
@@ -103,6 +105,13 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    // Interaction settings
+    [Header("Interaction")]
+    [SerializeField] private Vector3 interactionRayPoint = default;
+    [SerializeField] private float interactionDistance = default;
+    [SerializeField] private LayerMask interactionLayer = default;
+    private Interactable currentInteractable;
+
     // References to essential components
     private Camera playerCamera;
     private CharacterController characterController;
@@ -151,6 +160,12 @@ public class FirstPersonController : MonoBehaviour
             if (canZoom)
             {
                 HandleZoom();
+            }
+
+            if (canInteract)
+            {
+                HandleInteractionCheck();
+                HandleInteractionInput();
             }
 
             ApplyFinalMovements();
@@ -305,6 +320,41 @@ public class FirstPersonController : MonoBehaviour
         }
         // Start the zoom coroutine
         zoomRoutine = StartCoroutine(ToggleZoom(isEnter));
+    }
+
+    // Check for and focus/unfocus on interactable objects.
+    private void HandleInteractionCheck()
+    {
+        // Raycast to detect interactable objects.
+        if (Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out RaycastHit hit, interactionDistance))
+        {
+            // If a new interactable is detected, focus on it.
+            if (hit.collider.gameObject.layer == 9 && (currentInteractable == null || hit.collider.gameObject.GetInstanceID() != currentInteractable.gameObject.GetInstanceID()))
+            {
+                hit.collider.TryGetComponent(out currentInteractable);
+
+                if (currentInteractable)
+                {
+                    currentInteractable.OnFocus();
+                }
+            }
+        }
+        // If no interactable is detected, lose focus on the current one.
+        else if (currentInteractable)
+        {
+            currentInteractable.OnLoseFocus();
+            currentInteractable = null;
+        }
+    }
+
+    // Trigger interaction if valid target and key pressed.
+    private void HandleInteractionInput()
+    {
+        // If interaction key is pressed and an interactable is in focus, interact with it.
+        if (Input.GetKeyDown(interactKey) && currentInteractable != null && Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out RaycastHit hit, interactionDistance, interactionLayer))
+        {
+            currentInteractable.OnInteract();
+        }
     }
 
     // Apply movement and gravity
