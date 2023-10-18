@@ -1,7 +1,4 @@
-using System.Buffers.Text;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class FirstPersonController : MonoBehaviour
@@ -10,7 +7,7 @@ public class FirstPersonController : MonoBehaviour
     public bool CanMove { get; private set; } = true;
     private bool IsSprinting => canSprint && Input.GetKey(sprintKey);
     private bool ShouldJump => Input.GetKeyDown(jumpKey) && characterController.isGrounded && !IsSliding;
-    private bool ShouldCrouch => Input.GetKeyDown(crouchKey) && characterController.isGrounded;
+    private bool ShouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && characterController.isGrounded;
 
 
     // Options to enable or disable functionalities
@@ -52,7 +49,7 @@ public class FirstPersonController : MonoBehaviour
 
     // Crouching settings and state flags
     [Header("Crouch Parameters")]
-    [SerializeField] private bool enableCrouchToggle = true;
+    [SerializeField] private bool enableCrouchToggle = false;
     [SerializeField] private float crouchHeight = 0.5f;
     [SerializeField] private float standingHeight = 2f;
     [SerializeField] private float timeToCrouch = 0.25f;
@@ -60,7 +57,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private Vector3 standingCenter = new Vector3(0, 0, 0);
     private bool isCrouching;
     private bool duringCrouchAnimation;
-    private Coroutine crouchRoutine;
+    private bool wantsToStand = false;
 
     // Headbob settings
     [Header("Headbob Parameters")]
@@ -169,6 +166,12 @@ public class FirstPersonController : MonoBehaviour
             }
 
             ApplyFinalMovements();
+
+            if (wantsToStand && !IsObstacleAbove())
+            {
+                StartCoroutine(CrouchStand(false)); // Stand up
+                wantsToStand = false; // Reset the flag
+            }
         }
     }
 
@@ -210,49 +213,40 @@ public class FirstPersonController : MonoBehaviour
     // Handles crouching
     private void HandleCrouch()
     {
-        // If crouch toggle is enabled
-        if (enableCrouchToggle)
+        if(enableCrouchToggle)
         {
-            // On pressing the crouch key
-            if (Input.GetKeyDown(crouchKey))
+            if (ShouldCrouch)
             {
-                // If currently standing, crouch. Otherwise, stand up
-                if (!isCrouching)
+                StartCoroutine(ToggleCrouchStand());
+            }
+        }
+        else
+        {
+            // Start crouching when crouch key is pressed
+            if (Input.GetKey(crouchKey) && !duringCrouchAnimation && characterController.isGrounded && !isCrouching)
+            {
+                wantsToStand = false; // Reset this flag when crouch key is pressed
+                StartCoroutine(CrouchStand(true)); // true indicates we're crouching
+            }
+            // Try to stand up when crouch key is released
+            else if (!Input.GetKey(crouchKey) && !duringCrouchAnimation && characterController.isGrounded && isCrouching)
+            {
+                if (!IsObstacleAbove()) // Check for obstacle
                 {
-                    StartCrouch(true);
+                    StartCoroutine(CrouchStand(false)); // false indicates we're standing up
                 }
                 else
                 {
-                    StartCrouch(false);
+                    wantsToStand = true; // Player wants to stand but is blocked
                 }
-            }
-        }
-        else // If hold-to-crouch is enabled
-        {
-            // Crouch on key press
-            if (Input.GetKeyDown(crouchKey))
-            {
-                StartCrouch(true);
-            }
-            // Stand up on key release
-            if (Input.GetKeyUp(crouchKey))
-            {
-                StartCrouch(false);
             }
         }
     }
 
-    // Starts the crouch transition, stopping any ongoing crouch coroutine
-    private void StartCrouch(bool isCrouching)
+    // Checks for an obstacle above the player
+    private bool IsObstacleAbove()
     {
-        // Stop any ongoing crouch routines
-        if (crouchRoutine != null)
-        {
-            StopCoroutine(crouchRoutine);
-            crouchRoutine = null;
-        }
-        // Start the crouch coroutine
-        crouchRoutine = StartCoroutine(ToggleCrouch(isCrouching));
+        return Physics.Raycast(playerCamera.transform.position, Vector3.up, standingHeight - crouchHeight);
     }
 
     // Handles headbobbing
@@ -372,37 +366,76 @@ public class FirstPersonController : MonoBehaviour
         characterController.Move(moveDirection * Time.deltaTime);
     }
 
-    // Coroutine for transitioning between crouching and standing
-    private IEnumerator ToggleCrouch(bool isCrouching)
+    private IEnumerator CrouchStand(bool isCrouchingNow)
     {
-        // Set target values based on crouching/standing
-        float targetHeight = isCrouching ? crouchHeight : standingHeight;
-        Vector3 targetCenter = isCrouching ? crouchingCenter : standingCenter;
-
-        // Calculate change rates
-        float heightChangeRate = Mathf.Abs(standingHeight - crouchHeight) / timeToCrouch;
-        float centerChangeRate = (standingCenter - crouchingCenter).magnitude / timeToCrouch;
-
-        // Adjust height and center to target values
-        while (!Mathf.Approximately(characterController.height, targetHeight) ||
-               !Vector3Approximately(characterController.center, targetCenter, 0.01f))
+        // Check for obstacle above when uncrouching
+        if (isCrouchingNow && Physics.Raycast(playerCamera.transform.position, Vector3.up, 1f))
         {
-            characterController.height = Mathf.MoveTowards(characterController.height, targetHeight, heightChangeRate * Time.deltaTime);
-            characterController.center = Vector3.MoveTowards(characterController.center, targetCenter, centerChangeRate * Time.deltaTime);
+            yield break;
+        }
+
+        duringCrouchAnimation = true;
+
+        // Initialize crouch/stand parameters
+        float timeElapesd = 0;
+        float targetHeight = isCrouchingNow ? crouchHeight : standingHeight;
+        float currentHeight = characterController.height;
+        Vector3 targetCenter = isCrouchingNow ? crouchingCenter : standingCenter;
+        Vector3 currentCenter = characterController.center;
+
+        // Lerp height and center during crouch/stand transition
+        while (timeElapesd < timeToCrouch)
+        {
+            characterController.height = Mathf.Lerp(currentHeight, targetHeight, timeElapesd / timeToCrouch);
+            characterController.center = Vector3.Lerp(currentCenter, targetCenter, timeElapesd / timeToCrouch);
+            timeElapesd += Time.deltaTime;
             yield return null;
         }
 
-        // Update crouching state and reset coroutine reference
-        this.isCrouching = isCrouching;
-        crouchRoutine = null;
+        // Set final height and center after animation
+        characterController.height = targetHeight;
+        characterController.center = targetCenter;
+
+        // Set crouching state
+        isCrouching = isCrouchingNow;
+
+        duringCrouchAnimation = false;
     }
 
-    // Checks if two Vector3s are close based on a tolerance
-    private bool Vector3Approximately(Vector3 a, Vector3 b, float tolerance)
+    private IEnumerator ToggleCrouchStand()
     {
-        return Mathf.Abs(a.x - b.x) < tolerance &&
-               Mathf.Abs(a.y - b.y) < tolerance &&
-               Mathf.Abs(a.z - b.z) < tolerance;
+        // Check for obstacle above when uncrouching
+        if (isCrouching && Physics.Raycast(playerCamera.transform.position, Vector3.up, 1f))
+        {
+            yield break;
+        }
+
+        duringCrouchAnimation = true;
+
+        // Initialize crouch/stand parameters
+        float timeElapesd = 0;
+        float targetHeight = isCrouching ? standingHeight : crouchHeight;
+        float currentHeight = characterController.height;
+        Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
+        Vector3 currentCenter = characterController.center;
+
+        // Lerp height and center during crouch/stand transition
+        while (timeElapesd < timeToCrouch)
+        {
+            characterController.height = Mathf.Lerp(currentHeight, targetHeight, timeElapesd / timeToCrouch);
+            characterController.center = Vector3.Lerp(currentCenter, targetCenter, timeElapesd / timeToCrouch);
+            timeElapesd += Time.deltaTime;
+            yield return null;
+        }
+
+        // Set final height and center after animation
+        characterController.height = targetHeight;
+        characterController.center = targetCenter;
+
+        // Toggle crouching state
+        isCrouching = !isCrouching;
+
+        duringCrouchAnimation = false;
     }
 
     // Coroutine for zooming the camera's field of view
