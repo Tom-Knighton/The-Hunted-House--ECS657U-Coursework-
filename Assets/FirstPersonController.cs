@@ -10,7 +10,8 @@ public class FirstPersonController : MonoBehaviour
     public bool CanMove { get; private set; } = true;
     private bool IsSprinting => canSprint && Input.GetKey(sprintKey);
     private bool ShouldJump => Input.GetKeyDown(jumpKey) && characterController.isGrounded && !IsSliding;
-    private bool ShouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && characterController.isGrounded;
+    private bool ShouldCrouch => Input.GetKeyDown(crouchKey) && characterController.isGrounded;
+
 
     // Options to enable or disable functionalities
     [Header("Functional Options")]
@@ -49,6 +50,7 @@ public class FirstPersonController : MonoBehaviour
 
     // Crouching settings and state flags
     [Header("Crouch Parameters")]
+    [SerializeField] private bool enableCrouchToggle = true;
     [SerializeField] private float crouchHeight = 0.5f;
     [SerializeField] private float standingHeight = 2f;
     [SerializeField] private float timeToCrouch = 0.25f;
@@ -56,6 +58,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private Vector3 standingCenter = new Vector3(0, 0, 0);
     private bool isCrouching;
     private bool duringCrouchAnimation;
+    private Coroutine crouchRoutine;
 
     // Headbob settings
     [Header("Headbob Parameters")]
@@ -159,11 +162,11 @@ public class FirstPersonController : MonoBehaviour
     {
         currentInput = new Vector2((isCrouching ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical"), (isCrouching ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal"));
 
-        // Calculates the move directions and makes sure vertical movement isn't affected.
+        // Calculates the move directions and makes sure vertical movement isn't affected
         float moveDirectionY = moveDirection.y;
         moveDirection = (transform.TransformDirection(Vector3.forward) * currentInput.x) + (transform.TransformDirection(Vector3.right) * currentInput.y);
 
-        // Makes sure the player doesn't move faster diagonally.
+        // Makes sure the player doesn't move faster diagonally
         float currentSpeed = isCrouching ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed;
         moveDirection = moveDirection.normalized * Mathf.Clamp(moveDirection.magnitude, 0, currentSpeed);
 
@@ -192,10 +195,49 @@ public class FirstPersonController : MonoBehaviour
     // Handles crouching
     private void HandleCrouch()
     {
-        if (ShouldCrouch)
+        // If crouch toggle is enabled
+        if (enableCrouchToggle)
         {
-            StartCoroutine(CrouchStand());
+            // On pressing the crouch key
+            if (Input.GetKeyDown(crouchKey))
+            {
+                // If currently standing, crouch. Otherwise, stand up
+                if (!isCrouching)
+                {
+                    StartCrouch(true);
+                }
+                else
+                {
+                    StartCrouch(false);
+                }
+            }
         }
+        else // If hold-to-crouch is enabled
+        {
+            // Crouch on key press
+            if (Input.GetKeyDown(crouchKey))
+            {
+                StartCrouch(true);
+            }
+            // Stand up on key release
+            if (Input.GetKeyUp(crouchKey))
+            {
+                StartCrouch(false);
+            }
+        }
+    }
+
+    // Starts the crouch transition, stopping any ongoing crouch coroutine
+    private void StartCrouch(bool isCrouching)
+    {
+        // Stop any ongoing crouch routines
+        if (crouchRoutine != null)
+        {
+            StopCoroutine(crouchRoutine);
+            crouchRoutine = null;
+        }
+        // Start the crouch coroutine
+        crouchRoutine = StartCoroutine(ToggleCrouch(isCrouching));
     }
 
     // Handles headbobbing
@@ -226,7 +268,7 @@ public class FirstPersonController : MonoBehaviour
             // On pressing the zoom key
             if (Input.GetKeyDown(zoomKey))
             {   
-                // If currently at default FOV, zoom in. Otherwise, zoom out.
+                // If currently at default FOV, zoom in. Otherwise, zoom out
                 if (playerCamera.fieldOfView == defaultFOV)
                 {
                     StartZoom(true);
@@ -252,16 +294,16 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
-    // Initiates the zoom coroutine, ensuring any previous zoom routine is stopped.
+    // Initiates the zoom coroutine, ensuring any previous zoom routine is stopped
     private void StartZoom(bool isEnter)
     {
-        // If a zoom routine is already running, stop it.
+        // If a zoom routine is already running, stop it
         if (zoomRoutine != null)
         {
             StopCoroutine(zoomRoutine);
             zoomRoutine = null;
         }
-        // Start the zoom coroutine.
+        // Start the zoom coroutine
         zoomRoutine = StartCoroutine(ToggleZoom(isEnter));
     }
 
@@ -280,61 +322,53 @@ public class FirstPersonController : MonoBehaviour
         characterController.Move(moveDirection * Time.deltaTime);
     }
 
-    private IEnumerator CrouchStand()
+    // Coroutine for transitioning between crouching and standing
+    private IEnumerator ToggleCrouch(bool isCrouching)
     {
-        // Check for obstacle above when uncrouching
-        if (isCrouching && Physics.Raycast(playerCamera.transform.position, Vector3.up, 1f))
+        // Set target values based on crouching/standing
+        float targetHeight = isCrouching ? crouchHeight : standingHeight;
+        Vector3 targetCenter = isCrouching ? crouchingCenter : standingCenter;
+
+        // Calculate change rates
+        float heightChangeRate = Mathf.Abs(standingHeight - crouchHeight) / timeToCrouch;
+        float centerChangeRate = (standingCenter - crouchingCenter).magnitude / timeToCrouch;
+
+        // Adjust height and center to target values
+        while (!Mathf.Approximately(characterController.height, targetHeight) ||
+               !Vector3Approximately(characterController.center, targetCenter, 0.01f))
         {
-            yield break;
-        }
-
-        duringCrouchAnimation = true;
-
-        // Initialize crouch/stand parameters
-        float timeElapesd = 0;
-        float targetHeight = isCrouching ? standingHeight : crouchHeight;
-        float currentHeight = characterController.height;
-        Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
-        Vector3 currentCenter = characterController.center;
-
-        // Lerp height and center during crouch/stand transition
-        while (timeElapesd < timeToCrouch)
-        {
-            characterController.height = Mathf.Lerp(currentHeight, targetHeight, timeElapesd/timeToCrouch);
-            characterController.center = Vector3.Lerp(currentCenter, targetCenter, timeElapesd / timeToCrouch);
-            timeElapesd += Time.deltaTime;
+            characterController.height = Mathf.MoveTowards(characterController.height, targetHeight, heightChangeRate * Time.deltaTime);
+            characterController.center = Vector3.MoveTowards(characterController.center, targetCenter, centerChangeRate * Time.deltaTime);
             yield return null;
         }
 
-        // Set final height and center after animation
-        characterController.height = targetHeight; 
-        characterController.center = targetCenter;
-
-        // Toggle crouching state
-        isCrouching = !isCrouching;
-
-        duringCrouchAnimation = false;
+        // Update crouching state and reset coroutine reference
+        this.isCrouching = isCrouching;
+        crouchRoutine = null;
     }
 
-    private IEnumerator ToggleZoom (bool isEnter)
+    // Checks if two Vector3s are close based on a tolerance
+    private bool Vector3Approximately(Vector3 a, Vector3 b, float tolerance)
     {
-        // Determine target FOV based on zooming in or out
-        float targetFOV = isEnter ? zoomFOV : defaultFOV;
-        // Get the current FOV
-        float startingFOV = playerCamera.fieldOfView;
-        // Initialize elapsed time
-        float timeElapsed = 0;
+        return Mathf.Abs(a.x - b.x) < tolerance &&
+               Mathf.Abs(a.y - b.y) < tolerance &&
+               Mathf.Abs(a.z - b.z) < tolerance;
+    }
 
-        // Lerp FOV over the specified duration
-        while (timeElapsed < timeToZoom)
+    // Coroutine for zooming the camera's field of view
+    private IEnumerator ToggleZoom(bool isEnter)
+    {
+        // Set target FOV based on zoom direction
+        float targetFOV = isEnter ? zoomFOV : defaultFOV;
+
+        // Adjust FOV until target is reached
+        while (!Mathf.Approximately(playerCamera.fieldOfView, targetFOV))
         {
-            playerCamera.fieldOfView = Mathf.Lerp(startingFOV, targetFOV, timeElapsed / timeToZoom);
-            timeElapsed += Time.deltaTime;
+            playerCamera.fieldOfView = Mathf.MoveTowards(playerCamera.fieldOfView, targetFOV, (Mathf.Abs(defaultFOV - zoomFOV) / timeToZoom) * Time.deltaTime);
             yield return null;
         }
-        // Ensure FOV is set to the target at the end
-        playerCamera.fieldOfView = targetFOV;
-        // Clear the zoom coroutine reference
+
+        // Reset coroutine after zoom
         zoomRoutine = null;
     }
 }
