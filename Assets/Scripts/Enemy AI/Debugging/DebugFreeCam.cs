@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Enemy_AI.Debug
+namespace Enemy_AI.Debugging
 {
     public class DebugFreeCam : MonoBehaviour
     {
