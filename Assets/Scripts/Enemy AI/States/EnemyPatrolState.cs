@@ -27,6 +27,7 @@ namespace Enemy_AI.States
             context.Data.PatrolPointIndex = goToIndex;
             _nextPatrolPoint = closestPatrolPoint;
             context.NavMeshAgent.SetDestination(_nextPatrolPoint.position);
+            context.transform.LookAt(_nextPatrolPoint.position);
         }
 
         public override void OnStateTick(EnemyStateManager context)

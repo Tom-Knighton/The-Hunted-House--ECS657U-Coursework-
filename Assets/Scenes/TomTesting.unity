@@ -1965,7 +1965,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a517857a1d391494f9027fbac58e53b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementSpeed: 1
   patrolPoints:
   - transform: {fileID: 2118887446}
     pauseForSeconds: 0

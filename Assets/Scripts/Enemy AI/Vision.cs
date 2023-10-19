@@ -20,9 +20,17 @@ namespace Enemy_AI
                 return;
             }
             
-            var forwardAngle = (player.transform.position - transform.position).normalized;
+            var forwardDirection = (player.transform.position - transform.position).normalized;
+            var angle = Vector3.Angle(forwardDirection, transform.forward);
+            
+            if (angle is > 89 or < -89f)
+            {
+                Debug.Log("Out of vision cone");
+                return;
+            }
+            
             var distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
-            if (!Physics.Raycast(transform.position, forwardAngle, distanceToPlayer, ObstacleMask))
+            if (!Physics.Raycast(transform.position, forwardDirection, distanceToPlayer, ObstacleMask))
             {
                 Debug.DrawLine(transform.position, player.transform.position, Color.red);
             }
