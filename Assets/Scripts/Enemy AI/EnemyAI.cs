@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Enemy_AI;
@@ -12,6 +10,8 @@ public class EnemyAI : MonoBehaviour
     private NavMeshAgent _agent;
     private EnemyStateManager _stateManager;
     private Vision _visionManager;
+
+    private Vector3 _lastSeenPlayerPosition;
     
     [SerializeField]
     public List<PatrolPoint> patrolPoints = new();
@@ -39,11 +39,29 @@ public class EnemyAI : MonoBehaviour
         
         if (_visionManager is not null)
         {
-            _visionManager.AddPlayerSeenListener((seen) =>
-            {
-                Debug.Log($"Seen now {seen}");
-            });
+            _visionManager.AddPlayerSeenListener(OnPlayerSeenChanged);
         }
+    }
 
+    /// <summary>
+    /// Called when the player is seen by the enemy, or has disappeared
+    /// </summary>
+    private void OnPlayerSeenChanged(bool seen, Transform newTransform)
+    {
+        // If we see the player, we want to run towards them
+        if (seen && newTransform is not null)
+        {
+            _lastSeenPlayerPosition = newTransform.position;
+            _stateManager.Data.ChasingTarget = newTransform;
+            _stateManager.SwitchState(EEnemyAIState.Chasing);
+        }
+        // Otherwise, we have seen them and now lost them, so we want to search around where we last saw them and eventually return to patrolling
+        else if (_lastSeenPlayerPosition != Vector3.zero)
+        {
+            _stateManager.Data.PatrolWasInterrupted = true;
+            _stateManager.Data.SearchesLeft = 5;
+            _stateManager.Data.SearchAroundPoint = _lastSeenPlayerPosition;
+            _stateManager.SwitchState(EEnemyAIState.Searching);
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace Enemy_AI
         private List<Delegate> _callbacks = new();
         private bool _lastSeen;
 
-        public void AddPlayerSeenListener(Action<bool> callback)
+        public void AddPlayerSeenListener(Action<bool, Transform> callback)
         {
             _callbacks.Add(callback);
         }
@@ -23,8 +23,14 @@ namespace Enemy_AI
         {
             Physics.OverlapSphereNonAlloc(transform.position, 5f, _visionResults, PlayerLayerMask);
             var player = _visionResults.FirstOrDefault();
-            if (player is null)
+            if (player is null || !player.enabled)
             {
+                // We've lost sight of the player
+                if (_lastSeen)
+                {
+                    _lastSeen = false;
+                    UpdateCallbacks(false, null);
+                }
                 return;
             }
             
@@ -38,20 +44,31 @@ namespace Enemy_AI
                 var distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
                 seen = !Physics.Raycast(transform.position, forwardDirection, distanceToPlayer, ObstacleMask);
             }
-
+            
             if (seen)
             {
                 Debug.DrawLine(transform.position, player.transform.position, Color.red);
             }
-
+            
             if (_lastSeen != seen)
             {
-                foreach (var callback in _callbacks)
-                {
-                    callback.DynamicInvoke(seen);
-                }
-
+                UpdateCallbacks(seen, seen ? player.transform : null);
                 _lastSeen = seen;
+            }
+
+            if (seen)
+            {
+                player.enabled = false;
+                Destroy(player.gameObject);
+                _visionResults = new Collider[] { };
+            }
+        }
+
+        private void UpdateCallbacks(bool seen, Transform newTransform)
+        {
+            foreach (var callback in _callbacks)
+            {
+                callback.DynamicInvoke(seen, seen ? newTransform : null);
             }
         }
     }

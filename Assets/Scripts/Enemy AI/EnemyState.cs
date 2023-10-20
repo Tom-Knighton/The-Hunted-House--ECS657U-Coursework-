@@ -6,6 +6,8 @@ namespace Enemy_AI
     public enum EEnemyAIState
     {
         Patrolling,
-        Idle
+        Idle,
+        Searching,
+        Chasing
     }
 }

@@ -22,6 +22,8 @@ namespace Enemy_AI.States
 
         private EnemyAIState _patrollingState = new EnemyPatrolState();
         private EnemyAIState _idlingState = new EnemyIdleState();
+        private EnemyAIState _searchingState = new EnemySearchState();
+        private EnemyAIState _chasingState = new EnemyChasingState();
         
         private void Awake()
         {
@@ -45,6 +47,8 @@ namespace Enemy_AI.States
             {
                 EEnemyAIState.Patrolling => _patrollingState,
                 EEnemyAIState.Idle => _idlingState,
+                EEnemyAIState.Searching => _searchingState,
+                EEnemyAIState.Chasing => _chasingState,
                 _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Invalid Enemy AI state")
             };
             CurrentState.OnEnterState(this);
