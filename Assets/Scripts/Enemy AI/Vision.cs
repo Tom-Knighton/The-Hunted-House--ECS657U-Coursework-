@@ -11,6 +11,14 @@ namespace Enemy_AI
         
         private Collider[] _visionResults = new Collider[1];
         
+        private List<Delegate> _callbacks = new();
+        private bool _lastSeen;
+
+        public void AddPlayerSeenListener(Action<bool> callback)
+        {
+            _callbacks.Add(callback);
+        }
+        
         private void Update()
         {
             Physics.OverlapSphereNonAlloc(transform.position, 5f, _visionResults, PlayerLayerMask);
@@ -22,23 +30,29 @@ namespace Enemy_AI
             
             var forwardDirection = (player.transform.position - transform.position).normalized;
             var angle = Vector3.Angle(forwardDirection, transform.forward);
-            
-            if (angle is > 89 or < -89f)
+
+            var seen = false;
+
+            if (angle is < 89 and > -89f) // If player is within 90-ish degrees of forward vector (so enemy doesn't have eyes in back of head :))
             {
-                Debug.Log("Out of vision cone");
-                return;
+                var distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
+                seen = !Physics.Raycast(transform.position, forwardDirection, distanceToPlayer, ObstacleMask);
             }
-            
-            var distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
-            if (!Physics.Raycast(transform.position, forwardDirection, distanceToPlayer, ObstacleMask))
+
+            if (seen)
             {
                 Debug.DrawLine(transform.position, player.transform.position, Color.red);
             }
-            else
+
+            if (_lastSeen != seen)
             {
-                Debug.Log("See but blocked");
+                foreach (var callback in _callbacks)
+                {
+                    callback.DynamicInvoke(seen);
+                }
+
+                _lastSeen = seen;
             }
-            
         }
     }
 }
