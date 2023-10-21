@@ -21,6 +21,8 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool canZoom = true;
     [SerializeField] private bool canInteract = true;
     [SerializeField] private bool useFootsteps = true;
+    [SerializeField] private bool enableJumpingSound = true;
+    [SerializeField] private bool enableLandingSound = true;
 
     // Key bindings for controls
     [Header("Controls")]
@@ -80,6 +82,7 @@ public class FirstPersonController : MonoBehaviour
     private float defaultFOV;
     private Coroutine zoomRoutine;
 
+    // Footstep Settings
     [Header("FootstepParameters")]
     [SerializeField] private float baseStepSpeed = 0.5f;
     [SerializeField] private float crouchStepMultiplier = 1.5f;
@@ -97,6 +100,13 @@ public class FirstPersonController : MonoBehaviour
     private int currentconcreteFootstepIndex = 0;
     private int currentGrassFootstepIndex = 0;
     private float crouchVolumeMultiplier = 0.5f;
+
+    // Jump and Landing Settings
+    [Header("Jump and Landing Sound Parameters")]
+    [SerializeField] private AudioSource jumpAudioSource;
+    [SerializeField] private AudioClip jumpClip;
+    [SerializeField] private AudioClip landingClip;
+    private bool wasInAir = false;
 
     // SLIDING PARAMETERS
 
@@ -195,6 +205,11 @@ public class FirstPersonController : MonoBehaviour
                 HandleInteractionInput();
             }
 
+            if (enableLandingSound)
+            {
+                HandleLandingSound();
+            }
+
             ApplyFinalMovements();
 
             if (wantsToStand && !IsObstacleAbove())
@@ -236,6 +251,10 @@ public class FirstPersonController : MonoBehaviour
     {
         if (ShouldJump)
         {
+            if (enableJumpingSound)
+            {
+                jumpAudioSource.PlayOneShot(jumpClip);
+            }
             moveDirection.y = jumpForce;
         }
     }
@@ -459,6 +478,23 @@ public class FirstPersonController : MonoBehaviour
         {
             currentIndex = 0;
             indicesArray = GenerateRandomIndex(clipLength);
+        }
+    }
+
+    private void HandleLandingSound()
+    {
+        if (wasInAir && characterController.isGrounded)
+        {
+            // Check if player is not sliding
+            if (!IsSliding)
+            {
+                jumpAudioSource.PlayOneShot(landingClip);
+            }
+            wasInAir = false; // Set the flag to false immediately after landing.
+        }
+        else if (!characterController.isGrounded)
+        {
+            wasInAir = true; // Set the flag to true if the player is in the air.
         }
     }
 
