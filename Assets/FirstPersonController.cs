@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class FirstPersonController : MonoBehaviour
@@ -19,6 +20,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool WillSlideOnSlopes = true;
     [SerializeField] private bool canZoom = true;
     [SerializeField] private bool canInteract = true;
+    [SerializeField] private bool useFootsteps = true;
 
     // Key bindings for controls
     [Header("Controls")]
@@ -78,6 +80,23 @@ public class FirstPersonController : MonoBehaviour
     private float defaultFOV;
     private Coroutine zoomRoutine;
 
+    [Header("FootstepParameters")]
+    [SerializeField] private float baseStepSpeed = 0.5f;
+    [SerializeField] private float crouchStepMultiplier = 1.5f;
+    [SerializeField] private float sprintStepMultiplier = 0.6f;
+    [SerializeField] private AudioSource footstepAudioSource = default;
+    [SerializeField] private AudioClip[] woodClips = default;
+    [SerializeField] private AudioClip[] concreteClips = default;
+    [SerializeField] private AudioClip[] grassClips = default;
+    private float footstepTimer = 0;
+    private float GetCurrentOffset => isCrouching ? baseStepSpeed * crouchStepMultiplier : IsSprinting ? baseStepSpeed * sprintStepMultiplier : baseStepSpeed;
+    private int[] woodIndices;
+    private int[] concreteIndices;
+    private int[] grassIndices;
+    private int currentWoodFootstepIndex = 0;
+    private int currentconcreteFootstepIndex = 0;
+    private int currentGrassFootstepIndex = 0;
+    private float crouchVolumeMultiplier = 0.5f;
 
     // SLIDING PARAMETERS
 
@@ -129,6 +148,12 @@ public class FirstPersonController : MonoBehaviour
         defaultFOV = playerCamera.fieldOfView;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        if(useFootsteps)
+        {
+            woodIndices = GenerateRandomIndex(woodClips.Length);
+            concreteIndices = GenerateRandomIndex(concreteClips.Length);
+            grassIndices = GenerateRandomIndex(grassClips.Length);
+        }
     }
 
     // Update is called once per frame
@@ -157,6 +182,11 @@ public class FirstPersonController : MonoBehaviour
             if (canZoom)
             {
                 HandleZoom();
+            }
+
+            if (useFootsteps)
+            {
+                HandleFootsteps();
             }
 
             if (canInteract)
@@ -316,13 +346,13 @@ public class FirstPersonController : MonoBehaviour
         zoomRoutine = StartCoroutine(ToggleZoom(isEnter));
     }
 
-    // Check for and focus/unfocus on interactable objects.
+    // Check for and focus/unfocus on interactable objects
     private void HandleInteractionCheck()
     {
-        // Raycast to detect interactable objects.
+        // Raycast to detect interactable objects
         if (Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out RaycastHit hit, interactionDistance))
         {
-            // If a new interactable is detected, focus on it.
+            // If a new interactable is detected, focus on it
             if (hit.collider.gameObject.layer == 9 && (currentInteractable == null || hit.collider.gameObject.GetInstanceID() != currentInteractable.gameObject.GetInstanceID()))
             {
                 hit.collider.TryGetComponent(out currentInteractable);
@@ -333,7 +363,7 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
         }
-        // If no interactable is detected, lose focus on the current one.
+        // If no interactable is detected, lose focus on the current one
         else if (currentInteractable)
         {
             currentInteractable.OnLoseFocus();
@@ -341,13 +371,94 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
-    // Trigger interaction if valid target and key pressed.
+    // Trigger interaction if valid target and key pressed
     private void HandleInteractionInput()
     {
-        // If interaction key is pressed and an interactable is in focus, interact with it.
+        // If interaction key is pressed and an interactable is in focus, interact with it
         if (Input.GetKeyDown(interactKey) && currentInteractable != null && Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out RaycastHit hit, interactionDistance, interactionLayer))
         {
             currentInteractable.OnInteract();
+        }
+    }
+
+    // Handles Footsteps
+    private void HandleFootsteps()
+    {
+        if (!characterController.isGrounded) return;
+        if (currentInput == Vector2.zero)
+        {
+            footstepTimer = GetCurrentOffset;  // Reset timer if player is stationary.
+            return;
+        }
+
+        footstepTimer -= Time.deltaTime;
+        
+        if(footstepTimer <= 0)
+        {
+            // Raycast to determine surface type
+            if (Physics.Raycast(playerCamera.transform.position, Vector3.down, out RaycastHit hit, 3))
+            {
+                // Adjust volume for crouch
+                footstepAudioSource.volume = isCrouching ? crouchVolumeMultiplier : 1f;
+                footstepAudioSource.pitch = Random.Range(0.9f, 1.1f);
+
+                // Play sound based on surface
+                switch (hit.collider.tag)
+                {
+                    case "Footsteps/WOOD":
+                        footstepAudioSource.PlayOneShot(woodClips[woodIndices[currentWoodFootstepIndex]]);
+                        ShiftIndex(ref currentWoodFootstepIndex, woodClips.Length, ref woodIndices);
+                        break;
+                    case "Footsteps/CONCRETE":
+                        footstepAudioSource.PlayOneShot(concreteClips[concreteIndices[currentconcreteFootstepIndex]]);
+                        ShiftIndex(ref currentconcreteFootstepIndex, concreteClips.Length, ref concreteIndices);
+                        break;
+                    case "Footsteps/GRASS":
+                        footstepAudioSource.PlayOneShot(grassClips[grassIndices[currentGrassFootstepIndex]]);
+                        ShiftIndex(ref currentGrassFootstepIndex, grassClips.Length, ref grassIndices);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            // Reset footstep timer
+            footstepTimer = GetCurrentOffset;
+        }
+
+    }
+
+    // Generate randomized indices for audio clips
+    private int[] GenerateRandomIndex(int clipCount)
+    {
+        List<int> availableIndices = new List<int>();
+        // Populate list with clip indices
+        for (int i = 0; i < clipCount; i++)
+        {
+            availableIndices.Add(i);
+        }
+
+        int[] randomizedIndices = new int[clipCount];
+        // Shuffle indices
+        for (int i = 0; i < clipCount; i++)
+        {
+            int randomIndex = Random.Range(0, availableIndices.Count);
+            randomizedIndices[i] = availableIndices[randomIndex];
+            availableIndices.RemoveAt(randomIndex);
+        }
+
+        return randomizedIndices;
+    }
+
+    // Increment and reset index if needed
+    private void ShiftIndex(ref int currentIndex, int clipLength, ref int[] indicesArray)
+    {
+        currentIndex++;
+
+        // Reset if exceeds length.
+        if (currentIndex >= clipLength)
+        {
+            currentIndex = 0;
+            indicesArray = GenerateRandomIndex(clipLength);
         }
     }
 
@@ -366,6 +477,7 @@ public class FirstPersonController : MonoBehaviour
         characterController.Move(moveDirection * Time.deltaTime);
     }
 
+    // Coroutine for crouching
     private IEnumerator CrouchStand(bool isCrouchingNow)
     {
         // Check for obstacle above when uncrouching
@@ -402,6 +514,7 @@ public class FirstPersonController : MonoBehaviour
         duringCrouchAnimation = false;
     }
 
+    // Coroutine for crouching if toggle crouch is enabled
     private IEnumerator ToggleCrouchStand()
     {
         // Check for obstacle above when uncrouching
