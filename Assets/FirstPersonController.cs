@@ -15,6 +15,7 @@ public class FirstPersonController : MonoBehaviour
     // Options to enable or disable functionalities
     [Header("Functional Options")]
     [SerializeField] private bool canSprint = true;
+    [SerializeField] private bool useStamina = true;
     [SerializeField] private bool canJump = true;
     [SerializeField] private bool canCrouch = true;
     [SerializeField] private bool canUseHeadbob = true;
@@ -58,6 +59,17 @@ public class FirstPersonController : MonoBehaviour
     public static Action<float> OnTakeDamage;
     public static Action<float> OnDamage;
     public static Action<float> OnHeal;
+
+    // Stamina settings
+    [Header("Stamina Parameters")]
+    [SerializeField] private float maxStamina = 100;
+    [SerializeField] private float staminaUseMultiplier = 5;
+    [SerializeField] private float timeBeforeStaminaRegen = 3;
+    [SerializeField] private float staminaValueIncrement = 2;
+    [SerializeField] private float staminaTimeIncrement = 0.1f;
+    private float currentStamina;
+    private Coroutine regeneratingStamina;
+    public static Action<float> OnStaminaChange;
 
     // Jumping settings
     [Header("Jumping Parameters")]
@@ -105,7 +117,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private AudioClip[] concreteClips = default;
     [SerializeField] private AudioClip[] grassClips = default;
     private float footstepTimer = 0;
-    private float GetCurrentOffset => isCrouching ? baseStepSpeed * crouchStepMultiplier : IsSprinting ? baseStepSpeed * sprintStepMultiplier : baseStepSpeed;
+    private float GetCurrentOffset => isCrouching ? baseStepSpeed * crouchStepMultiplier : IsSprinting && (currentStamina > 0) ? baseStepSpeed * sprintStepMultiplier : baseStepSpeed;
     private int[] woodIndices;
     private int[] concreteIndices;
     private int[] grassIndices;
@@ -180,6 +192,7 @@ public class FirstPersonController : MonoBehaviour
         defaultYpos = playerCamera.transform.localPosition.y;
         defaultFOV = playerCamera.fieldOfView;
         currentHealth = maxHealth;
+        currentStamina = maxStamina;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         if(useFootsteps)
@@ -232,6 +245,11 @@ public class FirstPersonController : MonoBehaviour
             if (enableLandingSound)
             {
                 HandleLandingSound();
+            }
+
+            if(useStamina)
+            {
+                HandleStamina();
             }
 
             ApplyFinalMovements();
@@ -299,6 +317,35 @@ public class FirstPersonController : MonoBehaviour
         print("DEAD");
     }
 
+    private void HandleStamina()
+    {
+        if(IsSprinting && !isCrouching && currentInput != Vector2.zero)
+        {
+            if(regeneratingStamina != null)
+            {
+                StopCoroutine (regeneratingStamina);
+                regeneratingStamina = null;
+            }
+            currentStamina -= staminaUseMultiplier * Time.deltaTime;
+
+            if(currentStamina < 0) 
+            { 
+                currentStamina = 0; 
+            }
+
+            OnStaminaChange?.Invoke(currentStamina);
+
+            if (currentStamina <= 0)
+            {
+                canSprint = false;
+            }
+        }
+        if(!IsSprinting && currentStamina < maxStamina &&  regeneratingStamina == null)
+        {
+            regeneratingStamina = StartCoroutine(RegenerateStamina());
+        }
+    }
+
     // Handles jumping
     private void HandleJump()
     {
@@ -361,7 +408,7 @@ public class FirstPersonController : MonoBehaviour
         if (Mathf.Abs(moveDirection.x) > 0.1f || Mathf.Abs(moveDirection.z) > 0.1f)
         {
             // Adjust headbob speed based on movement state(crouching, sprinting, walking)
-            timer += Time.deltaTime * (isCrouching ? crouchBobSpeed : IsSprinting ? sprintBobSpeed : walkBobSpeed);
+            timer += Time.deltaTime * (isCrouching ? crouchBobSpeed : IsSprinting && (currentStamina > 0) ? sprintBobSpeed : walkBobSpeed);
             // Set camera position for headbob effect
             playerCamera.transform.localPosition = new Vector3(
                 playerCamera.transform.localPosition.x,
@@ -584,6 +631,32 @@ public class FirstPersonController : MonoBehaviour
         regeneratingHealth = null;
     }
 
+    private IEnumerator RegenerateStamina()
+    {
+        yield return new WaitForSeconds(timeBeforeStaminaRegen);
+        WaitForSeconds timeToWait = new WaitForSeconds(staminaTimeIncrement);
+
+        while(currentStamina < maxStamina)
+        {
+            if(currentStamina > 0)
+            {
+                canSprint = true;
+            }
+
+            currentStamina += staminaValueIncrement;
+
+            if(currentStamina > maxStamina)
+            {
+                currentStamina = maxStamina;
+            }
+
+            OnStaminaChange?.Invoke(currentStamina);
+
+            yield return timeToWait;
+        }
+        regeneratingStamina = null;
+    }
+
     // Coroutine for crouching
     private IEnumerator CrouchStand(bool isCrouchingNow)
     {
@@ -661,6 +734,7 @@ public class FirstPersonController : MonoBehaviour
     // Coroutine for zooming the camera's field of view
     private IEnumerator ToggleZoom(bool isEnter)
     {
+        // Set target FOV based on zoom direction
         // Set target FOV based on zoom direction
         float targetFOV = isEnter ? zoomFOV : defaultFOV;
 
