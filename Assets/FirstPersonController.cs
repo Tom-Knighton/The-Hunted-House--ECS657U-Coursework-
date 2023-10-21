@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -45,6 +46,18 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField, Range(1, 10)] private float lookSpeedY = 2.0f;
     [SerializeField, Range(1, 180)] private float upperLookLimit = 80.0f;
     [SerializeField, Range(1, 180)] private float lowerLookLimit = 80.0f;
+
+    // Health Settings
+    [Header("Health Parameters")]
+    [SerializeField] private float maxHealth = 100;
+    [SerializeField] private float timeBeforeRegen = 3;
+    [SerializeField] private float healthValueIncrement = 1;
+    [SerializeField] private float HealthTimeIncrement = 0.1f;
+    private float currentHealth;
+    private Coroutine regeneratingHealth;
+    public static Action<float> OnTakeDamage;
+    public static Action<float> OnDamage;
+    public static Action<float> OnHeal;
 
     // Jumping settings
     [Header("Jumping Parameters")]
@@ -149,6 +162,16 @@ public class FirstPersonController : MonoBehaviour
     // Current rotation in the X-axis (for looking up and down)
     private float rotationX = 0;
 
+    private void OnEnable()
+    {
+        OnTakeDamage += ApplyDamage;
+    }
+
+    private void OnDisable()
+    {
+        OnTakeDamage -= ApplyDamage;
+    }
+
     // Awake is called when the script instance is being loaded
     void Awake()
     {
@@ -156,6 +179,7 @@ public class FirstPersonController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         defaultYpos = playerCamera.transform.localPosition.y;
         defaultFOV = playerCamera.fieldOfView;
+        currentHealth = maxHealth;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         if(useFootsteps)
@@ -244,6 +268,35 @@ public class FirstPersonController : MonoBehaviour
         rotationX = Mathf.Clamp(rotationX, -upperLookLimit, lowerLookLimit);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
         transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeedX, 0);
+    }
+
+    private void ApplyDamage(float dmg)
+    {
+        currentHealth -= dmg;
+        OnDamage?.Invoke(currentHealth);
+
+        if (currentHealth <= 0) 
+        { 
+            KillPlayer(); 
+        }
+        else if (regeneratingHealth != null)
+        {
+            StopCoroutine(regeneratingHealth);
+        }
+
+        regeneratingHealth = StartCoroutine(RegenerateHealth());
+    }
+
+    private void KillPlayer()
+    {
+        currentHealth = 0;
+        OnDamage(0);
+
+        if(regeneratingHealth != null)
+        {
+            StopCoroutine(regeneratingHealth);
+        }
+        print("DEAD");
     }
 
     // Handles jumping
@@ -419,7 +472,7 @@ public class FirstPersonController : MonoBehaviour
             {
                 // Adjust volume for crouch
                 footstepAudioSource.volume = isCrouching ? crouchVolumeMultiplier : 1f;
-                footstepAudioSource.pitch = Random.Range(0.9f, 1.1f);
+                footstepAudioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
 
                 // Play sound based on surface
                 switch (hit.collider.tag)
@@ -460,7 +513,7 @@ public class FirstPersonController : MonoBehaviour
         // Shuffle indices
         for (int i = 0; i < clipCount; i++)
         {
-            int randomIndex = Random.Range(0, availableIndices.Count);
+            int randomIndex = UnityEngine.Random.Range(0, availableIndices.Count);
             randomizedIndices[i] = availableIndices[randomIndex];
             availableIndices.RemoveAt(randomIndex);
         }
@@ -511,6 +564,24 @@ public class FirstPersonController : MonoBehaviour
         }
 
         characterController.Move(moveDirection * Time.deltaTime);
+    }
+
+    private IEnumerator RegenerateHealth()
+    {
+        yield return new WaitForSeconds(timeBeforeRegen);
+        WaitForSeconds timeToWait = new WaitForSeconds(HealthTimeIncrement);
+        while(currentHealth < maxHealth)
+        {
+            currentHealth += healthValueIncrement;
+            if(currentHealth > maxHealth)
+            {
+                currentHealth = maxHealth;
+            }
+            OnHeal?.Invoke(currentHealth);
+            yield return timeToWait;
+        }
+
+        regeneratingHealth = null;
     }
 
     // Coroutine for crouching
