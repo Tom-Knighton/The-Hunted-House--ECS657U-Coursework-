@@ -1,6 +1,8 @@
+using NUnit;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class FirstPersonController : MonoBehaviour
@@ -97,6 +99,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float attackCooldown = 1.0f;
     [SerializeField] private LayerMask attackableLayers;
     private bool canAttack = true;
+    public static Action<float> OnAttackCooldown;
 
     // Headbob settings
     [Header("Headbob Parameters")]
@@ -446,6 +449,7 @@ public class FirstPersonController : MonoBehaviour
                 Enemy enemy = hit.collider.GetComponent<Enemy>();
                 if (enemy != null)
                 {
+                    print("Did damage");
                     enemy.TakeDamage(attackDamage);
                 }
             }
@@ -803,13 +807,24 @@ public class FirstPersonController : MonoBehaviour
     // Coroutine for handling the attack cooldown duration
     private IEnumerator AttackCooldown()
     {
-        // Wait for the specified cooldown duration
-        yield return new WaitForSeconds(attackCooldown);
-        // Enable attacking after cooldown
-        canAttack = true;
+        canAttack = false;
+        float currentCooldown = attackCooldown;
+
+        // Update cooldown until it's 0
+        while (currentCooldown > 0)
+        {
+            currentCooldown -= Time.deltaTime;
+            // Notify listeners of cooldown percentage
+            float cooldownPercentage = (currentCooldown / attackCooldown) * 100;
+            OnAttackCooldown?.Invoke(cooldownPercentage);
+            yield return null; // Wait for next frame
+        }
+
+        OnAttackCooldown?.Invoke(0); // Notify cooldown end
+        canAttack = true; // Re-enable attacking
     }
 
-        // Coroutine for zooming the camera's field of view
+    // Coroutine for zooming the camera's field of view
     private IEnumerator ToggleZoom(bool isEnter)
     {
         // Set target FOV based on zoom direction
