@@ -18,6 +18,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool useStamina = true;
     [SerializeField] private bool canJump = true;
     [SerializeField] private bool canCrouch = true;
+    [SerializeField] private bool enableAttack = true;
     [SerializeField] private bool canUseHeadbob = true;
     [SerializeField] private bool WillSlideOnSlopes = true;
     [SerializeField] private bool canZoom = true;
@@ -31,8 +32,9 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
-    [SerializeField] private KeyCode interactKey = KeyCode.Mouse0;
+    [SerializeField] private KeyCode interactKey = KeyCode.E;
     [SerializeField] private KeyCode zoomKey = KeyCode.Mouse1;
+    [SerializeField] private KeyCode attackKey = KeyCode.Mouse0;
 
     // Movement speed settings
     [Header("Movement Parameters")]
@@ -87,6 +89,14 @@ public class FirstPersonController : MonoBehaviour
     private bool isCrouching;
     private bool duringCrouchAnimation;
     private bool wantsToStand = false;
+
+    // Attack settings
+    [Header("Attack Parameters")]
+    [SerializeField] private float attackRange = 2.0f;
+    [SerializeField] private float attackDamage = 10.0f;
+    [SerializeField] private float attackCooldown = 1.0f;
+    [SerializeField] private LayerMask attackableLayers;
+    private bool canAttack = true;
 
     // Headbob settings
     [Header("Headbob Parameters")]
@@ -247,9 +257,14 @@ public class FirstPersonController : MonoBehaviour
                 HandleLandingSound();
             }
 
-            if(useStamina)
+            if (useStamina)
             {
                 HandleStamina();
+            }
+
+            if(enableAttack)
+            {
+                HandleAttack();
             }
 
             ApplyFinalMovements();
@@ -288,59 +303,78 @@ public class FirstPersonController : MonoBehaviour
         transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeedX, 0);
     }
 
+    // Applies damage to the player
     private void ApplyDamage(float dmg)
     {
+        // Reduce current health by the damage amount
         currentHealth -= dmg;
+        // Notify of health change.
         OnDamage?.Invoke(currentHealth);
 
+        // Check if player's health is depleted
         if (currentHealth <= 0) 
         { 
             KillPlayer(); 
         }
+        // If health is regenerating, stop it
         else if (regeneratingHealth != null)
         {
             StopCoroutine(regeneratingHealth);
         }
 
+        // Start health regeneration
         regeneratingHealth = StartCoroutine(RegenerateHealth());
     }
 
+    // Handle player's death
     private void KillPlayer()
     {
+        // Set health to zero
         currentHealth = 0;
+        // Notify of health change
         OnDamage(0);
 
-        if(regeneratingHealth != null)
+        // If health is regenerating, stop it
+        if (regeneratingHealth != null)
         {
             StopCoroutine(regeneratingHealth);
         }
+        // Print death message
         print("DEAD");
     }
 
+    // Handles Stamina
     private void HandleStamina()
     {
-        if(IsSprinting && !isCrouching && currentInput != Vector2.zero)
+        // If player is sprinting, not crouching, and moving
+        if (IsSprinting && !isCrouching && currentInput != Vector2.zero)
         {
-            if(regeneratingStamina != null)
+            // Stop stamina regeneration if active
+            if (regeneratingStamina != null)
             {
                 StopCoroutine (regeneratingStamina);
                 regeneratingStamina = null;
             }
+            // Decrease stamina based on sprinting
             currentStamina -= staminaUseMultiplier * Time.deltaTime;
 
-            if(currentStamina < 0) 
+            // Ensure stamina doesn't go negative
+            if (currentStamina < 0) 
             { 
                 currentStamina = 0; 
             }
 
+            // Notify of stamina change
             OnStaminaChange?.Invoke(currentStamina);
 
+            // Disable sprinting if stamina is depleted
             if (currentStamina <= 0)
             {
                 canSprint = false;
             }
         }
-        if(!IsSprinting && currentStamina < maxStamina &&  regeneratingStamina == null)
+        // Start stamina regeneration if not sprinting and stamina isn't full
+        if (!IsSprinting && currentStamina < maxStamina &&  regeneratingStamina == null)
         {
             regeneratingStamina = StartCoroutine(RegenerateStamina());
         }
@@ -396,6 +430,30 @@ public class FirstPersonController : MonoBehaviour
     private bool IsObstacleAbove()
     {
         return Physics.Raycast(playerCamera.transform.position, Vector3.up, standingHeight - crouchHeight);
+    }
+
+    // Handles Attack
+    private void HandleAttack()
+    {
+        if (canAttack && Input.GetKeyDown(attackKey))
+        {
+            canAttack = false;
+
+            // Perform a raycast from the camera to detect if we hit an enemy
+            if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out RaycastHit hit, attackRange, attackableLayers))
+            {
+                // Check if the hit object has an "Enemy" component
+                Enemy enemy = hit.collider.GetComponent<Enemy>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(attackDamage);
+                }
+            }
+
+            // Start cooldown
+            StartCoroutine(AttackCooldown());
+        }
+
     }
 
     // Handles headbobbing
@@ -506,7 +564,7 @@ public class FirstPersonController : MonoBehaviour
         if (!characterController.isGrounded) return;
         if (currentInput == Vector2.zero)
         {
-            footstepTimer = GetCurrentOffset;  // Reset timer if player is stationary.
+            footstepTimer = GetCurrentOffset;  // Reset timer if player is stationary
             return;
         }
 
@@ -573,7 +631,7 @@ public class FirstPersonController : MonoBehaviour
     {
         currentIndex++;
 
-        // Reset if exceeds length.
+        // Reset if exceeds length
         if (currentIndex >= clipLength)
         {
             currentIndex = 0;
@@ -581,6 +639,7 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    // Handles Landing Sound
     private void HandleLandingSound()
     {
         if (wasInAir && characterController.isGrounded)
@@ -590,11 +649,11 @@ public class FirstPersonController : MonoBehaviour
             {
                 jumpAudioSource.PlayOneShot(landingClip);
             }
-            wasInAir = false; // Set the flag to false immediately after landing.
+            wasInAir = false; // Set the flag to false immediately after landing
         }
         else if (!characterController.isGrounded)
         {
-            wasInAir = true; // Set the flag to true if the player is in the air.
+            wasInAir = true; // Set the flag to true if the player is in the air
         }
     }
 
@@ -613,47 +672,57 @@ public class FirstPersonController : MonoBehaviour
         characterController.Move(moveDirection * Time.deltaTime);
     }
 
+    // Coroutine to regenerate health over time
     private IEnumerator RegenerateHealth()
     {
+        // Initial delay before regeneration starts
         yield return new WaitForSeconds(timeBeforeRegen);
         WaitForSeconds timeToWait = new WaitForSeconds(HealthTimeIncrement);
-        while(currentHealth < maxHealth)
+        // Regenerate health until it reaches the maximum
+        while (currentHealth < maxHealth)
         {
+            // Increase health and ensure it doesn't exceed max
             currentHealth += healthValueIncrement;
             if(currentHealth > maxHealth)
             {
                 currentHealth = maxHealth;
             }
+            // Notify of health change.
             OnHeal?.Invoke(currentHealth);
             yield return timeToWait;
         }
-
+        // Indicate regeneration is done
         regeneratingHealth = null;
     }
 
+    // Coroutine for stamina regeneration
     private IEnumerator RegenerateStamina()
     {
+        // Delay before starting regeneration
         yield return new WaitForSeconds(timeBeforeStaminaRegen);
         WaitForSeconds timeToWait = new WaitForSeconds(staminaTimeIncrement);
 
-        while(currentStamina < maxStamina)
+        // Regenerate until max stamina is reached
+        while (currentStamina < maxStamina)
         {
-            if(currentStamina > 0)
+            // Allow sprinting if there's stamina
+            if (currentStamina > 0)
             {
                 canSprint = true;
             }
-
+            // Increment stamina, ensuring it doesn't exceed max
             currentStamina += staminaValueIncrement;
-
             if(currentStamina > maxStamina)
             {
                 currentStamina = maxStamina;
             }
-
+            // Notify of any stamina changes
             OnStaminaChange?.Invoke(currentStamina);
-
+            
+            // Pause before next increment
             yield return timeToWait;
         }
+        // End of regeneration
         regeneratingStamina = null;
     }
 
@@ -731,10 +800,18 @@ public class FirstPersonController : MonoBehaviour
         duringCrouchAnimation = false;
     }
 
-    // Coroutine for zooming the camera's field of view
+    // Coroutine for handling the attack cooldown duration
+    private IEnumerator AttackCooldown()
+    {
+        // Wait for the specified cooldown duration
+        yield return new WaitForSeconds(attackCooldown);
+        // Enable attacking after cooldown
+        canAttack = true;
+    }
+
+        // Coroutine for zooming the camera's field of view
     private IEnumerator ToggleZoom(bool isEnter)
     {
-        // Set target FOV based on zoom direction
         // Set target FOV based on zoom direction
         float targetFOV = isEnter ? zoomFOV : defaultFOV;
 
