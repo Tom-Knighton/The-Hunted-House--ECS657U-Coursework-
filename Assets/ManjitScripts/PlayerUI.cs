@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI : MonoBehaviour
+public class PlayerUI : MonoBehaviour
 {
     // Serialized fields for UI elements
     [SerializeField] private Slider healthBar = default;
@@ -12,11 +12,11 @@ public class UI : MonoBehaviour
     [SerializeField] private Slider attackCooldownBar = default;
     [SerializeField] private TextMeshProUGUI healthText = default;
 
+    [SerializeField] private FirstPersonController player;
+
     // Subscribe to events when the component is enabled
     private void OnEnable()
     {
-        FirstPersonController.OnDamage += UpdateHealth;
-        FirstPersonController.OnHeal += UpdateHealth;
         FirstPersonController.OnStaminaChange += UpdateStamina;
         FirstPersonController.OnAttackCooldown += UpdateAttackCooldown;
     }
@@ -24,8 +24,6 @@ public class UI : MonoBehaviour
     // Unsubscribe from events when the component is disabled
     private void OnDisable()
     {
-        FirstPersonController.OnDamage -= UpdateHealth;
-        FirstPersonController.OnHeal -= UpdateHealth;
         FirstPersonController.OnStaminaChange -= UpdateStamina;
         FirstPersonController.OnAttackCooldown -= UpdateAttackCooldown;
     }
@@ -39,21 +37,21 @@ public class UI : MonoBehaviour
     }
 
     // Update the health UI elements
-    private void UpdateHealth(float currentHealth)
+    public void UpdateHealth(float currentHealth)
     {
         healthBar.value = currentHealth; // Update the health slider value
         healthText.text = currentHealth.ToString("00"); // Display the health value as text
     }
 
     // Update the stamina UI elements
-    private void UpdateStamina(float currentStamina)
+    public void UpdateStamina(float currentStamina)
     {
         staminaBar.value = currentStamina; // Update the stamina slider value
         staminaBar.gameObject.SetActive(currentStamina < 100); // Hide the stamina bar if stamina is full
     }
 
     // Update the attack cooldown UI elements
-    private void UpdateAttackCooldown(float currentCooldown)
+    public void UpdateAttackCooldown(float currentCooldown)
     {
         attackCooldownBar.value = currentCooldown; // Update the attack cooldown slider value
         attackCooldownBar.gameObject.SetActive(currentCooldown > 0); // Hide the cooldown bar if there's no cooldown

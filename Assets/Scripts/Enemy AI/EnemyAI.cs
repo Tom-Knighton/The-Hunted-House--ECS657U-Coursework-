@@ -1,15 +1,19 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enemy_AI;
 using Enemy_AI.States;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Events;
 
-public class EnemyAI : MonoBehaviour
+[RequireComponent(typeof(NavMeshAgent))]
+public class EnemyAI: MonoBehaviour
 {
     private NavMeshAgent _agent;
     private EnemyStateManager _stateManager;
     private Vision _visionManager;
+    private Attackable _attackable;
 
     private Vector3 _lastSeenPlayerPosition;
     
@@ -24,6 +28,7 @@ public class EnemyAI : MonoBehaviour
         
         _stateManager = GetComponent<EnemyStateManager>();
         _visionManager = GetComponent<Vision>();
+        _attackable = GetComponent<Attackable>();
     }
 
     private void Start()
@@ -40,6 +45,12 @@ public class EnemyAI : MonoBehaviour
         if (_visionManager is not null)
         {
             _visionManager.AddPlayerSeenListener(OnPlayerSeenChanged);
+        }
+
+        if (_attackable is not null)
+        {
+            _attackable.OnHealthChanged.AddListener((arg0, f) => Debug.Log($"Enemy health changed to {arg0}"));
+            _attackable.OnDeath.AddListener(() => Debug.Log("Death"));
         }
     }
 
