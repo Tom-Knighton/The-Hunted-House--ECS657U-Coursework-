@@ -12,6 +12,9 @@ public class FirstPersonController : MonoBehaviour
     private bool IsSprinting => canSprint && Input.GetKey(sprintKey);
     private bool ShouldJump => Input.GetKeyDown(jumpKey) && characterController.isGrounded && !IsSliding;
     private bool ShouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && characterController.isGrounded;
+    
+    // Components
+    private Attackable _attackable;
 
 
     // Options to enable or disable functionalities
@@ -52,18 +55,6 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField, Range(1, 180)] private float upperLookLimit = 80.0f;
     [SerializeField, Range(1, 180)] private float lowerLookLimit = 80.0f;
 
-    // Health Settings
-    [Header("Health Parameters")]
-    [SerializeField] private float maxHealth = 100;
-    [SerializeField] private float timeBeforeRegen = 3;
-    [SerializeField] private float healthValueIncrement = 1;
-    [SerializeField] private float HealthTimeIncrement = 0.1f;
-    private float currentHealth;
-    private Coroutine regeneratingHealth;
-    public static Action<float> OnTakeDamage;
-    public static Action<float> OnDamage;
-    public static Action<float> OnHeal;
-
     // Stamina settings
     [Header("Stamina Parameters")]
     [SerializeField] private float maxStamina = 100;
@@ -73,7 +64,6 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float staminaTimeIncrement = 0.1f;
     private float currentStamina;
     private Coroutine regeneratingStamina;
-    public static Action<float> OnStaminaChange;
 
     // Jumping settings
     [Header("Jumping Parameters")]
@@ -99,7 +89,6 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float attackCooldown = 1.0f;
     [SerializeField] private LayerMask attackableLayers;
     private bool canAttack = true;
-    public static Action<float> OnAttackCooldown;
 
     // Headbob settings
     [Header("Headbob Parameters")]
@@ -187,16 +176,6 @@ public class FirstPersonController : MonoBehaviour
     // Current rotation in the X-axis (for looking up and down)
     private float rotationX = 0;
 
-    private void OnEnable()
-    {
-        OnTakeDamage += ApplyDamage;
-    }
-
-    private void OnDisable()
-    {
-        OnTakeDamage -= ApplyDamage;
-    }
-
     // Awake is called when the script instance is being loaded
     void Awake()
     {
@@ -204,7 +183,6 @@ public class FirstPersonController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         defaultYpos = playerCamera.transform.localPosition.y;
         defaultFOV = playerCamera.fieldOfView;
-        currentHealth = maxHealth;
         currentStamina = maxStamina;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -214,6 +192,19 @@ public class FirstPersonController : MonoBehaviour
             concreteIndices = GenerateRandomIndex(concreteClips.Length);
             grassIndices = GenerateRandomIndex(grassClips.Length);
         }
+
+        _attackable = GetComponent<Attackable>();
+    }
+
+    private void Start()
+    {
+        if (_attackable is not null)
+        {
+            _attackable.OnHealthChanged.AddListener(OnHealthChanged);
+            _attackable.OnDeath.AddListener(OnDeath);
+        }
+        
+        UIManager.Instance.ShowPlayerUI();
     }
 
     // Update is called once per frame
@@ -306,42 +297,19 @@ public class FirstPersonController : MonoBehaviour
         transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeedX, 0);
     }
 
-    // Applies damage to the player
-    private void ApplyDamage(float dmg)
+    // Handles health change notifications
+    private void OnHealthChanged(float newHealth, float dmg)
     {
-        // Reduce current health by the damage amount
-        currentHealth -= dmg;
-        // Notify of health change.
-        OnDamage?.Invoke(currentHealth);
-
-        // Check if player's health is depleted
-        if (currentHealth <= 0) 
-        { 
-            KillPlayer(); 
-        }
-        // If health is regenerating, stop it
-        else if (regeneratingHealth != null)
-        {
-            StopCoroutine(regeneratingHealth);
-        }
-
-        // Start health regeneration
-        regeneratingHealth = StartCoroutine(RegenerateHealth());
+        // Notify UI of health change.
+        UIManager.Instance.UpdatePlayerHealth(newHealth, _attackable.maxHealth);
     }
-
-    // Handle player's death
-    private void KillPlayer()
+    
+    // Handle player's death notification
+    private void OnDeath()
     {
-        // Set health to zero
-        currentHealth = 0;
-        // Notify of health change
-        OnDamage(0);
-
-        // If health is regenerating, stop it
-        if (regeneratingHealth != null)
-        {
-            StopCoroutine(regeneratingHealth);
-        }
+        // Notify UI of health change
+        UIManager.Instance.UpdatePlayerHealth(0, _attackable.maxHealth);
+        
         // Print death message
         print("DEAD");
     }
@@ -368,7 +336,7 @@ public class FirstPersonController : MonoBehaviour
             }
 
             // Notify of stamina change
-            OnStaminaChange?.Invoke(currentStamina);
+            UIManager.Instance.UpdatePlayerStamina(currentStamina, maxStamina);
 
             // Disable sprinting if stamina is depleted
             if (currentStamina <= 0)
@@ -446,11 +414,11 @@ public class FirstPersonController : MonoBehaviour
             if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out RaycastHit hit, attackRange, attackableLayers))
             {
                 // Check if the hit object has an "Enemy" component
-                Enemy enemy = hit.collider.GetComponent<Enemy>();
+                var enemy = hit.collider.GetComponent<Attackable>();
                 if (enemy != null)
                 {
                     print("Did damage");
-                    enemy.TakeDamage(attackDamage);
+                    enemy.Attack(attackDamage);
                 }
             }
 
@@ -676,29 +644,6 @@ public class FirstPersonController : MonoBehaviour
         characterController.Move(moveDirection * Time.deltaTime);
     }
 
-    // Coroutine to regenerate health over time
-    private IEnumerator RegenerateHealth()
-    {
-        // Initial delay before regeneration starts
-        yield return new WaitForSeconds(timeBeforeRegen);
-        WaitForSeconds timeToWait = new WaitForSeconds(HealthTimeIncrement);
-        // Regenerate health until it reaches the maximum
-        while (currentHealth < maxHealth)
-        {
-            // Increase health and ensure it doesn't exceed max
-            currentHealth += healthValueIncrement;
-            if(currentHealth > maxHealth)
-            {
-                currentHealth = maxHealth;
-            }
-            // Notify of health change.
-            OnHeal?.Invoke(currentHealth);
-            yield return timeToWait;
-        }
-        // Indicate regeneration is done
-        regeneratingHealth = null;
-    }
-
     // Coroutine for stamina regeneration
     private IEnumerator RegenerateStamina()
     {
@@ -721,7 +666,7 @@ public class FirstPersonController : MonoBehaviour
                 currentStamina = maxStamina;
             }
             // Notify of any stamina changes
-            OnStaminaChange?.Invoke(currentStamina);
+            UIManager.Instance.UpdatePlayerStamina(currentStamina, maxStamina);
             
             // Pause before next increment
             yield return timeToWait;
@@ -816,11 +761,11 @@ public class FirstPersonController : MonoBehaviour
             currentCooldown -= Time.deltaTime;
             // Notify listeners of cooldown percentage
             float cooldownPercentage = (currentCooldown / attackCooldown) * 100;
-            OnAttackCooldown?.Invoke(cooldownPercentage);
+            UIManager.Instance.UpdateAttackCooldownPercentage(cooldownPercentage);
             yield return null; // Wait for next frame
         }
 
-        OnAttackCooldown?.Invoke(0); // Notify cooldown end
+        UIManager.Instance.UpdateAttackCooldownPercentage(0);
         canAttack = true; // Re-enable attacking
     }
 

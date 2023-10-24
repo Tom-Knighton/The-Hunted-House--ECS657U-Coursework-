@@ -8,7 +8,7 @@ public class DamageTest : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            FirstPersonController.OnTakeDamage(15);
+            // FirstPersonController.OnTakeDamage(15);
         }
     }
 }
