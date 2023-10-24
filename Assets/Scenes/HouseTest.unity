@@ -81441,7 +81441,7 @@ MonoBehaviour:
     m_Bits: 64
   attackCooldown: 3
   attackDamage: 20
-  attackRange: 1
+  attackRange: 1.5
 --- !u!114 &1570211978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81539,7 +81539,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_StoppingDistance: 1.5
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -82689,7 +82689,7 @@ GameObject:
   - component: {fileID: 1722511354}
   - component: {fileID: 1722511356}
   - component: {fileID: 1722511355}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace Enemy_AI.States
@@ -15,6 +16,28 @@ namespace Enemy_AI.States
 
         public override void OnStateTick(EnemyStateManager context)
         {
+            
+            if (_canAttack)
+            {
+                var hit = Physics
+                    .OverlapSphere(context.transform.position, context.Data.attackRange, context.Data.attackLayerMask)
+                    .FirstOrDefault();
+                if (hit is not null)
+                {
+                    // Check if the hit object has an "Enemy" component
+                    var enemy = hit.GetComponent<Attackable>();
+                    if (enemy is not null)
+                    {
+                        enemy.Attack(context.Data.attackDamage);
+                    
+                        // Start cooldown
+                        context.StartCoroutine(AttackCooldown(context.Data.attackCooldown));
+                    }
+                }
+
+                return;
+            }
+            
             // Every update, move towards the target's current position
             if (context.Data.ChasingTarget != null)
             {
@@ -23,29 +46,10 @@ namespace Enemy_AI.States
 
             if (_cachedPosition is null)
                 return;
-            
-            context.NavMeshAgent.SetDestination(_cachedPosition.Value);
-            
-            // TODO: Eventually if we get close enough we should switch to attacking here...
 
-            if (!_canAttack)
-            {
-                return;
-            }
-            
-            if (Physics.Raycast(context.transform.position, context.transform.forward, out var hit, context.Data.attackRange, context.Data.attackLayerMask))
-            {
-                // Check if the hit object has an "Enemy" component
-                var enemy = hit.collider.GetComponent<Attackable>();
-                if (enemy is not null)
-                {
-                    enemy.Attack(context.Data.attackDamage);
-                    
-                    // Start cooldown
-                    context.StartCoroutine(AttackCooldown(context.Data.attackCooldown));
-                }
-                
-            }
+
+            // Work around a NavMeshAgent issue which causes the agent to ignore stopping distance
+            context.NavMeshAgent.SetDestination(_cachedPosition.Value);
         }
 
         public override void OnLeaveState(EnemyStateManager context)

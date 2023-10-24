@@ -1,5 +1,8 @@
+using System.Linq;
 using System.Numerics;
+using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.AI;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Enemy_AI.States
@@ -16,6 +19,7 @@ namespace Enemy_AI.States
                 return;
             }
 
+            context.NavMeshAgent.stoppingDistance = 0;
             context.NavMeshAgent.SetDestination(searchAroundPoint);
             context.Data.SearchesLeft -= 1;
         }
@@ -35,7 +39,11 @@ namespace Enemy_AI.States
                 
                 // Find a random point to search around
                 var randomPoint = Random.insideUnitSphere * SearchAroundRadius;
-                
+                var dir = randomPoint + context.transform.position;
+                if (NavMesh.SamplePosition(dir, out var hit, SearchAroundRadius, 1))
+                {
+                    randomPoint = hit.position;
+                }
                 // Wait for 5 secs at this location
                 context.Data.NextState = EEnemyAIState.Searching;
                 context.Data.SearchAroundPoint = randomPoint;
@@ -45,6 +53,7 @@ namespace Enemy_AI.States
 
         public override void OnLeaveState(EnemyStateManager context)
         {
+            context.NavMeshAgent.stoppingDistance = 1.5f;
         }
     }
 }
