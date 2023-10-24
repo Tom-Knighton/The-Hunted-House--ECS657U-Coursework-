@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -51,9 +52,9 @@ public class Attackable: MonoBehaviour
     /// <summary>
     /// Attacks the entity with the given damage, destroying it if it's dead
     /// </summary>
-    public void Attack(float damage) 
+    public void Attack(float damage)
     {
-        health -= damage;
+        health = Math.Clamp(health - damage, 0, maxHealth);
         OnHealthChanged?.Invoke(health, damage);
 
         if (IsDead)
