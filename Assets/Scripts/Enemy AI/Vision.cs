@@ -55,13 +55,6 @@ namespace Enemy_AI
                 UpdateCallbacks(seen, seen ? player.transform : null);
                 _lastSeen = seen;
             }
-
-            if (seen)
-            {
-                player.enabled = false;
-                Destroy(player.gameObject);
-                _visionResults = new Collider[] { };
-            }
         }
 
         private void UpdateCallbacks(bool seen, Transform newTransform)

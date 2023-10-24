@@ -35521,7 +35521,7 @@ GameObject:
   - component: {fileID: 100672552}
   - component: {fileID: 100672551}
   - component: {fileID: 100672556}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FirstPersonController
   m_TagString: Player
   m_Icon: {fileID: 0}
