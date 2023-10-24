@@ -203,6 +203,7 @@ public class FirstPersonController : MonoBehaviour
         if (_attackable is not null)
         {
             _attackable.OnHealthChanged.AddListener(OnHealthChanged);
+            _attackable.OnDeath.AddListener(OnDeath);
         }
         
         UIManager.Instance.ShowPlayerUI();

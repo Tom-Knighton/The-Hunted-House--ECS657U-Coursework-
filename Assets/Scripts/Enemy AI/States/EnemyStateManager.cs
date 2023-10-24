@@ -7,6 +7,13 @@ namespace Enemy_AI.States
     [RequireComponent(typeof(NavMeshAgent))]
     public class EnemyStateManager : MonoBehaviour
     {
+        
+        [SerializeField] public LayerMask attackableLayerMask;
+        [SerializeField] public float attackCooldown = 3f;
+        [SerializeField] public float attackDamage = 20f;
+        [SerializeField] public float attackRange = 0.5f;
+
+        
         /// <summary>
         /// The current state of the AI's behaviour
         /// </summary>
@@ -28,6 +35,11 @@ namespace Enemy_AI.States
         private void Awake()
         {
             NavMeshAgent = GetComponent<NavMeshAgent>();
+
+            Data.attackRange = attackRange;
+            Data.attackCooldown = attackCooldown;
+            Data.attackDamage = attackDamage;
+            Data.attackLayerMask = attackableLayerMask;
         }
         
         private void Update()

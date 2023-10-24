@@ -28,5 +28,14 @@ namespace Enemy_AI.States
 
         #endregion
 
+        #region Attacking Data
+
+        public float attackDamage { get; set; }
+        public float attackCooldown { get; set; }
+        public float attackRange { get; set; }
+        public LayerMask attackLayerMask { get; set; }
+
+        #endregion
+
     }
 }

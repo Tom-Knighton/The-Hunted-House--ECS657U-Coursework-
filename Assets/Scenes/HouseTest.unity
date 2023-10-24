@@ -35852,7 +35852,7 @@ Transform:
   m_GameObject: {fileID: 100672550}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.751, z: 6.79}
+  m_LocalPosition: {x: -1.661, y: 1.751, z: -2.217}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -44345,7 +44345,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e8e1bcc828d4bdfb698315ce09d64dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerUI: {fileID: 0}
+  playerUI: {fileID: 335379384}
 --- !u!4 &952790901
 Transform:
   m_ObjectHideFlags: 0
@@ -81436,6 +81436,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3bed3af73d544a3b90ca0e85bdf5720, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackableLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  attackCooldown: 3
+  attackDamage: 20
+  attackRange: 1
 --- !u!114 &1570211978
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -20,6 +20,7 @@ public class EnemyAI: MonoBehaviour
     [SerializeField]
     public List<PatrolPoint> patrolPoints = new();
     
+    
     private void Awake()
     {
         if (!patrolPoints.Any())
