@@ -64,7 +64,6 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float staminaTimeIncrement = 0.1f;
     private float currentStamina;
     private Coroutine regeneratingStamina;
-    public static Action<float> OnStaminaChange;
 
     // Jumping settings
     [Header("Jumping Parameters")]
@@ -90,7 +89,6 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float attackCooldown = 1.0f;
     [SerializeField] private LayerMask attackableLayers;
     private bool canAttack = true;
-    public static Action<float> OnAttackCooldown;
 
     // Headbob settings
     [Header("Headbob Parameters")]
@@ -338,7 +336,7 @@ public class FirstPersonController : MonoBehaviour
             }
 
             // Notify of stamina change
-            OnStaminaChange?.Invoke(currentStamina);
+            UIManager.Instance.UpdatePlayerStamina(currentStamina, maxStamina);
 
             // Disable sprinting if stamina is depleted
             if (currentStamina <= 0)
@@ -668,7 +666,7 @@ public class FirstPersonController : MonoBehaviour
                 currentStamina = maxStamina;
             }
             // Notify of any stamina changes
-            OnStaminaChange?.Invoke(currentStamina);
+            UIManager.Instance.UpdatePlayerStamina(currentStamina, maxStamina);
             
             // Pause before next increment
             yield return timeToWait;
@@ -763,11 +761,11 @@ public class FirstPersonController : MonoBehaviour
             currentCooldown -= Time.deltaTime;
             // Notify listeners of cooldown percentage
             float cooldownPercentage = (currentCooldown / attackCooldown) * 100;
-            OnAttackCooldown?.Invoke(cooldownPercentage);
+            UIManager.Instance.UpdateAttackCooldownPercentage(cooldownPercentage);
             yield return null; // Wait for next frame
         }
 
-        OnAttackCooldown?.Invoke(0); // Notify cooldown end
+        UIManager.Instance.UpdateAttackCooldownPercentage(0);
         canAttack = true; // Re-enable attacking
     }
 

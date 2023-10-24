@@ -13,20 +13,7 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI healthText = default;
 
     [SerializeField] private FirstPersonController player;
-
-    // Subscribe to events when the component is enabled
-    private void OnEnable()
-    {
-        FirstPersonController.OnStaminaChange += UpdateStamina;
-        FirstPersonController.OnAttackCooldown += UpdateAttackCooldown;
-    }
-
-    // Unsubscribe from events when the component is disabled
-    private void OnDisable()
-    {
-        FirstPersonController.OnStaminaChange -= UpdateStamina;
-        FirstPersonController.OnAttackCooldown -= UpdateAttackCooldown;
-    }
+    
 
     // Initialize UI elements when the component starts
     private void Start()

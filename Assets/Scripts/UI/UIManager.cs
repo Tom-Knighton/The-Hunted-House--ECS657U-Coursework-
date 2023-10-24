@@ -39,4 +39,9 @@ public class UIManager: MonoBehaviour
         var staminaPercentage = (stamina / maxStamina) * 100f;
         playerUI.UpdateStamina(staminaPercentage);
     }
+
+    public void UpdateAttackCooldownPercentage(float percentage)
+    {
+        playerUI.UpdateAttackCooldown(percentage);
+    }
 }
