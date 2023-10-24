@@ -49,10 +49,11 @@ public class EnemyAI: MonoBehaviour
 
         if (_attackable is not null)
         {
-            _attackable.OnHealthChanged.AddListener((arg0, f) => Debug.Log($"Enemy health changed to {arg0}"));
-            _attackable.OnDeath.AddListener(() => Debug.Log("Death"));
+            _attackable.OnHealthChanged.AddListener(OnHealthChanged);
+            _attackable.OnDeath.AddListener(OnDeath);
         }
     }
+
 
     /// <summary>
     /// Called when the player is seen by the enemy, or has disappeared
@@ -74,5 +75,17 @@ public class EnemyAI: MonoBehaviour
             _stateManager.Data.SearchAroundPoint = _lastSeenPlayerPosition;
             _stateManager.SwitchState(EEnemyAIState.Searching);
         }
+    }
+    
+    
+    private void OnHealthChanged(float newHealth, float damageDealt)
+    {
+        //TODO: At some point we can have separate enemy stages on health levels idk
+    }
+    
+    
+    private void OnDeath()
+    {
+        Debug.Log("Game over! you win");
     }
 }

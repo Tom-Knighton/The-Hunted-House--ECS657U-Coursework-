@@ -6,7 +6,7 @@ namespace Enemy_AI.States
 {
     public class EnemySearchState : EnemyAIState
     {
-        private const float SearchAroundRadius = 5f;
+        private const float SearchAroundRadius = 1.5f;
         
         public override void OnEnterState(EnemyStateManager context)
         {
