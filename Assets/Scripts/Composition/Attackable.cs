@@ -82,7 +82,7 @@ public class Attackable: MonoBehaviour
         {
             _isRegeningHealth = true;
             Attack(-regenRate);
-            yield return new WaitForSeconds(5);
+            yield return new WaitForSeconds(regenWait);
             _isRegeningHealth = false;
         }
     }
