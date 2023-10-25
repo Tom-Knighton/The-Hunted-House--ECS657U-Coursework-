@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.ProBuilder.Shapes;
 
 namespace Enemy_AI.States
 {
@@ -32,7 +33,7 @@ namespace Enemy_AI.States
         public override void OnStateTick(EnemyStateManager context)
         {
             // If we've reached the next point, pause for the specified amount of time
-            if (context.NavMeshAgent.remainingDistance <= 0.1f)
+            if (context.NavMeshAgent.remainingDistance <= context.NavMeshAgent.stoppingDistance)
             {
                 context.Data.NextState = EEnemyAIState.Patrolling;
                 context.Data.PatrolWasInterrupted = false; // Interrupted is false as we're just moving to next point
