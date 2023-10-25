@@ -1,22 +1,26 @@
 using System;
 using UnityEngine;
 
-public class UIManager: MonoBehaviour
+public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
-    
+
     [SerializeField] private PlayerUI playerUI;
 
     private void Awake()
     {
-        if (Instance is not null)
+        if (Instance == null)
         {
-            DestroyImmediate(this);
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
             return;
         }
-        
-        Instance = this;
     }
+
 
     public void ShowPlayerUI()
     {
@@ -27,13 +31,13 @@ public class UIManager: MonoBehaviour
     {
         playerUI.enabled = false;
     }
-        
+
     public void UpdatePlayerHealth(float health, float maxHealth)
     {
         var healthPercentage = (health / maxHealth) * 100f;
         playerUI.UpdateHealth(healthPercentage);
-    }   
-        
+    }
+
     public void UpdatePlayerStamina(float stamina, float maxStamina)
     {
         var staminaPercentage = (stamina / maxStamina) * 100f;

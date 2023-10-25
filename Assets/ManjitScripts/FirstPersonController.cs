@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 public class FirstPersonController : MonoBehaviour
@@ -12,7 +13,7 @@ public class FirstPersonController : MonoBehaviour
     private bool IsSprinting => canSprint && Input.GetKey(sprintKey);
     private bool ShouldJump => Input.GetKeyDown(jumpKey) && characterController.isGrounded && !IsSliding;
     private bool ShouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && characterController.isGrounded;
-    
+
     // Components
     private Attackable _attackable;
 
@@ -143,7 +144,7 @@ public class FirstPersonController : MonoBehaviour
     private bool IsSliding
     {
         get
-        {   
+        {
             // If grounded and on a slope
             if (characterController.isGrounded && Physics.Raycast(transform.position, Vector3.down, out RaycastHit slopeHit, 2f))
             {
@@ -168,6 +169,8 @@ public class FirstPersonController : MonoBehaviour
     // References to essential components
     private Camera playerCamera;
     private CharacterController characterController;
+    public GameObject deathScreenCanvas;
+    public GameObject playerUI;
 
     // Movement direction and input
     private Vector3 moveDirection;
@@ -186,7 +189,7 @@ public class FirstPersonController : MonoBehaviour
         currentStamina = maxStamina;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        if(useFootsteps)
+        if (useFootsteps)
         {
             woodIndices = GenerateRandomIndex(woodClips.Length);
             concreteIndices = GenerateRandomIndex(concreteClips.Length);
@@ -203,8 +206,16 @@ public class FirstPersonController : MonoBehaviour
             _attackable.OnHealthChanged.AddListener(OnHealthChanged);
             _attackable.OnDeath.AddListener(OnDeath);
         }
-        
+
         UIManager.Instance.ShowPlayerUI();
+        UpdateUIOnRespawn();
+    }
+
+    private void UpdateUIOnRespawn()
+    {
+        UIManager.Instance.UpdatePlayerHealth(_attackable.health, _attackable.maxHealth);
+        UIManager.Instance.UpdatePlayerStamina(currentStamina, maxStamina);
+        UIManager.Instance.UpdateAttackCooldownPercentage(0);
     }
 
     // Update is called once per frame
@@ -256,7 +267,7 @@ public class FirstPersonController : MonoBehaviour
                 HandleStamina();
             }
 
-            if(enableAttack)
+            if (enableAttack)
             {
                 HandleAttack();
             }
@@ -303,15 +314,24 @@ public class FirstPersonController : MonoBehaviour
         // Notify UI of health change.
         UIManager.Instance.UpdatePlayerHealth(newHealth, _attackable.maxHealth);
     }
-    
+
     // Handle player's death notification
     private void OnDeath()
     {
         // Notify UI of health change
         UIManager.Instance.UpdatePlayerHealth(0, _attackable.maxHealth);
-        
-        // Print death message
-        print("DEAD");
+
+        // Deactivate Player UI
+        PlayerUI.Instance.gameObject.SetActive(false);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        // Display Death Screen
+        deathScreenCanvas.SetActive(true);
+
+        // Disable player interactions
+        this.enabled = false;
     }
 
     // Handles Stamina
@@ -323,16 +343,16 @@ public class FirstPersonController : MonoBehaviour
             // Stop stamina regeneration if active
             if (regeneratingStamina != null)
             {
-                StopCoroutine (regeneratingStamina);
+                StopCoroutine(regeneratingStamina);
                 regeneratingStamina = null;
             }
             // Decrease stamina based on sprinting
             currentStamina -= staminaUseMultiplier * Time.deltaTime;
 
             // Ensure stamina doesn't go negative
-            if (currentStamina < 0) 
-            { 
-                currentStamina = 0; 
+            if (currentStamina < 0)
+            {
+                currentStamina = 0;
             }
 
             // Notify of stamina change
@@ -345,7 +365,7 @@ public class FirstPersonController : MonoBehaviour
             }
         }
         // Start stamina regeneration if not sprinting and stamina isn't full
-        if (!IsSprinting && currentStamina < maxStamina &&  regeneratingStamina == null)
+        if (!IsSprinting && currentStamina < maxStamina && regeneratingStamina == null)
         {
             regeneratingStamina = StartCoroutine(RegenerateStamina());
         }
@@ -367,7 +387,7 @@ public class FirstPersonController : MonoBehaviour
     // Handles crouching
     private void HandleCrouch()
     {
-        if(enableCrouchToggle)
+        if (enableCrouchToggle)
         {
             if (ShouldCrouch)
             {
@@ -455,7 +475,7 @@ public class FirstPersonController : MonoBehaviour
         {
             // On pressing the zoom key
             if (Input.GetKeyDown(zoomKey))
-            {   
+            {
                 // If currently at default FOV, zoom in. Otherwise, zoom out
                 if (playerCamera.fieldOfView == defaultFOV)
                 {
@@ -541,8 +561,8 @@ public class FirstPersonController : MonoBehaviour
         }
 
         footstepTimer -= Time.deltaTime;
-        
-        if(footstepTimer <= 0)
+
+        if (footstepTimer <= 0)
         {
             // Raycast to determine surface type
             if (Physics.Raycast(playerCamera.transform.position, Vector3.down, out RaycastHit hit, 3))
@@ -636,7 +656,7 @@ public class FirstPersonController : MonoBehaviour
         {
             moveDirection.y -= gravity * Time.deltaTime;
         }
-        if(WillSlideOnSlopes && IsSliding)
+        if (WillSlideOnSlopes && IsSliding)
         {
             moveDirection += new Vector3(hitPointNormal.x, -hitPointNormal.y, hitPointNormal.z) * slopeSpeed;
         }
@@ -661,13 +681,13 @@ public class FirstPersonController : MonoBehaviour
             }
             // Increment stamina, ensuring it doesn't exceed max
             currentStamina += staminaValueIncrement;
-            if(currentStamina > maxStamina)
+            if (currentStamina > maxStamina)
             {
                 currentStamina = maxStamina;
             }
             // Notify of any stamina changes
             UIManager.Instance.UpdatePlayerStamina(currentStamina, maxStamina);
-            
+
             // Pause before next increment
             yield return timeToWait;
         }

@@ -8,25 +8,28 @@ using UnityEngine.AI;
 using UnityEngine.Events;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class EnemyAI: MonoBehaviour
+public class EnemyAI : MonoBehaviour
 {
     private NavMeshAgent _agent;
     private EnemyStateManager _stateManager;
     private Vision _visionManager;
     private Attackable _attackable;
+    private FirstPersonController _fpsController;
 
     private Vector3 _lastSeenPlayerPosition;
-    
+
+    public GameObject victoryScreen;
+
     [SerializeField]
     public List<PatrolPoint> patrolPoints = new();
-    
-    
+
+
     private void Awake()
     {
         if (!patrolPoints.Any())
             Debug.LogError($"No patrol points assigned to {gameObject.name}");
-        
-        
+
+
         _stateManager = GetComponent<EnemyStateManager>();
         _visionManager = GetComponent<Vision>();
         _attackable = GetComponent<Attackable>();
@@ -36,13 +39,14 @@ public class EnemyAI: MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _agent.Warp(patrolPoints.First().position);
-        
+        _fpsController = FindFirstObjectByType<FirstPersonController>();
+
         if (_stateManager is not null)
         {
             _stateManager.Data.PatrolPoints = patrolPoints;
             _stateManager.SwitchState(EEnemyAIState.Patrolling);
         }
-        
+
         if (_visionManager is not null)
         {
             _visionManager.AddPlayerSeenListener(OnPlayerSeenChanged);
@@ -77,16 +81,30 @@ public class EnemyAI: MonoBehaviour
             _stateManager.SwitchState(EEnemyAIState.Searching);
         }
     }
-    
-    
+
+
     private void OnHealthChanged(float newHealth, float damageDealt)
     {
         //TODO: At some point we can have separate enemy stages on health levels idk
     }
-    
-    
+
+
     private void OnDeath()
     {
-        Debug.Log("Game over! you win");
+        // Hide the player's UI
+        PlayerUI.Instance.gameObject.SetActive(false);
+
+        // Unlock and show the cursor
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        // Enable the victory screen
+        victoryScreen.SetActive(true);
+
+        // Disable the FirstPersonController to prevent player inputs
+        if (_fpsController != null)
+        {
+            _fpsController.enabled = false;
+        }
     }
 }
