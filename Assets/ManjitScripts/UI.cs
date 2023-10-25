@@ -6,12 +6,15 @@ using UnityEngine.UI;
 
 public class UI : MonoBehaviour
 {
+    public static PlayerUI Instance;
+
     // Serialized fields for UI elements
     [SerializeField] private Slider healthBar = default;
     [SerializeField] private Slider staminaBar = default;
     [SerializeField] private Slider attackCooldownBar = default;
     [SerializeField] private TextMeshProUGUI healthText = default;
 
+<<<<<<< Updated upstream:Assets/ManjitScripts/UI.cs
     // Subscribe to events when the component is enabled
     private void OnEnable()
     {
@@ -29,6 +32,24 @@ public class UI : MonoBehaviour
         FirstPersonController.OnStaminaChange -= UpdateStamina;
         FirstPersonController.OnAttackCooldown -= UpdateAttackCooldown;
     }
+=======
+    [SerializeField] private FirstPersonController player;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+
+>>>>>>> Stashed changes:Assets/ManjitScripts/PlayerUI.cs
 
     // Initialize UI elements when the component starts
     private void Start()

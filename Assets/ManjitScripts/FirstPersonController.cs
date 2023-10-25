@@ -179,6 +179,8 @@ public class FirstPersonController : MonoBehaviour
     // References to essential components
     private Camera playerCamera;
     private CharacterController characterController;
+    public GameObject deathScreenCanvas;
+    public GameObject playerUI;
 
     // Movement direction and input
     private Vector3 moveDirection;
@@ -214,6 +216,29 @@ public class FirstPersonController : MonoBehaviour
             concreteIndices = GenerateRandomIndex(concreteClips.Length);
             grassIndices = GenerateRandomIndex(grassClips.Length);
         }
+<<<<<<< Updated upstream
+=======
+
+        _attackable = GetComponent<Attackable>();
+    }
+
+    private void Start()
+    {
+        if (_attackable is not null)
+        {
+            _attackable.OnHealthChanged.AddListener(OnHealthChanged);
+            _attackable.OnDeath.AddListener(OnDeath);
+        }
+        
+        UIManager.Instance.ShowPlayerUI();
+        UpdateUIOnRespawn();
+    }
+    private void UpdateUIOnRespawn()
+    {
+        UIManager.Instance.UpdatePlayerHealth(_attackable.health, _attackable.maxHealth);
+        UIManager.Instance.UpdatePlayerStamina(currentStamina, maxStamina);
+        UIManager.Instance.UpdateAttackCooldownPercentage(0);
+>>>>>>> Stashed changes
     }
 
     // Update is called once per frame
@@ -332,6 +357,7 @@ public class FirstPersonController : MonoBehaviour
     // Handle player's death
     private void KillPlayer()
     {
+<<<<<<< Updated upstream
         // Set health to zero
         currentHealth = 0;
         // Notify of health change
@@ -344,6 +370,22 @@ public class FirstPersonController : MonoBehaviour
         }
         // Print death message
         print("DEAD");
+=======
+        // Notify UI of health change
+        UIManager.Instance.UpdatePlayerHealth(0, _attackable.maxHealth);
+
+        // Deactivate Player UI
+        PlayerUI.Instance.gameObject.SetActive(false);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        // Display Death Screen
+        deathScreenCanvas.SetActive(true);
+
+        // Disable player interactions
+        this.enabled = false;
+>>>>>>> Stashed changes
     }
 
     // Handles Stamina
