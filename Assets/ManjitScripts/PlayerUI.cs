@@ -13,7 +13,22 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI healthText = default;
 
     [SerializeField] private FirstPersonController player;
-    
+
+    public static PlayerUI Instance;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
 
     // Initialize UI elements when the component starts
     private void Start()
