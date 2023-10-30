@@ -17,9 +17,7 @@ public class EnemyAI : MonoBehaviour
     private FirstPersonController _fpsController;
 
     private Vector3 _lastSeenPlayerPosition;
-
-    public GameObject victoryScreen;
-
+    
     [SerializeField]
     public List<PatrolPoint> patrolPoints = new();
 
@@ -99,7 +97,7 @@ public class EnemyAI : MonoBehaviour
         Cursor.visible = true;
 
         // Enable the victory screen
-        victoryScreen.SetActive(true);
+        UIManager.Instance.ShowVictoryScreen("The boss is dead and you waited safely until the police arrived. You win!");
 
         // Disable the FirstPersonController to prevent player inputs
         if (_fpsController != null)
