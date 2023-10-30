@@ -1,14 +1,22 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UI;
+using UI.Models;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
     
+    [SerializeField] private OverlayUI overlay;
     [SerializeField] private PlayerUI playerUI;
     [SerializeField] private CanvasSingleMessage victoryUI;
     [SerializeField] private CanvasSingleMessage defeatUI;
+
+    // A FIFO queue of hints to display
+    private HashSet<Hint> _hintQueue = new();
     
     private void Awake()
     {
@@ -24,6 +32,15 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        StartCoroutine(ProcessHintQueue());
+    }
+
+    private void OnDestroy()
+    {
+        StopCoroutine(ProcessHintQueue());
+    }
 
     public void ShowPlayerUI()
     {
@@ -76,5 +93,36 @@ public class UIManager : MonoBehaviour
     {
         victoryUI.SetMessage(message);
         victoryUI.gameObject.SetActive(true);
+    }
+
+    /// <summary>
+    /// Displays hint text in the top left of the screen
+    /// </summary>
+    public void ShowHint(string message, float showFor = 5f)
+    {
+        var hint = new Hint
+        {
+            HintText = message,
+            ShowForTime = showFor,
+        };
+
+        _hintQueue.Add(hint);
+    }
+
+    private IEnumerator ProcessHintQueue()
+    {
+        while (true)
+        {
+            if (_hintQueue.Any())
+            {
+                var hint = _hintQueue.First();
+                overlay.ShowHint(hint.HintText);
+                yield return new WaitForSeconds(hint.ShowForTime);
+                overlay.HideHint();
+                _hintQueue.Remove(hint);
+            }
+
+            yield return null;
+        }
     }
 }

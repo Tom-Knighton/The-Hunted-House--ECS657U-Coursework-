@@ -203,6 +203,8 @@ public class FirstPersonController : MonoBehaviour
 
         UIManager.Instance.ShowPlayerUI();
         UpdateUIOnRespawn();
+        
+        UIManager.Instance.ShowHint("Your captor is walking around the house, avoid them or they will attack you for trying to escape!", 7f);
     }
 
     private void UpdateUIOnRespawn()
