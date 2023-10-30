@@ -90,7 +90,7 @@ public class EnemyAI : MonoBehaviour
     private void OnDeath()
     {
         // Hide the player's UI
-        PlayerUI.Instance.gameObject.SetActive(false);
+        UIManager.Instance.HidePlayerUI();;
 
         // Unlock and show the cursor
         Cursor.lockState = CursorLockMode.None;

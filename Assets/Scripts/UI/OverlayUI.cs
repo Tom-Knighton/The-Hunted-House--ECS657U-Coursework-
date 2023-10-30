@@ -7,8 +7,10 @@ namespace UI
     public class OverlayUI: MonoBehaviour
     {
         public GameObject HintContainer;
-
+        [SerializeField] TextMeshProUGUI fullScreenMessage;
+        
         private TextMeshProUGUI _hintText;
+        
         
         private void Start()
         {
@@ -25,6 +27,11 @@ namespace UI
         {
             _hintText.text = string.Empty;
             HintContainer.SetActive(false);
+        }
+
+        public void SetFullScreenMessage(string message)
+        {
+            fullScreenMessage.text = message;
         }
     }
 }

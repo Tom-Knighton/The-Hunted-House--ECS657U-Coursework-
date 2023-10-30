@@ -201,10 +201,8 @@ public class FirstPersonController : MonoBehaviour
             _attackable.OnDeath.AddListener(OnDeath);
         }
 
-        UIManager.Instance.ShowPlayerUI();
+        UIManager.Instance.ShowOpeningScrawl();
         UpdateUIOnRespawn();
-        
-        UIManager.Instance.ShowHint("Your captor is walking around the house, avoid them or they will attack you for trying to escape!", 7f);
     }
 
     private void UpdateUIOnRespawn()
@@ -318,7 +316,7 @@ public class FirstPersonController : MonoBehaviour
         UIManager.Instance.UpdatePlayerHealth(0, _attackable.maxHealth);
 
         // Deactivate Player UI
-        PlayerUI.Instance.gameObject.SetActive(false);
+        UIManager.Instance.HidePlayerUI();
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

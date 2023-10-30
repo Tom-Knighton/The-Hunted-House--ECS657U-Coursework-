@@ -7,10 +7,6 @@ public class MainMenuController : MonoBehaviour
 
     public void StartGame()
     {
-        if (PlayerUI.Instance != null)
-        {
-            PlayerUI.Instance.gameObject.SetActive(true);
-        }
         SceneManager.LoadScene("HouseTest");
     }
 
@@ -23,7 +19,7 @@ public class MainMenuController : MonoBehaviour
 
     public void RestartGame()
     {
-        PlayerUI.Instance.gameObject.SetActive(true);
+        UIManager.Instance.ShowPlayerUI();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 

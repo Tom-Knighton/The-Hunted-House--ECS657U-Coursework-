@@ -5,6 +5,7 @@ using System.Linq;
 using UI;
 using UI.Models;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private PlayerUI playerUI;
     [SerializeField] private CanvasSingleMessage victoryUI;
     [SerializeField] private CanvasSingleMessage defeatUI;
+    [SerializeField] private RawImage fadeImage;
 
     // A FIFO queue of hints to display
     private HashSet<Hint> _hintQueue = new();
@@ -24,6 +26,7 @@ public class UIManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            overlay.gameObject.SetActive(true);
         }
         else if (Instance != this)
         {
@@ -34,6 +37,7 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        HidePlayerUI();
         StartCoroutine(ProcessHintQueue());
     }
 
@@ -44,12 +48,12 @@ public class UIManager : MonoBehaviour
 
     public void ShowPlayerUI()
     {
-        playerUI.enabled = true;
+        playerUI.gameObject.SetActive(true);
     }
 
     public void HidePlayerUI()
     {
-        playerUI.enabled = false;
+        playerUI.gameObject.SetActive(false);
     }
 
     public void UpdatePlayerHealth(float health, float maxHealth)
@@ -74,7 +78,41 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void FadeScreenOut(float fadeTime = 1f)
     {
-        
+        StartCoroutine(FadeOut());
+        return;
+
+        IEnumerator FadeOut()
+        {
+            var fadeImageColor = fadeImage.color;
+            while (Math.Abs(fadeImageColor.a) < 1f)
+            {
+                fadeImageColor.a = Mathf.Lerp(fadeImageColor.a, 1f, 5f * Time.deltaTime);
+                fadeImage.color = fadeImageColor;
+                yield return null;
+            }
+            yield return null;
+        }
+    }
+    
+    /// <summary>
+    /// Fades the screen in  over a period of time
+    /// </summary>
+    public void FadeScreenIn(float fadeTime = 1f)
+    {
+        StartCoroutine(FadeIn());
+        return;
+
+        IEnumerator FadeIn()
+        {
+            var fadeImageColor = fadeImage.color;
+            while (Math.Abs(fadeImageColor.a) > 0f)
+            {
+                fadeImageColor.a = Mathf.Lerp(fadeImageColor.a, 0f, 5f * Time.deltaTime);
+                fadeImage.color = fadeImageColor;
+                yield return null;
+            }
+            yield return null;
+        }
     }
 
     /// <summary>
@@ -107,6 +145,39 @@ public class UIManager : MonoBehaviour
         };
 
         _hintQueue.Add(hint);
+    }
+
+    public void ShowOpeningScrawl()
+    {
+        var messages = new List<string>
+        {
+            "You've escaped the basement your captor left you in, but you're not safe yet...",
+            "You're still trapped in the house, and your captor is still out there...",
+            "You've managed to alert the local police but they'll take time to arrive...",
+            "Good luck"
+        };
+
+        var messagesShown = 0;
+
+        StartCoroutine(ShowTextAndHold());
+
+        return;
+    
+        IEnumerator ShowTextAndHold()
+        {
+            while (messagesShown < messages.Count)
+            {
+                overlay.SetFullScreenMessage(messages[messagesShown]);
+                yield return new WaitForSeconds(6f);
+                overlay.SetFullScreenMessage(string.Empty);
+                yield return new WaitForSeconds(2.5f);
+                messagesShown++;
+            }
+            yield return null;
+            FadeScreenIn(5f);
+            ShowHint("Avoid the boss! They're somewhere in the house...", 6f);
+            ShowPlayerUI();
+        }
     }
 
     private IEnumerator ProcessHintQueue()
