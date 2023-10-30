@@ -147,6 +147,9 @@ public class UIManager : MonoBehaviour
         _hintQueue.Add(hint);
     }
 
+    /// <summary>
+    /// Shows a series of text message as an intro to the game, then fades in UI
+    /// </summary>
     public void ShowOpeningScrawl()
     {
         var messages = new List<string>
@@ -178,6 +181,11 @@ public class UIManager : MonoBehaviour
             ShowHint("Avoid the boss! They're somewhere in the house...", 6f);
             ShowPlayerUI();
         }
+    }
+    
+    public void UpdateTimeLeft(TimeSpan timeLeft)
+    {
+        overlay.UpdateTimeLeft(timeLeft);
     }
 
     private IEnumerator ProcessHintQueue()

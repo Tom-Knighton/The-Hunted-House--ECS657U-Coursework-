@@ -8,6 +8,7 @@ namespace UI
     {
         public GameObject HintContainer;
         [SerializeField] TextMeshProUGUI fullScreenMessage;
+        [SerializeField] private TextMeshProUGUI countdownMessage;
         
         private TextMeshProUGUI _hintText;
         
@@ -32,6 +33,11 @@ namespace UI
         public void SetFullScreenMessage(string message)
         {
             fullScreenMessage.text = message;
+        }
+
+        public void UpdateTimeLeft(TimeSpan timeSpan)
+        {
+            countdownMessage.text = $"Police arrive in: {timeSpan.Hours}h {timeSpan.Minutes}m";
         }
     }
 }
