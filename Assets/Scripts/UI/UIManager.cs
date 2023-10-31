@@ -25,7 +25,7 @@ public class UIManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
             overlay.gameObject.SetActive(true);
         }
         else if (Instance != this)
