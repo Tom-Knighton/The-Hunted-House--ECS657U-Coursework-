@@ -165,8 +165,6 @@ public class FirstPersonController : MonoBehaviour
     // References to essential components
     private Camera playerCamera;
     private CharacterController characterController;
-    public GameObject deathScreenCanvas;
-    public GameObject playerUI;
 
     // Movement direction and input
     private Vector3 moveDirection;
@@ -203,7 +201,7 @@ public class FirstPersonController : MonoBehaviour
             _attackable.OnDeath.AddListener(OnDeath);
         }
 
-        UIManager.Instance.ShowPlayerUI();
+        UIManager.Instance.ShowOpeningScrawl();
         UpdateUIOnRespawn();
     }
 
@@ -318,13 +316,13 @@ public class FirstPersonController : MonoBehaviour
         UIManager.Instance.UpdatePlayerHealth(0, _attackable.maxHealth);
 
         // Deactivate Player UI
-        PlayerUI.Instance.gameObject.SetActive(false);
+        UIManager.Instance.HidePlayerUI();
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
         // Display Death Screen
-        deathScreenCanvas.SetActive(true);
+        UIManager.Instance.ShowDefeatScreen("You were killed.");
 
         // Disable player interactions
         this.enabled = false;
