@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Game;
 using UI;
 using UI.Models;
 using UnityEngine;
@@ -152,6 +153,7 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void ShowOpeningScrawl()
     {
+        FadeScreenOut(0f);
         var messages = new List<string>
         {
             "You've escaped the basement your captor left you in, but you're not safe yet...",
@@ -159,13 +161,13 @@ public class UIManager : MonoBehaviour
             "You've managed to alert the local police but they'll take time to arrive...",
             "Good luck"
         };
-
+        
         var messagesShown = 0;
-
+        
         StartCoroutine(ShowTextAndHold());
-
+        
         return;
-    
+        
         IEnumerator ShowTextAndHold()
         {
             while (messagesShown < messages.Count)
@@ -179,6 +181,7 @@ public class UIManager : MonoBehaviour
             yield return null;
             FadeScreenIn(5f);
             ShowHint("Avoid the boss! They're somewhere in the house...", 6f);
+            GameManager.Instance.EnablePlayers();
             ShowPlayerUI();
         }
     }
