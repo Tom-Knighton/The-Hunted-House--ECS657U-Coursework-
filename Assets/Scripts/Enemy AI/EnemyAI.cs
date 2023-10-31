@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enemy_AI;
 using Enemy_AI.States;
+using Enemy_AI.UI;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Events;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyAI : MonoBehaviour
@@ -14,6 +13,7 @@ public class EnemyAI : MonoBehaviour
     private EnemyStateManager _stateManager;
     private Vision _visionManager;
     private Attackable _attackable;
+    private EnemyUI _localCanvas;
     private FirstPersonController _fpsController;
 
     private Vector3 _lastSeenPlayerPosition;
@@ -31,6 +31,7 @@ public class EnemyAI : MonoBehaviour
         _stateManager = GetComponent<EnemyStateManager>();
         _visionManager = GetComponent<Vision>();
         _attackable = GetComponent<Attackable>();
+        _localCanvas = GetComponent<EnemyUI>();
     }
 
     private void Start()
@@ -54,6 +55,11 @@ public class EnemyAI : MonoBehaviour
         {
             _attackable.OnHealthChanged.AddListener(OnHealthChanged);
             _attackable.OnDeath.AddListener(OnDeath);
+            
+            if (_localCanvas is not null)
+            {
+                _localCanvas.SetHealthBarPercentage((_attackable.health / _attackable.maxHealth) * 100);
+            }
         }
     }
 
@@ -84,6 +90,16 @@ public class EnemyAI : MonoBehaviour
     private void OnHealthChanged(float newHealth, float damageDealt)
     {
         //TODO: At some point we can have separate enemy stages on health levels idk
+        if (_localCanvas is not null)
+        {
+            _localCanvas.SetHealthBarPercentage((newHealth / _attackable.maxHealth) * 100);
+
+            // Don't show popups when health regened
+            if (damageDealt > 0)
+            {
+                _localCanvas.ShowDamagePopup(damageDealt);
+            }
+        }
     }
 
 

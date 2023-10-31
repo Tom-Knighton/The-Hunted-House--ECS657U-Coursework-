@@ -201,7 +201,6 @@ public class FirstPersonController : MonoBehaviour
             _attackable.OnDeath.AddListener(OnDeath);
         }
 
-        UIManager.Instance.ShowOpeningScrawl();
         UpdateUIOnRespawn();
     }
 
