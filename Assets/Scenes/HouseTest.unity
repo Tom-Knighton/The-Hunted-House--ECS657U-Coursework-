@@ -751,7 +751,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0.224, y: 2.115, z: -15.293}
-  m_LocalScale: {x: 3.6698976, y: 3.7460983, z: -0.07223648}
+  m_LocalScale: {x: 3.6698976, y: 3.7460983, z: 0.07223648}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1930208166}
@@ -40687,7 +40687,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4661206914069448966, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.y
-      value: -0.81454307
+      value: 0.8145431
       objectReference: {fileID: 0}
     - target: {fileID: 4661206914069448966, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -40695,7 +40695,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4756140469262278002, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.y
-      value: -0.81454307
+      value: 0.8145431
       objectReference: {fileID: 0}
     - target: {fileID: 4756140469262278002, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -41461,7 +41461,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 12.91, y: 1.13, z: -10.313}
-  m_LocalScale: {x: 1.9982978, y: 1.9321507, z: -1.7389739}
+  m_LocalScale: {x: 1.9982978, y: 1.9321507, z: 1.738974}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 52397924}
@@ -42809,7 +42809,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -8.172901, y: 0.367, z: -16.545}
-  m_LocalScale: {x: 7.104983, y: 0.60569453, z: -1.4395695}
+  m_LocalScale: {x: 7.104983, y: 0.60569453, z: 1.439569}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2109422198}
@@ -44360,7 +44360,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
   m_LocalPosition: {x: -1.94, y: 0.16, z: -16.68}
-  m_LocalScale: {x: 5.328967, y: 0.6029743, z: -1.6549022}
+  m_LocalScale: {x: 5.328967, y: 0.6029743, z: 1.654902}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1930208166}
@@ -46353,7 +46353,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4661206914069448966, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.y
-      value: -0.7717932
+      value: 0.7717932
       objectReference: {fileID: 0}
     - target: {fileID: 4661206914069448966, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -46361,7 +46361,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4756140469262278002, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.y
-      value: -0.7717932
+      value: 0.7717932
       objectReference: {fileID: 0}
     - target: {fileID: 4756140469262278002, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -79345,7 +79345,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
   m_LocalPosition: {x: -4.34, y: 0.37, z: -14.35}
-  m_LocalScale: {x: 5.8492274, y: 0.6029743, z: -1.4395698}
+  m_LocalScale: {x: 5.8492274, y: 0.6029743, z: 1.43957}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2109422198}
@@ -84158,7 +84158,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 11.5058, y: 0.178, z: -14.8983}
-  m_LocalScale: {x: 6.426992, y: 0.17565769, z: -3.0634}
+  m_LocalScale: {x: 6.426992, y: 0.17565769, z: 3.0634}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 52397924}
@@ -84444,6 +84444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBar: {fileID: 178947673}
+  DamagePopupPrefab: {fileID: 6336054764016059203, guid: 3ba9e6e66efd54773a6623adc16338e7, type: 3}
 --- !u!1 &1582776664
 GameObject:
   m_ObjectHideFlags: 0
@@ -85035,6 +85036,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8b246bfb34341dda11d655a7869d9ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  enemies: []
 --- !u!1001 &1621482469
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -89845,7 +89848,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4661206914069448966, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.y
-      value: -0.2952013
+      value: 0.2952013
       objectReference: {fileID: 0}
     - target: {fileID: 4661206914069448966, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.z
@@ -89869,7 +89872,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4756140469262278002, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.y
-      value: -0.2952013
+      value: 0.2952013
       objectReference: {fileID: 0}
     - target: {fileID: 4756140469262278002, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.z
@@ -91470,7 +91473,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4661206914069448966, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.y
-      value: -0.58506113
+      value: 0.5850611
       objectReference: {fileID: 0}
     - target: {fileID: 4661206914069448966, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.z
@@ -91494,7 +91497,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4756140469262278002, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.y
-      value: -0.58506113
+      value: 0.5850611
       objectReference: {fileID: 0}
     - target: {fileID: 4756140469262278002, guid: 3f4af41df9d07ea42b7692adfb98ceb1, type: 3}
       propertyPath: m_LocalScale.z
