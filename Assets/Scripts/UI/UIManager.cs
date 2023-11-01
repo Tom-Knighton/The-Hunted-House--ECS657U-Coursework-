@@ -74,6 +74,11 @@ public class UIManager : MonoBehaviour
         playerUI.UpdateAttackCooldown(percentage);
     }
 
+    public void UpdateCrosshairSize(float size) 
+    { 
+        playerUI.UpdateCrosshair(size);
+    }
+
     /// <summary>
     /// Fades the screen out to black over a period of time
     /// </summary>
@@ -123,6 +128,7 @@ public class UIManager : MonoBehaviour
     {
         defeatUI.SetMessage(message);
         defeatUI.gameObject.SetActive(true);
+        overlay.SetOverlayVisibility(false);
     }
     
     /// <summary>
@@ -132,6 +138,7 @@ public class UIManager : MonoBehaviour
     {
         victoryUI.SetMessage(message);
         victoryUI.gameObject.SetActive(true);
+        overlay.SetOverlayVisibility(false);
     }
 
     /// <summary>
@@ -156,7 +163,7 @@ public class UIManager : MonoBehaviour
         FadeScreenOut(0f);
         var messages = new List<string>
         {
-            "You've escaped the basement your captor left you in, but you're not safe yet...",
+            "You've escaped the basement that your captor left you in, but you're not safe yet...",
             "You're still trapped in the house, and your captor is still out there...",
             "You've managed to alert the local police but they'll take time to arrive...",
             "Good luck"
@@ -170,6 +177,7 @@ public class UIManager : MonoBehaviour
         
         IEnumerator ShowTextAndHold()
         {
+            overlay.SetOverlayVisibility(true);
             while (messagesShown < messages.Count)
             {
                 overlay.SetFullScreenMessage(messages[messagesShown]);

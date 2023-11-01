@@ -28,6 +28,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool useFootsteps = true;
     [SerializeField] private bool enableJumpingSound = true;
     [SerializeField] private bool enableLandingSound = true;
+    [SerializeField] private bool enableDynamicCrosshair = true;
 
     // Key bindings for controls
     [Header("Controls")]
@@ -162,6 +163,12 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private LayerMask interactionLayer = default;
     private Interactable currentInteractable;
 
+    [Header("Crosshair settings")]
+    [SerializeField] private float crosshairRestingSize = 50f;
+    [SerializeField] private float crosshairMaxSize = 80f;
+    [SerializeField] private float crosshairSpeed = 5f;
+    private float currentSize;
+
     // References to essential components
     private Camera playerCamera;
     private CharacterController characterController;
@@ -204,11 +211,12 @@ public class FirstPersonController : MonoBehaviour
         UpdateUIOnRespawn();
     }
 
-    private void UpdateUIOnRespawn()
+    public void UpdateUIOnRespawn()
     {
         UIManager.Instance.UpdatePlayerHealth(_attackable.health, _attackable.maxHealth);
         UIManager.Instance.UpdatePlayerStamina(currentStamina, maxStamina);
         UIManager.Instance.UpdateAttackCooldownPercentage(0);
+        UIManager.Instance.UpdateCrosshairSize(35);
     }
 
     // Update is called once per frame
@@ -265,6 +273,11 @@ public class FirstPersonController : MonoBehaviour
                 HandleAttack();
             }
 
+            if (enableDynamicCrosshair)
+            {
+                HandleCrosshair();
+            }
+
             ApplyFinalMovements();
 
             if (wantsToStand && !IsObstacleAbove())
@@ -290,6 +303,11 @@ public class FirstPersonController : MonoBehaviour
 
         moveDirection.y = moveDirectionY;
 
+    }
+
+    public bool IsMoving()
+    {
+        return (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0);
     }
 
     // Handle mouse look based on input
@@ -640,6 +658,19 @@ public class FirstPersonController : MonoBehaviour
         {
             wasInAir = true; // Set the flag to true if the player is in the air
         }
+    }
+
+    private void HandleCrosshair()
+    {
+        if (IsMoving())
+        {
+            currentSize = Mathf.Lerp(currentSize, crosshairMaxSize, Time.deltaTime * crosshairSpeed);
+        }
+        else
+        {
+            currentSize = Mathf.Lerp(currentSize, crosshairRestingSize, 5 * Time.deltaTime * crosshairSpeed);
+        }
+        PlayerUI.Instance.UpdateCrosshair(currentSize);
     }
 
     // Apply movement and gravity

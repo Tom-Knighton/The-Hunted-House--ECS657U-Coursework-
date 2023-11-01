@@ -11,6 +11,7 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private Slider staminaBar = default;
     [SerializeField] private Slider attackCooldownBar = default;
     [SerializeField] private TextMeshProUGUI healthText = default;
+    [SerializeField] private RectTransform crosshair = default;
 
     [SerializeField] private FirstPersonController player;
 
@@ -57,5 +58,10 @@ public class PlayerUI : MonoBehaviour
     {
         attackCooldownBar.value = currentCooldown; // Update the attack cooldown slider value
         attackCooldownBar.gameObject.SetActive(currentCooldown > 0); // Hide the cooldown bar if there's no cooldown
+    }
+
+    public void UpdateCrosshair(float currentCrosshair)
+    {
+        crosshair.sizeDelta = new Vector2(currentCrosshair, currentCrosshair);
     }
 }
