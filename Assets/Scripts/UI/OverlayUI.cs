@@ -39,5 +39,9 @@ namespace UI
         {
             countdownMessage.text = $"Police arrive in: {timeSpan.Hours}h {timeSpan.Minutes}m";
         }
+        public void SetOverlayVisibility(bool isVisible)
+        {
+            gameObject.SetActive(isVisible);
+        }
     }
 }
