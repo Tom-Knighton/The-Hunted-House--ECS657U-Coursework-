@@ -6,13 +6,9 @@ public class PickupObject : Interactable
 {
     private GameObject currObjHold;
     private Rigidbody currHoldRb;
-    private GameObject objInRange;
     private Renderer objRender;
     private Color originalColour;
     private Renderer[] childObjs;
-
-    //public float throwForce = 450f;
-    //public float rangePickup = 5f;
     public Transform pickUpPos;
     
 
@@ -75,13 +71,6 @@ public class PickupObject : Interactable
         currObjHold = null;
     }
 
-    /*public void Throw()
-    {
-        currHoldRb.isKinematic = false;
-        objToHold.transform.parent = null;
-        currHoldRb.AddForce(transform.forward * throwForce);
-        objToHold = null;
-    }*/
 
     //Changes the colour of the object to a colour that represents 'highlight'
     void Highlight()
