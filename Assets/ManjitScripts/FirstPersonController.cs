@@ -585,7 +585,7 @@ public class FirstPersonController : MonoBehaviour
             if (Physics.Raycast(playerCamera.transform.position, Vector3.down, out RaycastHit hit, 3))
             {
                 // Adjust volume for crouch
-                footstepAudioSource.volume = isCrouching ? crouchVolumeMultiplier : 1f;
+                footstepAudioSource.volume = isCrouching ? crouchVolumeMultiplier : 0.75f;
                 footstepAudioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
 
                 // Play sound based on surface
