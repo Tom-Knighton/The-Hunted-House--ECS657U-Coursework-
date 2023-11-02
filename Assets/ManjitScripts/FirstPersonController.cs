@@ -104,6 +104,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool enableZoomToggle = false;
     [SerializeField] private float timeToZoom = 0.3f;
     [SerializeField] private float zoomFOV = 30f;
+    [SerializeField] private float sprintFOV = 75f;
     private float defaultFOV;
     private Coroutine zoomRoutine;
 
@@ -374,6 +375,11 @@ public class FirstPersonController : MonoBehaviour
             {
                 canSprint = false;
             }
+            playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, sprintFOV, Time.deltaTime * 5f);
+        }
+        else
+        {
+            playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, defaultFOV, Time.deltaTime * 5f);
         }
         // Start stamina regeneration if not sprinting and stamina isn't full
         if (!IsSprinting && currentStamina < maxStamina && regeneratingStamina == null)
