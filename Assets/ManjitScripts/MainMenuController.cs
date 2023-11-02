@@ -4,18 +4,23 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
+
+    public GameObject instructionsPanel;
     public void StartGame()
     {
         GameManager.debugMode = false;
         SceneManager.LoadScene("HouseTest");
     }
-
-    public void QuitGame()
+    public void OpenInstructions()
     {
-        Application.Quit();
+        instructionsPanel.SetActive(true);
     }
 
-    // Methods for the in-game UI:
+    public void CloseInstructions()
+    {
+        instructionsPanel.SetActive(false);
+    }
+
     public void RestartGame()
     {
         GameManager.debugMode = true;
