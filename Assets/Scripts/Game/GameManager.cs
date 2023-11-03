@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game
@@ -16,7 +17,7 @@ namespace Game
 
         public static GameManager Instance;
 
-        public static bool debugMode = true;
+        public static bool debugMode = false;
         private void Awake()
         {
             if (Instance == null)

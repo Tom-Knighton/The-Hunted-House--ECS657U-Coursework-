@@ -164,7 +164,7 @@ public class UIManager : MonoBehaviour
         var messages = new List<string>
         {
             "You've escaped the basement that your captor left you in, but you're not safe yet...",
-            "You're still trapped in the house, and your captor is still out there...",
+            "You're still trapped in the house, and your captor is looking for you...",
             "You've managed to alert the local police but they'll take time to arrive...",
             "Good luck"
         };
