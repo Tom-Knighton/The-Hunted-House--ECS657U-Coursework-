@@ -4,6 +4,7 @@ using UnityEngine.AI;
 
 namespace Enemy_AI.States
 {
+    // Manages states for enemy AI using a state machine pattern
     [RequireComponent(typeof(NavMeshAgent))]
     public class EnemyStateManager : MonoBehaviour
     {
@@ -35,7 +36,7 @@ namespace Enemy_AI.States
         private void Awake()
         {
             NavMeshAgent = GetComponent<NavMeshAgent>();
-
+            // Initialize Data properties from serialized fields
             Data.attackRange = attackRange;
             Data.attackCooldown = attackCooldown;
             Data.attackDamage = attackDamage;
@@ -66,6 +67,7 @@ namespace Enemy_AI.States
             CurrentState.OnEnterState(this);
         }
 
+        // Shortcut to enter idle state with a timer
         public void EnterIdleState(float waitFor)
         {
             CurrentState.OnLeaveState(this);

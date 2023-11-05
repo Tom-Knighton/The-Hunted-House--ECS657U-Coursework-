@@ -60,6 +60,7 @@ public class PlayerUI : MonoBehaviour
         attackCooldownBar.gameObject.SetActive(currentCooldown > 0); // Hide the cooldown bar if there's no cooldown
     }
 
+    // Updates the crossair UI elements
     public void UpdateCrosshair(float currentCrosshair)
     {
         crosshair.sizeDelta = new Vector2(currentCrosshair, currentCrosshair);

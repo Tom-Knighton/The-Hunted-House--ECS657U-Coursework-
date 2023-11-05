@@ -36083,8 +36083,8 @@ MonoBehaviour:
   canZoom: 1
   canInteract: 1
   useFootsteps: 1
-  enableJumpingSound: 0
-  enableLandingSound: 0
+  enableJumpingSound: 1
+  enableLandingSound: 1
   enableDynamicCrosshair: 1
   sprintKey: 304
   jumpKey: 32
@@ -36147,8 +36147,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 096c4989063af5b499075d0710855eee, type: 3}
   - {fileID: 8300000, guid: 00f0c4c6a9af5fd489badcee914a0379, type: 3}
   jumpAudioSource: {fileID: 100672551}
-  jumpClip: {fileID: 0}
-  landingClip: {fileID: 0}
+  jumpClip: {fileID: 8300000, guid: 76c65f3be400ac748aa80c1f238dcf2f, type: 3}
+  landingClip: {fileID: 8300000, guid: 7bb817a66f40ce5449e3c84673a850b3, type: 3}
   interactionRayPoint: {x: 0.5, y: 0.5, z: 0}
   interactionDistance: 2
   interactionLayer:
@@ -36213,8 +36213,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   health: 100
-  regenRate: 5
-  regenWait: 3
+  regenRate: 1
+  regenWait: 0.01
   canRegenHealth: 1
   OnHealthChanged:
     m_PersistentCalls:
@@ -86445,8 +86445,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   health: 100
-  regenRate: 2
-  regenWait: 3
+  regenRate: 0
+  regenWait: 1
   canRegenHealth: 1
   OnHealthChanged:
     m_PersistentCalls:

@@ -5,6 +5,7 @@ using UnityEngine.ProBuilder.Shapes;
 
 namespace Enemy_AI.States
 {
+    // State for when an enemy is patrolling between points
     public class EnemyPatrolState : EnemyAIState
     {
         private PatrolPoint _nextPatrolPoint;
@@ -19,17 +20,19 @@ namespace Enemy_AI.States
                     .OrderBy(p => Vector3.Distance(p.position, context.transform.position))
                     .FirstOrDefault()
                 : context.Data.PatrolPoints.ElementAtOrDefault(goToIndex);
-
+            
+            // If there's no patrol point, do nothing
             if (closestPatrolPoint is null)
             {
                 return;
             }
-
+            // Set the next patrol point and move towards it
             context.Data.PatrolPointIndex = goToIndex;
             _nextPatrolPoint = closestPatrolPoint;
             context.NavMeshAgent.SetDestination(_nextPatrolPoint.position);
         }
 
+        // Called every frame while in the patrol state
         public override void OnStateTick(EnemyStateManager context)
         {
             // If we've reached the next point, pause for the specified amount of time
@@ -47,6 +50,7 @@ namespace Enemy_AI.States
             
         }
 
+        // Calculate the index of the next patrol point
         private int GetNextPatrolPointIndex(int current, int total)
         {
             return (current + 1) % total;

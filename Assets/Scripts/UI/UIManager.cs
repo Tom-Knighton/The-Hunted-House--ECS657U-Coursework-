@@ -199,6 +199,7 @@ public class UIManager : MonoBehaviour
         overlay.UpdateTimeLeft(timeLeft);
     }
 
+    // Processes and displays hints from the queue
     private IEnumerator ProcessHintQueue()
     {
         while (true)

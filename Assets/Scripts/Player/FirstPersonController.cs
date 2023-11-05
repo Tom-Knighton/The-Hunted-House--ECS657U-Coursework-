@@ -44,22 +44,22 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float walkSpeed = 3.0f;
     [SerializeField] private float sprintSpeed = 6.0f;
     [SerializeField] private float crouchSpeed = 1.5f;
-    [SerializeField] private float slopeSpeed = 6f;
+    [SerializeField] private float slopeSpeed = 8f;
 
     // Mouse look sensitivity and constraints
     [Header("Look Parameters")]
-    [SerializeField, Range(1, 10)] private float lookSpeedX = 2.0f;
-    [SerializeField, Range(1, 10)] private float lookSpeedY = 2.0f;
+    [SerializeField, Range(1, 10)] private float lookSpeedX = 1.8f;
+    [SerializeField, Range(1, 10)] private float lookSpeedY = 1.5f;
     [SerializeField, Range(1, 180)] private float upperLookLimit = 80.0f;
     [SerializeField, Range(1, 180)] private float lowerLookLimit = 80.0f;
 
     // Stamina settings
     [Header("Stamina Parameters")]
     [SerializeField] private float maxStamina = 100;
-    [SerializeField] private float staminaUseMultiplier = 5;
-    [SerializeField] private float timeBeforeStaminaRegen = 3;
-    [SerializeField] private float staminaValueIncrement = 2;
-    [SerializeField] private float staminaTimeIncrement = 0.1f;
+    [SerializeField] private float staminaUseMultiplier = 20;
+    [SerializeField] private float timeBeforeStaminaRegen = 2.5f;
+    [SerializeField] private float staminaValueIncrement = 0.5f;
+    [SerializeField] private float staminaTimeIncrement = 0.02f;
     private float currentStamina;
     private Coroutine regeneratingStamina;
 
@@ -164,6 +164,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private LayerMask interactionLayer = default;
     private Interactable currentInteractable;
 
+    // Crosshair settings
     [Header("Crosshair settings")]
     [SerializeField] private float crosshairRestingSize = 50f;
     [SerializeField] private float crosshairMaxSize = 80f;
@@ -203,6 +204,7 @@ public class FirstPersonController : MonoBehaviour
 
     private void Start()
     {
+        // If the _attackable component is present, subscribe to its events
         if (_attackable is not null)
         {
             _attackable.OnHealthChanged.AddListener(OnHealthChanged);
@@ -212,6 +214,7 @@ public class FirstPersonController : MonoBehaviour
         UpdateUIOnRespawn();
     }
 
+    // Updates the UI elements related to player status
     public void UpdateUIOnRespawn()
     {
         UIManager.Instance.UpdatePlayerHealth(_attackable.health, _attackable.maxHealth);
@@ -306,6 +309,7 @@ public class FirstPersonController : MonoBehaviour
 
     }
 
+    // Method to check if the player is moving
     public bool IsMoving()
     {
         return (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0);
@@ -350,14 +354,19 @@ public class FirstPersonController : MonoBehaviour
     private void HandleStamina()
     {
         bool isPlayerMoving = IsMoving(); // Check if the player is moving
+
+        // Sprinting consumes stamina
         if (IsSprinting && !isCrouching && isPlayerMoving)
         {
+            // If already regenerating stamina, stop it as we're using stamina
             if (regeneratingStamina != null)
             {
                 StopCoroutine(regeneratingStamina);
                 regeneratingStamina = null;
             }
+            // Decrease current stamina based on use multiplier and time
             currentStamina -= staminaUseMultiplier * Time.deltaTime;
+            // Ensure stamina doesn't go below zero
             if (currentStamina < 0)
             {
                 currentStamina = 0;
@@ -367,16 +376,19 @@ public class FirstPersonController : MonoBehaviour
             {
                 canSprint = false;
             }
+            // Smoothly transition the camera's field of view to sprintFOV for sprinting effect
             playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, sprintFOV, Time.deltaTime * 5f);
         }
         else
         {
+            // If not sprinting, smoothly transition the camera's field of view back to default
             playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, defaultFOV, Time.deltaTime * 5f);
         }
 
         // Change the condition to start regenerating stamina
         if ((!IsSprinting || !isPlayerMoving) && currentStamina < maxStamina && regeneratingStamina == null)
         {
+            // Start the stamina regeneration coroutine
             regeneratingStamina = StartCoroutine(RegenerateStamina());
         }
     }
@@ -660,16 +672,20 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    // Adjusts the crosshair size based on player movement
     private void HandleCrosshair()
     {
+        // Expand crosshair when moving
         if (IsMoving())
         {
             currentSize = Mathf.Lerp(currentSize, crosshairMaxSize, Time.deltaTime * crosshairSpeed);
         }
+        // Shrink crosshair when still
         else
         {
             currentSize = Mathf.Lerp(currentSize, crosshairRestingSize, 5 * Time.deltaTime * crosshairSpeed);
         }
+        // Update the UI with the new crosshair size
         PlayerUI.Instance.UpdateCrosshair(currentSize);
     }
 

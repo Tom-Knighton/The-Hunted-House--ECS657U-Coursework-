@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Game
 {
+    // Manages the overall game state, including the game timer and activation of player/enemies
     public class GameManager: MonoBehaviour
     {
         private DateTime _gameEndTime = DateTime.Parse("2023-01-02 08:00:00"); // 8am the next day
@@ -15,37 +16,41 @@ namespace Game
         [SerializeField] public FirstPersonController player;
         [SerializeField] private List<EnemyAI> enemies;
 
-        public static GameManager Instance;
+        public static GameManager Instance; // Singleton instance
 
-        public static bool debugMode = true;
+        public static bool debugMode = true; // Flag for debug mode
+
         private void Awake()
         {
+            // Implement singleton pattern
             if (Instance == null)
             {
                 Instance = this;
             }
             else if (Instance != this)
             {
-                Destroy(gameObject);
+                Destroy(gameObject);// Destroy duplicate
                 return;
             }
         }
 
         private void Start()
         {
+            // Set up the game based on whether it's in debug mode
             if (debugMode)
             {
-                EnablePlayers();
-                UIManager.Instance.ShowPlayerUI();
+                EnablePlayers(); // Enable player and enemies
+                UIManager.Instance.ShowPlayerUI(); // Show the player UI
             }
             else
             {
+                // Disable player and enemies for non-debug mode
                 player.enabled = false;
                 foreach (var enemy in enemies)
                 {
                     enemy.gameObject.SetActive(false);
                 }
-                UIManager.Instance.ShowOpeningScrawl();
+                UIManager.Instance.ShowOpeningScrawl();  // Show the opening narrative
             }
             _currentTime = DateTime.Parse("2023-01-01 18:00:00");
         }
@@ -55,26 +60,32 @@ namespace Game
             UpdateTime();
         }
 
+        // Updates the in-game time and UI
         private void UpdateTime()
         {
+            // Advance the current time by a scaled amount of real time
             _currentTime = _currentTime.AddMilliseconds(Time.deltaTime * 10000f);
+            // Update the UI with the time left until the game ends
             UIManager.Instance.UpdateTimeLeft(_gameEndTime - _currentTime);
-            
+
+            // Check if the current time has reached or passed the game end time
             if (_currentTime >= _gameEndTime)
             {
+                // End the game and show the victory screen
                 UIManager.Instance.HidePlayerUI();
                 UIManager.Instance.ShowVictoryScreen("The police arrived and arrested your captor!");
             }
         }
 
+        // Enables the player and enemies
         public void EnablePlayers()
         {
-            player.enabled = true;
+            player.enabled = true; // Enable the player controller
             foreach (var enemy in enemies)
             {
-                enemy.gameObject.SetActive(true);
+                enemy.gameObject.SetActive(true); // Activate each enemy
             }
-            player.UpdateUIOnRespawn();
+            player.UpdateUIOnRespawn(); // Update the player's UI
         }
     }
 }
