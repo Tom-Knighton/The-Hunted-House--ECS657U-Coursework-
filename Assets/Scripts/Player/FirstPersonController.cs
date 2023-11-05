@@ -349,28 +349,20 @@ public class FirstPersonController : MonoBehaviour
     // Handles Stamina
     private void HandleStamina()
     {
-        // If player is sprinting, not crouching, and moving
-        if (IsSprinting && !isCrouching && currentInput != Vector2.zero)
+        bool isPlayerMoving = IsMoving(); // Check if the player is moving
+        if (IsSprinting && !isCrouching && isPlayerMoving)
         {
-            // Stop stamina regeneration if active
             if (regeneratingStamina != null)
             {
                 StopCoroutine(regeneratingStamina);
                 regeneratingStamina = null;
             }
-            // Decrease stamina based on sprinting
             currentStamina -= staminaUseMultiplier * Time.deltaTime;
-
-            // Ensure stamina doesn't go negative
             if (currentStamina < 0)
             {
                 currentStamina = 0;
             }
-
-            // Notify of stamina change
             UIManager.Instance.UpdatePlayerStamina(currentStamina, maxStamina);
-
-            // Disable sprinting if stamina is depleted
             if (currentStamina <= 0)
             {
                 canSprint = false;
@@ -381,12 +373,14 @@ public class FirstPersonController : MonoBehaviour
         {
             playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, defaultFOV, Time.deltaTime * 5f);
         }
-        // Start stamina regeneration if not sprinting and stamina isn't full
-        if (!IsSprinting && currentStamina < maxStamina && regeneratingStamina == null)
+
+        // Change the condition to start regenerating stamina
+        if ((!IsSprinting || !isPlayerMoving) && currentStamina < maxStamina && regeneratingStamina == null)
         {
             regeneratingStamina = StartCoroutine(RegenerateStamina());
         }
     }
+
 
     // Handles jumping
     private void HandleJump()

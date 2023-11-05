@@ -17,7 +17,7 @@ namespace Game
 
         public static GameManager Instance;
 
-        public static bool debugMode = false;
+        public static bool debugMode = true;
         private void Awake()
         {
             if (Instance == null)
