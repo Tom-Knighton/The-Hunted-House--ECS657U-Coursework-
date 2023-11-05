@@ -9,3 +9,7 @@ A survival/stealth horror game in which you are trying to escape a house, you we
 External assets:
 - Footstep sounds from https://pixabay.com/sound-effects/footsteps-on-wood-floor-14735/ (royalty free)
 - All other assets, textures, code made by us, excluding basic Unity shapes like capsules etc.
+
+
+Web GL build: (in /build) https://tom-knighton.github.io/The-Hunted-House--ECS657U-Coursework-/build/
+Desktop build: in (/build-desktop)
