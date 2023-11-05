@@ -3,8 +3,10 @@ using UnityEngine;
 
 namespace Enemy_AI.States
 {
+    // State for when an enemy is idle
     public class EnemyIdleState : EnemyAIState
     {
+        // Called when entering the idle state
         public override void OnEnterState(EnemyStateManager context)
         {
             context.StartCoroutine(WaitForLookAroundCoroutine(context.Data.IdleTimer));

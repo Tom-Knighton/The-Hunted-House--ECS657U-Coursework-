@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 namespace Enemy_AI
 {
+    // Component for handling vision detection of the player
     public class Vision : MonoBehaviour
     {
         public LayerMask PlayerLayerMask;
@@ -14,6 +15,7 @@ namespace Enemy_AI
         private List<Delegate> _callbacks = new();
         private bool _lastSeen;
 
+        // Method to add a listener for player detection changes
         public void AddPlayerSeenListener(Action<bool, Transform> callback)
         {
             _callbacks.Add(callback);
@@ -21,6 +23,7 @@ namespace Enemy_AI
         
         private void Update()
         {
+            // Check for the player within a sphere around the enemy
             Physics.OverlapSphereNonAlloc(transform.position, 5f, _visionResults, PlayerLayerMask);
             var player = _visionResults.FirstOrDefault();
 
@@ -38,11 +41,13 @@ namespace Enemy_AI
                     return;
                 }
 
+                // Calculate direction and angle to the player
                 var forwardDirection = (player.transform.position - transform.position).normalized;
                 var angle = Vector3.Angle(forwardDirection, transform.forward);
 
                 var seen = false;
 
+                // Check if the player is within the enemy's field of view
                 if (angle is < 89
                     and >
                     -89f) // If player is within 90-ish degrees of forward vector (so enemy doesn't have eyes in back of head :))
@@ -72,6 +77,7 @@ namespace Enemy_AI
             
         }
 
+        // Invoke all registered callbacks with the visibility status
         private void UpdateCallbacks(bool seen, Transform newTransform)
         {
             foreach (var callback in _callbacks)

@@ -24,38 +24,44 @@ public class EnemyAI : MonoBehaviour
 
     private void Awake()
     {
+        // Log error if patrol points are not set
         if (!patrolPoints.Any())
             Debug.LogError($"No patrol points assigned to {gameObject.name}");
 
-
+        // Get components
         _stateManager = GetComponent<EnemyStateManager>();
         _visionManager = GetComponent<Vision>();
         _attackable = GetComponent<Attackable>();
         _localCanvas = GetComponent<EnemyUI>();
     }
 
+    // Set up the enemy AI
     private void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
         _agent.Warp(patrolPoints.First().position);
         _fpsController = FindFirstObjectByType<FirstPersonController>();
 
+        // Set up state manager
         if (_stateManager is not null)
         {
             _stateManager.Data.PatrolPoints = patrolPoints;
             _stateManager.SwitchState(EEnemyAIState.Patrolling);
         }
 
+        // Set up vision manager
         if (_visionManager is not null)
         {
             _visionManager.AddPlayerSeenListener(OnPlayerSeenChanged);
         }
 
+        // Set up attackable component
         if (_attackable is not null)
         {
             _attackable.OnHealthChanged.AddListener(OnHealthChanged);
             _attackable.OnDeath.AddListener(OnDeath);
-            
+
+            // Initialize the health bar
             if (_localCanvas is not null)
             {
                 _localCanvas.SetHealthBarPercentage((_attackable.health / _attackable.maxHealth) * 100);

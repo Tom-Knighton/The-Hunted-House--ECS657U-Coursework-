@@ -7,10 +7,12 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace Enemy_AI.States
 {
+    // State for when an enemy is searching for a target
     public class EnemySearchState : EnemyAIState
     {
         private const float SearchAroundRadius = 1.5f;
-        
+
+        // Called when entering the search state
         public override void OnEnterState(EnemyStateManager context)
         {
             var searchAroundPoint = context.Data.SearchAroundPoint;
@@ -18,12 +20,13 @@ namespace Enemy_AI.States
             {
                 return;
             }
-
+            // Set agent to move to the search point
             context.NavMeshAgent.stoppingDistance = 0;
             context.NavMeshAgent.SetDestination(searchAroundPoint);
             context.Data.SearchesLeft -= 1;
         }
 
+        // Called every frame while in the search state
         public override void OnStateTick(EnemyStateManager context)
         {
             // If agent has reached the point to search around, get a random location within a minimum distance 
@@ -51,6 +54,7 @@ namespace Enemy_AI.States
             }
         }
 
+        // Reset stopping distance when leaving the search state
         public override void OnLeaveState(EnemyStateManager context)
         {
             context.NavMeshAgent.stoppingDistance = 1.5f;

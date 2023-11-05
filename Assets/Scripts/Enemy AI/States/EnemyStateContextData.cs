@@ -3,8 +3,10 @@ using UnityEngine;
 
 namespace Enemy_AI.States
 {
+    // Holds context data for different states of the enemy AI
     public class EnemyStateContextData
     {
+        // Default state to transition to
         public EEnemyAIState NextState { get; set; } = EEnemyAIState.Idle;
         
         #region Patrolling Data

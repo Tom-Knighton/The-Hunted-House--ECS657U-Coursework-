@@ -4,19 +4,22 @@ using UnityEngine;
 
 namespace Enemy_AI.States
 {
+    // State for when an enemy is chasing a target
     public class EnemyChasingState : EnemyAIState
     {
         private Vector3? _cachedPosition;
         private bool _canAttack = true;
-        
+
+        // Called when entering the chasing state
         public override void OnEnterState(EnemyStateManager context)
         {
             _cachedPosition = context.Data.ChasingTarget.position;
         }
 
+        // Called every frame the enemy is in the chasing state
         public override void OnStateTick(EnemyStateManager context)
         {
-            
+            // Attempt to attack if within range and attack is available
             if (_canAttack)
             {
                 var hit = Physics
@@ -35,7 +38,7 @@ namespace Enemy_AI.States
                     }
                 }
 
-                return;
+                return; // Exit early if attack occurred
             }
             
             // Every update, move towards the target's current position
@@ -52,12 +55,14 @@ namespace Enemy_AI.States
             context.NavMeshAgent.SetDestination(_cachedPosition.Value);
         }
 
+        // Called when exiting the chasing state
         public override void OnLeaveState(EnemyStateManager context)
         {
             _cachedPosition = null;
             context.NavMeshAgent.ResetPath();
         }
 
+        // Cooldown routine for attacks
         private IEnumerator AttackCooldown(float cooldown)
         {
             _canAttack = false;

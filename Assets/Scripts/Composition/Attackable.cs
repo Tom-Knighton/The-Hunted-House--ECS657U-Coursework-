@@ -67,17 +67,20 @@ public class Attackable: MonoBehaviour
     
     private void Update()
     {
+        // If the character can regenerate health, isn't already regenerating, and is below max health, start regen
         if (canRegenHealth && !_isRegeningHealth && health < maxHealth)
         {
             RegenHealth();
         }
     }
 
+    // Method to handle the health regeneration process
     private void RegenHealth()
     {
         StartCoroutine(AddHealth());
         return;
-        
+
+        // Coroutine to increment the character's health
         IEnumerator AddHealth()
         {
             _isRegeningHealth = true;
