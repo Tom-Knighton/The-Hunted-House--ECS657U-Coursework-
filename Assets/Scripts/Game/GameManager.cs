@@ -18,7 +18,7 @@ namespace Game
 
         public static GameManager Instance; // Singleton instance
 
-        public static bool debugMode = true; // Flag for debug mode
+        public static bool debugMode = false; // Flag for debug mode
 
         private void Awake()
         {

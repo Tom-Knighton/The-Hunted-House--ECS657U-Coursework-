@@ -36084,7 +36084,7 @@ MonoBehaviour:
   canInteract: 1
   useFootsteps: 1
   enableJumpingSound: 1
-  enableLandingSound: 1
+  enableLandingSound: 0
   enableDynamicCrosshair: 1
   sprintKey: 304
   jumpKey: 32
@@ -36213,8 +36213,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   health: 100
-  regenRate: 1
-  regenWait: 0.01
+  regenRate: 5
+  regenWait: 3
   canRegenHealth: 1
   OnHealthChanged:
     m_PersistentCalls:

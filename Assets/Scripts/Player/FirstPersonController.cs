@@ -27,7 +27,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool canInteract = true;
     [SerializeField] private bool useFootsteps = true;
     [SerializeField] private bool enableJumpingSound = true;
-    [SerializeField] private bool enableLandingSound = true;
+    [SerializeField] private bool enableLandingSound = false;
     [SerializeField] private bool enableDynamicCrosshair = true;
 
     // Key bindings for controls

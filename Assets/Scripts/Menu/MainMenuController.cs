@@ -9,7 +9,7 @@ public class MainMenuController : MonoBehaviour
     public GameObject instructionsPanel;
     public void StartGame()
     {
-        GameManager.debugMode = true; // Ensure debug mode is on
+        GameManager.debugMode = false; // Ensure debug mode is off
         SceneManager.LoadScene("MainGame"); // Load the main game scene
     }
     // Method to open the instructions panel
