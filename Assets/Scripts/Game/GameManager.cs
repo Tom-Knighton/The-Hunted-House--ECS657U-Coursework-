@@ -41,6 +41,7 @@ namespace Game
                 EnablePlayers(); // Enable player and enemies
                 UIManager.Instance.FadeScreenIn(0);
                 UIManager.Instance.ShowPlayerUI(); // Show the player UI
+                EnableEnemies();
             }
             else
             {
