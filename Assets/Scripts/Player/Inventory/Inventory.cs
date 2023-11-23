@@ -24,5 +24,10 @@ namespace Player.Inventory
         {
             return _inventoryItems.Any(i => i.Name == name);
         }
+        
+        public List<IInventoryItem> GetItems(string name)
+        {
+            return _inventoryItems.Where(i => i.Name == name).ToList();
+        }
     }
 }
