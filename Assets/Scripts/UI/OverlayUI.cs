@@ -9,6 +9,7 @@ namespace UI
         public GameObject HintContainer;
         [SerializeField] TextMeshProUGUI fullScreenMessage;
         [SerializeField] private TextMeshProUGUI countdownMessage;
+        [SerializeField] private GameObject countdownContainer;
         
         private TextMeshProUGUI _hintText;
         
@@ -43,10 +44,17 @@ namespace UI
         {
             countdownMessage.text = $"Police arrive in: {timeSpan.Hours}h {timeSpan.Minutes}m";
         }
+        
         // Sets the visibility of the overlay UI
         public void SetOverlayVisibility(bool isVisible)
         {
             gameObject.SetActive(isVisible);
+        }
+        
+        // Sets the visibility of the countdown timer
+        public void SetCountdownVisibility(bool isVisible)
+        {
+            countdownContainer.SetActive(isVisible);
         }
     }
 }

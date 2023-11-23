@@ -15,8 +15,9 @@ namespace Game
 
         public static GameManager Instance; // Singleton instance
 
-        public static bool debugMode = true; // Flag for debug mode
+        public static bool debugMode = false; // Flag for debug mode
 
+        private bool _introCompleted = false;
         public GameObject IntroBlockWall;
 
         private void Awake()
@@ -41,6 +42,8 @@ namespace Game
                 EnablePlayers(); // Enable player and enemies
                 UIManager.Instance.FadeScreenIn(0);
                 UIManager.Instance.ShowPlayerUI(); // Show the player UI
+                UIManager.Instance.SetCountdownVisibility(true);
+                _introCompleted = true;
                 EnableEnemies();
             }
             else
@@ -58,6 +61,8 @@ namespace Game
 
         private void Update()
         {
+            if (!_introCompleted) return;
+            
             UpdateTime();
         }
 
@@ -95,6 +100,8 @@ namespace Game
         public void EnableEnemies()
         {
             IntroBlockWall.SetActive(false);
+            UIManager.Instance.SetCountdownVisibility(true);
+            _introCompleted = true;
             foreach (var enemy in enemies)
             {
                 enemy.gameObject.SetActive(true); // Activate each enemy

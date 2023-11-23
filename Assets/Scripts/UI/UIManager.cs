@@ -26,7 +26,7 @@ public class UIManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject);
             overlay.gameObject.SetActive(true);
         }
         else if (Instance != this)
@@ -111,7 +111,7 @@ public class UIManager : MonoBehaviour
         IEnumerator FadeIn()
         {
             var fadeImageColor = fadeImage.color;
-            while (Math.Abs(fadeImageColor.a) > 0f)
+            while (Math.Abs(fadeImageColor.a) > 0.01f)
             {
                 fadeImageColor.a = Mathf.Lerp(fadeImageColor.a, 0f, 5f * Time.deltaTime);
                 fadeImage.color = fadeImageColor;
@@ -198,9 +198,9 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void ShowPhoneCutscene()
     {
+        FadeScreenOut(0f);
         GameManager.Instance.DisablePlayer();
         HidePlayerUI();
-        FadeScreenOut(0f);
         var messages = new List<string>
         {
             "I've managed to call the police...",
@@ -236,6 +236,11 @@ public class UIManager : MonoBehaviour
     public void UpdateTimeLeft(TimeSpan timeLeft)
     {
         overlay.UpdateTimeLeft(timeLeft);
+    }
+    
+    public void SetCountdownVisibility(bool isVisible)
+    {
+        overlay.SetCountdownVisibility(isVisible);
     }
 
     // Processes and displays hints from the queue
