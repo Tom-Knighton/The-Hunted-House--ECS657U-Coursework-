@@ -14,6 +14,7 @@ namespace Enemy_AI.States
         public override void OnEnterState(EnemyStateManager context)
         {
             _cachedPosition = context.Data.ChasingTarget.position;
+            context.NavMeshAgent.speed = 3f;
         }
 
         // Called every frame the enemy is in the chasing state
@@ -59,6 +60,7 @@ namespace Enemy_AI.States
         public override void OnLeaveState(EnemyStateManager context)
         {
             _cachedPosition = null;
+            context.NavMeshAgent.speed = 1f;
             context.NavMeshAgent.ResetPath();
         }
 

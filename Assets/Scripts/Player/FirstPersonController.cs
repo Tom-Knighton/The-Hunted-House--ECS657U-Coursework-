@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
+using Player.Inventory;
 using UnityEngine;
 
 public class FirstPersonController : MonoBehaviour
@@ -12,8 +14,9 @@ public class FirstPersonController : MonoBehaviour
 
     // Components
     private Attackable _attackable;
+    public Inventory Inventory;
 
-
+    #region Functional Options
     // Options to enable or disable functionalities
     [Header("Functional Options")]
     [SerializeField] private bool canSprint = true;
@@ -29,7 +32,9 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool enableJumpingSound = true;
     [SerializeField] private bool enableLandingSound = false;
     [SerializeField] private bool enableDynamicCrosshair = true;
+    #endregion
 
+    #region Controls
     // Key bindings for controls
     [Header("Controls")]
     [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
@@ -38,21 +43,27 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private KeyCode interactKey = KeyCode.E;
     [SerializeField] private KeyCode zoomKey = KeyCode.Mouse1;
     [SerializeField] private KeyCode attackKey = KeyCode.Mouse0;
-
+    #endregion
+    
+    #region Movement
     // Movement speed settings
     [Header("Movement Parameters")]
     [SerializeField] private float walkSpeed = 3.0f;
     [SerializeField] private float sprintSpeed = 6.0f;
     [SerializeField] private float crouchSpeed = 1.5f;
     [SerializeField] private float slopeSpeed = 8f;
+    #endregion
 
+    #region Looking
     // Mouse look sensitivity and constraints
     [Header("Look Parameters")]
     [SerializeField, Range(1, 10)] private float lookSpeedX = 1.8f;
     [SerializeField, Range(1, 10)] private float lookSpeedY = 1.5f;
     [SerializeField, Range(1, 180)] private float upperLookLimit = 80.0f;
     [SerializeField, Range(1, 180)] private float lowerLookLimit = 80.0f;
-
+    #endregion
+    
+    #region Stamina
     // Stamina settings
     [Header("Stamina Parameters")]
     [SerializeField] private float maxStamina = 100;
@@ -62,12 +73,16 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float staminaTimeIncrement = 0.02f;
     private float currentStamina;
     private Coroutine regeneratingStamina;
+    #endregion
 
+    #region Jumping
     // Jumping settings
     [Header("Jumping Parameters")]
     [SerializeField] private float jumpForce = 8.0f;
     [SerializeField] private float gravity = 30.0f;
-
+    #endregion
+    
+    #region Crouching
     // Crouching settings and state flags
     [Header("Crouch Parameters")]
     [SerializeField] private bool enableCrouchToggle = false;
@@ -79,7 +94,9 @@ public class FirstPersonController : MonoBehaviour
     private bool isCrouching;
     private bool duringCrouchAnimation;
     private bool wantsToStand = false;
-
+    #endregion
+    
+    #region Attacking
     // Attack settings
     [Header("Attack Parameters")]
     [SerializeField] private float attackRange = 2.0f;
@@ -87,7 +104,9 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float attackCooldown = 1.0f;
     [SerializeField] private LayerMask attackableLayers;
     private bool canAttack = true;
-
+    #endregion
+    
+    #region Headbobbing
     // Headbob settings
     [Header("Headbob Parameters")]
     [SerializeField] private float walkBobSpeed = 14f;
@@ -98,7 +117,9 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float crouchBobAmount = 0.025f;
     private float defaultYpos = 0;
     private float timer;
+    #endregion
 
+    #region Zooming
     // Zoom settings
     [Header("Zoom Parameters")]
     [SerializeField] private bool enableZoomToggle = false;
@@ -107,7 +128,9 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float sprintFOV = 75f;
     private float defaultFOV;
     private Coroutine zoomRoutine;
-
+    #endregion
+    
+    #region Footsteps
     // Footstep Settings
     [Header("FootstepParameters")]
     [SerializeField] private float baseStepSpeed = 0.5f;
@@ -126,14 +149,18 @@ public class FirstPersonController : MonoBehaviour
     private int currentconcreteFootstepIndex = 0;
     private int currentGrassFootstepIndex = 0;
     private float crouchVolumeMultiplier = 0.5f;
+    #endregion
 
+    #region Jump/Land sounds
     // Jump and Landing Settings
     [Header("Jump and Landing Sound Parameters")]
     [SerializeField] private AudioSource jumpAudioSource;
     [SerializeField] private AudioClip jumpClip;
     [SerializeField] private AudioClip landingClip;
     private bool wasInAir = false;
-
+    #endregion
+   
+    #region Sliding
     // SLIDING PARAMETERS
 
     private Vector3 hitPointNormal;
@@ -156,21 +183,26 @@ public class FirstPersonController : MonoBehaviour
             }
         }
     }
-
+    #endregion
+    
+    #region Interaction
     // Interaction settings
     [Header("Interaction")]
     [SerializeField] private Vector3 interactionRayPoint = default;
     [SerializeField] private float interactionDistance = default;
     [SerializeField] private LayerMask interactionLayer = default;
     private Interactable currentInteractable;
-
+    #endregion
+    
+    #region Crosshair
     // Crosshair settings
     [Header("Crosshair settings")]
     [SerializeField] private float crosshairRestingSize = 50f;
     [SerializeField] private float crosshairMaxSize = 80f;
     [SerializeField] private float crosshairSpeed = 5f;
     private float currentSize;
-
+    #endregion
+    
     // References to essential components
     private Camera playerCamera;
     private CharacterController characterController;
@@ -200,6 +232,7 @@ public class FirstPersonController : MonoBehaviour
         }
 
         _attackable = GetComponent<Attackable>();
+        Inventory = GetComponent<Inventory>();
     }
 
     private void Start()
@@ -542,7 +575,7 @@ public class FirstPersonController : MonoBehaviour
     private void HandleInteractionCheck()
     {
         // Raycast to detect interactable objects
-        if (Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out RaycastHit hit, interactionDistance))
+        if (Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out var hit, interactionDistance))
         {
             // If a new interactable is detected, focus on it
             if (hit.collider.gameObject.layer == 9 && (currentInteractable == null || hit.collider.gameObject.GetInstanceID() != currentInteractable.gameObject.GetInstanceID()))

@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game
@@ -11,14 +9,16 @@ namespace Game
     {
         private DateTime _gameEndTime = DateTime.Parse("2023-01-02 08:00:00"); // 8am the next day
         private DateTime _currentTime;
-
-
+        
         [SerializeField] public FirstPersonController player;
         [SerializeField] private List<EnemyAI> enemies;
 
         public static GameManager Instance; // Singleton instance
 
-        public static bool debugMode = false; // Flag for debug mode
+        public static bool debugMode = true; // Flag for debug mode
+
+        private bool _introCompleted = false;
+        public GameObject IntroBlockWall;
 
         private void Awake()
         {
@@ -40,7 +40,11 @@ namespace Game
             if (debugMode)
             {
                 EnablePlayers(); // Enable player and enemies
+                UIManager.Instance.FadeScreenIn(0);
                 UIManager.Instance.ShowPlayerUI(); // Show the player UI
+                UIManager.Instance.SetCountdownVisibility(true);
+                _introCompleted = true;
+                EnableEnemies();
             }
             else
             {
@@ -57,6 +61,8 @@ namespace Game
 
         private void Update()
         {
+            if (!_introCompleted) return;
+            
             UpdateTime();
         }
 
@@ -81,11 +87,25 @@ namespace Game
         public void EnablePlayers()
         {
             player.enabled = true; // Enable the player controller
+            player.UpdateUIOnRespawn(); // Update the player's UI
+        }
+
+        // Disables the player
+        public void DisablePlayer()
+        {
+            player.enabled = false;
+        }
+
+        // Enables each enemy
+        public void EnableEnemies()
+        {
+            IntroBlockWall.SetActive(false);
+            UIManager.Instance.SetCountdownVisibility(true);
+            _introCompleted = true;
             foreach (var enemy in enemies)
             {
                 enemy.gameObject.SetActive(true); // Activate each enemy
             }
-            player.UpdateUIOnRespawn(); // Update the player's UI
         }
     }
 }

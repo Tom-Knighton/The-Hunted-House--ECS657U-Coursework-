@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enemy_AI;
 using Enemy_AI.States;
 using Enemy_AI.UI;
+using Game;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -14,13 +16,14 @@ public class EnemyAI : MonoBehaviour
     private Vision _visionManager;
     private Attackable _attackable;
     private EnemyUI _localCanvas;
-    private FirstPersonController _fpsController;
+    private Animator _animator;
 
     private Vector3 _lastSeenPlayerPosition;
     
     [SerializeField]
     public List<PatrolPoint> patrolPoints = new();
 
+    private static readonly int Speed = Animator.StringToHash("Speed");
 
     private void Awake()
     {
@@ -33,6 +36,7 @@ public class EnemyAI : MonoBehaviour
         _visionManager = GetComponent<Vision>();
         _attackable = GetComponent<Attackable>();
         _localCanvas = GetComponent<EnemyUI>();
+        _animator = GetComponent<Animator>();
     }
 
     // Set up the enemy AI
@@ -40,7 +44,6 @@ public class EnemyAI : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _agent.Warp(patrolPoints.First().position);
-        _fpsController = FindFirstObjectByType<FirstPersonController>();
 
         // Set up state manager
         if (_stateManager is not null)
@@ -67,6 +70,12 @@ public class EnemyAI : MonoBehaviour
                 _localCanvas.SetHealthBarPercentage((_attackable.health / _attackable.maxHealth) * 100);
             }
         }
+    }
+
+    private void Update()
+    {
+        var speed = _agent.velocity.magnitude * _agent.speed;
+        _animator.SetFloat(Speed, speed);
     }
 
 
@@ -122,9 +131,6 @@ public class EnemyAI : MonoBehaviour
         UIManager.Instance.ShowVictoryScreen("The boss is dead and you waited safely until the police arrived. You win!");
 
         // Disable the FirstPersonController to prevent player inputs
-        if (_fpsController != null)
-        {
-            _fpsController.enabled = false;
-        }
+        GameManager.Instance.DisablePlayer();
     }
 }

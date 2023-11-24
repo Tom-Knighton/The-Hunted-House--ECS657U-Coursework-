@@ -26,7 +26,7 @@ public class UIManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject);
             overlay.gameObject.SetActive(true);
         }
         else if (Instance != this)
@@ -111,7 +111,7 @@ public class UIManager : MonoBehaviour
         IEnumerator FadeIn()
         {
             var fadeImageColor = fadeImage.color;
-            while (Math.Abs(fadeImageColor.a) > 0f)
+            while (Math.Abs(fadeImageColor.a) > 0.01f)
             {
                 fadeImageColor.a = Mathf.Lerp(fadeImageColor.a, 0f, 5f * Time.deltaTime);
                 fadeImage.color = fadeImageColor;
@@ -163,10 +163,10 @@ public class UIManager : MonoBehaviour
         FadeScreenOut(0f);
         var messages = new List<string>
         {
-            "You've escaped the basement that your captor left you in, but you're not safe yet...",
-            "You're still trapped in the house, and your captor is looking for you...",
-            "You've managed to alert the local police but they'll take time to arrive...",
-            "Good luck"
+            "I wake up, dazed and confused...",
+            "I remember being kidnapped, and now I'm locked in a cell...",
+            "I need to find a way out of here...",
+            "There's a phone just outside the cell, if only I could get to it..."
         };
         
         var messagesShown = 0;
@@ -181,15 +181,54 @@ public class UIManager : MonoBehaviour
             while (messagesShown < messages.Count)
             {
                 overlay.SetFullScreenMessage(messages[messagesShown]);
-                yield return new WaitForSeconds(6f);
+                yield return new WaitForSeconds(5f);
                 overlay.SetFullScreenMessage(string.Empty);
-                yield return new WaitForSeconds(2.5f);
+                yield return new WaitForSeconds(1.5f);
                 messagesShown++;
             }
             yield return null;
             FadeScreenIn(5f);
-            ShowHint("Avoid the boss! They're somewhere in the house...", 6f);
             GameManager.Instance.EnablePlayers();
+            ShowPlayerUI();
+        }
+    }
+    
+    /// <summary>
+    /// Shows a series of text message as an intro to the game, then fades in UI
+    /// </summary>
+    public void ShowPhoneCutscene()
+    {
+        FadeScreenOut(0f);
+        GameManager.Instance.DisablePlayer();
+        HidePlayerUI();
+        var messages = new List<string>
+        {
+            "I've managed to call the police...",
+            "They traced the call but can't get here for a while...",
+            "I need to find a way out of this basement, but I can't be seen...",
+        };
+        
+        var messagesShown = 0;
+        
+        StartCoroutine(ShowTextAndHold());
+        
+        return;
+        
+        IEnumerator ShowTextAndHold()
+        {
+            overlay.SetOverlayVisibility(true);
+            while (messagesShown < messages.Count)
+            {
+                overlay.SetFullScreenMessage(messages[messagesShown]);
+                yield return new WaitForSeconds(5f);
+                overlay.SetFullScreenMessage(string.Empty);
+                yield return new WaitForSeconds(1.5f);
+                messagesShown++;
+            }
+            yield return null;
+            FadeScreenIn(5f);
+            GameManager.Instance.EnablePlayers();
+            GameManager.Instance.EnableEnemies();
             ShowPlayerUI();
         }
     }
@@ -197,6 +236,11 @@ public class UIManager : MonoBehaviour
     public void UpdateTimeLeft(TimeSpan timeLeft)
     {
         overlay.UpdateTimeLeft(timeLeft);
+    }
+    
+    public void SetCountdownVisibility(bool isVisible)
+    {
+        overlay.SetCountdownVisibility(isVisible);
     }
 
     // Processes and displays hints from the queue
