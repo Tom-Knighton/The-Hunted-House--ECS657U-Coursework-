@@ -48,9 +48,7 @@ namespace Enemy_AI
                 var seen = false;
 
                 // Check if the player is within the enemy's field of view
-                if (angle is < 89
-                    and >
-                    -89f) // If player is within 90-ish degrees of forward vector (so enemy doesn't have eyes in back of head :))
+                if (angle is < 100 and > -99f) // If player is within 90-ish degrees of forward vector (so enemy doesn't have eyes in back of head :))
                 {
                     var distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
                     seen = !Physics.Raycast(transform.position, forwardDirection, distanceToPlayer, ObstacleMask);
