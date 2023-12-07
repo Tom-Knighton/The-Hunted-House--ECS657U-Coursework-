@@ -89,6 +89,7 @@ public class UIManager : MonoBehaviour
 
         IEnumerator FadeOut()
         {
+            fadeImage.enabled = true;
             var fadeImageColor = fadeImage.color;
             while (Math.Abs(fadeImageColor.a) < 1f)
             {
@@ -117,6 +118,8 @@ public class UIManager : MonoBehaviour
                 fadeImage.color = fadeImageColor;
                 yield return null;
             }
+
+            fadeImage.enabled = false;
             yield return null;
         }
     }
