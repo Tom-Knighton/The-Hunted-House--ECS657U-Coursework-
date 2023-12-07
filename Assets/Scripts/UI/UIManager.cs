@@ -188,6 +188,7 @@ public class UIManager : MonoBehaviour
             }
             yield return null;
             FadeScreenIn(5f);
+            ShowHint("Press 'E' to interact with yellow highlighted objects", 5f);
             GameManager.Instance.EnablePlayers();
             ShowPlayerUI();
         }
