@@ -28,12 +28,13 @@ namespace Enemy_AI.States
                     .FirstOrDefault();
                 if (hit is not null)
                 {
-                    // Check if the hit object has an "Enemy" component
+                    // Check if the hit object has an "Attackable" component
                     var enemy = hit.GetComponent<Attackable>();
                     if (enemy is not null)
                     {
                         enemy.Attack(context.Data.attackDamage);
-                    
+                        context.SafeTriggerAnimator("Attack");
+                        
                         // Start cooldown
                         context.StartCoroutine(AttackCooldown(context.Data.attackCooldown));
                     }

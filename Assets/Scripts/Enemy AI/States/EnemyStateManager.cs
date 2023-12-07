@@ -28,6 +28,8 @@ namespace Enemy_AI.States
         [NonSerialized]
         public NavMeshAgent NavMeshAgent;
 
+        [NonSerialized] private Animator _animator;
+
         private EnemyAIState _patrollingState = new EnemyPatrolState();
         private EnemyAIState _idlingState = new EnemyIdleState();
         private EnemyAIState _searchingState = new EnemySearchState();
@@ -36,6 +38,8 @@ namespace Enemy_AI.States
         private void Awake()
         {
             NavMeshAgent = GetComponent<NavMeshAgent>();
+            _animator = GetComponent<Animator>();
+            
             // Initialize Data properties from serialized fields
             Data.attackRange = attackRange;
             Data.attackCooldown = attackCooldown;
@@ -74,6 +78,17 @@ namespace Enemy_AI.States
             CurrentState = _idlingState;
             Data.IdleTimer = waitFor;
             CurrentState.OnEnterState(this);
+        }
+
+        /// <summary>
+        /// Triggers the specified animator trigger if the animator exists
+        /// </summary>
+        public void SafeTriggerAnimator(string trigger)
+        {
+            if (_animator is not null)
+            {
+                _animator.SetTrigger(trigger);
+            }
         }
     }
 }
