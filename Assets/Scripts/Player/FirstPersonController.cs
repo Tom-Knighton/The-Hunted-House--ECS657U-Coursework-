@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Player.Inventory;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class FirstPersonController : MonoBehaviour
 {
     // Player movement and action state checks
     public bool CanMove { get; private set; } = true;
-    private bool IsSprinting => canSprint && Input.GetKey(sprintKey);
-    private bool ShouldJump => Input.GetKeyDown(jumpKey) && characterController.isGrounded && !IsSliding;
-    private bool ShouldCrouch => Input.GetKeyDown(crouchKey) && !duringCrouchAnimation && characterController.isGrounded;
+    private bool IsSprinting => canSprint && controls.Gameplay.Sprint.IsPressed();
+    private bool ShouldJump => controls.Gameplay.Jump.triggered && characterController.isGrounded && !IsSliding;
+    private bool ShouldCrouch => controls.Gameplay.Crouch.triggered && !duringCrouchAnimation && characterController.isGrounded;
 
     // Components
     private Attackable _attackable;
@@ -36,13 +37,7 @@ public class FirstPersonController : MonoBehaviour
 
     #region Controls
     // Key bindings for controls
-    [Header("Controls")]
-    [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
-    [SerializeField] private KeyCode jumpKey = KeyCode.Space;
-    [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
-    [SerializeField] private KeyCode interactKey = KeyCode.E;
-    [SerializeField] private KeyCode zoomKey = KeyCode.Mouse1;
-    [SerializeField] private KeyCode attackKey = KeyCode.Mouse0;
+    private PlayerInputActions controls;
     #endregion
     
     #region Movement
@@ -217,6 +212,7 @@ public class FirstPersonController : MonoBehaviour
     // Awake is called when the script instance is being loaded
     void Awake()
     {
+        controls = new PlayerInputActions();
         playerCamera = GetComponentInChildren<Camera>();
         characterController = GetComponent<CharacterController>();
         defaultYpos = playerCamera.transform.localPosition.y;
@@ -245,6 +241,15 @@ public class FirstPersonController : MonoBehaviour
         }
 
         UpdateUIOnRespawn();
+    }
+
+    private void OnEnable()
+    {
+        controls.Enable();
+    }
+   private void OnDisable()
+    {
+        controls.Disable();
     }
 
     // Updates the UI elements related to player status
@@ -345,16 +350,16 @@ public class FirstPersonController : MonoBehaviour
     // Method to check if the player is moving
     public bool IsMoving()
     {
-        return (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0);
+        return (controls.Gameplay.Movement.ReadValue<Vector2>().x != 0 || controls.Gameplay.Movement.ReadValue<Vector2>().y != 0);
     }
 
     // Handle mouse look based on input
     private void HandleMouseLook()
     {
-        rotationX -= Input.GetAxis("Mouse Y") * lookSpeedY;
+        rotationX -= controls.Gameplay.MouseLook.ReadValue<Vector2>().y * lookSpeedY;
         rotationX = Mathf.Clamp(rotationX, -upperLookLimit, lowerLookLimit);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
-        transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeedX, 0);
+        transform.rotation *= Quaternion.Euler(0, controls.Gameplay.MouseLook.ReadValue<Vector2>().x * lookSpeedX, 0);
     }
 
     // Handles health change notifications
@@ -453,13 +458,13 @@ public class FirstPersonController : MonoBehaviour
         else
         {
             // Start crouching when crouch key is pressed
-            if (Input.GetKey(crouchKey) && !duringCrouchAnimation && characterController.isGrounded && !isCrouching)
+            if (controls.Gameplay.Crouch.triggered && !duringCrouchAnimation && characterController.isGrounded && !isCrouching)
             {
                 wantsToStand = false; // Reset this flag when crouch key is pressed
                 StartCoroutine(CrouchStand(true)); // true indicates we're crouching
             }
             // Try to stand up when crouch key is released
-            else if (!Input.GetKey(crouchKey) && !duringCrouchAnimation && characterController.isGrounded && isCrouching)
+            else if (!controls.Gameplay.Crouch.triggered && !duringCrouchAnimation && characterController.isGrounded && isCrouching)
             {
                 if (!IsObstacleAbove()) // Check for obstacle
                 {
@@ -482,7 +487,7 @@ public class FirstPersonController : MonoBehaviour
     // Handles Attack
     private void HandleAttack()
     {
-        if (canAttack && Input.GetKeyDown(attackKey))
+        if (canAttack && controls.Gameplay.Attack.triggered)
         {
             canAttack = false;
 
@@ -530,7 +535,7 @@ public class FirstPersonController : MonoBehaviour
         if (enableZoomToggle)
         {
             // On pressing the zoom key
-            if (Input.GetKeyDown(zoomKey))
+            if (controls.Gameplay.Zoom.triggered)
             {
                 // If currently at default FOV, zoom in. Otherwise, zoom out
                 if (playerCamera.fieldOfView == defaultFOV)
@@ -546,12 +551,12 @@ public class FirstPersonController : MonoBehaviour
         else // If hold-to-zoom is enabled
         {
             // Zoom in on key press
-            if (Input.GetKeyDown(zoomKey))
+            if (controls.Gameplay.Zoom.triggered)
             {
                 StartZoom(true);
             }
             // Zoom out on key release
-            if (Input.GetKeyUp(zoomKey))
+            if (controls.Gameplay.Zoom.triggered)
             {
                 StartZoom(false);
             }
@@ -600,7 +605,7 @@ public class FirstPersonController : MonoBehaviour
     private void HandleInteractionInput()
     {
         // If interaction key is pressed and an interactable is in focus, interact with it
-        if (Input.GetKeyDown(interactKey) && currentInteractable != null && Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out RaycastHit hit, interactionDistance, interactionLayer))
+        if (controls.Gameplay.Interact.triggered && currentInteractable != null && Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out RaycastHit hit, interactionDistance, interactionLayer))
         {
             currentInteractable.OnInteract();
         }
