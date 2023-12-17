@@ -54,4 +54,14 @@ public class Door : Interactable
         }
     }
 
+    private void Animator_LockInteraction()
+    {
+        canInteract = false;
+    }
+
+    private void Animator_UnlockInteraction()
+    {
+        canInteract = true;
+    }
+
 }
