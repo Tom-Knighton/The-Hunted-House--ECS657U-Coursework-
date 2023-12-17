@@ -209,9 +209,12 @@ public class FirstPersonController : MonoBehaviour
     // Current rotation in the X-axis (for looking up and down)
     private float rotationX = 0;
 
+    public static FirstPersonController instance;
+
     // Awake is called when the script instance is being loaded
     void Awake()
     {
+        instance = this;
         controls = new PlayerInputActions();
         playerCamera = GetComponentInChildren<Camera>();
         characterController = GetComponent<CharacterController>();
