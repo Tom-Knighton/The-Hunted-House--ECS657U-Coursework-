@@ -15,13 +15,7 @@ public class PickupObject : Interactable
     //Highlights the object when in focus of the player
     public override void OnFocus()
     {
-        childObjs = gameObject.GetComponentsInChildren<Renderer>(); //stored in an array because some prefabs consist of more than 1 component, and an empty parent
-        if (childObjs.Length > 0)
-        {
-            objRender = childObjs[0]; //storing the first child of the parent
-            originalColour = objRender.material.GetColor("_Color"); //geting the colour of the first child to keep as the original colour
-            Highlight(); 
-        }
+        base.OnFocus();
     }
 
 
@@ -40,11 +34,9 @@ public class PickupObject : Interactable
         }
         
     }
-
-    //Returns the colour of the object back to default when looking away from the object
     public override void OnLoseFocus()
     {
-        DefaultCol();
+        base.OnLoseFocus();
     }
 
     /**
@@ -69,27 +61,5 @@ public class PickupObject : Interactable
         currHoldRb.isKinematic = false;
         currObjHold.transform.parent = null;
         currObjHold = null;
-    }
-
-
-    //Changes the colour of the object to a colour that represents 'highlight'
-    void Highlight()
-    {
-        Color highlightCol = new Color(1f, 0.92f, 0.016f, 1f);
-
-        foreach (Renderer childObjs in childObjs)
-        {
-            childObjs.material.SetColor("_Color", highlightCol);
-        }
-    }
-
-    //Turns back the colour of the object back to default when looking away
-    void DefaultCol()
-    {
-        
-        foreach (Renderer childObjs in childObjs)
-        {
-            childObjs.material.SetColor("_Color", originalColour);
-        }
     }
 }

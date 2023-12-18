@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Game;
+using TMPro;
 using UI;
 using UI.Models;
 using UnityEngine;
@@ -17,6 +18,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private CanvasSingleMessage victoryUI;
     [SerializeField] private CanvasSingleMessage defeatUI;
     [SerializeField] private RawImage fadeImage;
+    [SerializeField] private TextMeshProUGUI interactPromptText;
 
     // A FIFO queue of hints to display
     private HashSet<Hint> _hintQueue = new();
@@ -245,6 +247,19 @@ public class UIManager : MonoBehaviour
     public void SetCountdownVisibility(bool isVisible)
     {
         overlay.SetCountdownVisibility(isVisible);
+    }
+
+    
+
+    public void ShowInteractPrompt(string interactKey)
+    {
+        interactPromptText.text = $"Press [{interactKey}] to interact";
+        interactPromptText.gameObject.SetActive(true);
+    }
+
+    public void HideInteractPrompt()
+    {
+        interactPromptText.gameObject.SetActive(false);
     }
 
     // Processes and displays hints from the queue

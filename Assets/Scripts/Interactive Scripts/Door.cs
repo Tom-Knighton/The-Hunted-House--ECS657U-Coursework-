@@ -14,7 +14,7 @@ public class Door : Interactable
     }
     public override void OnFocus()
     {
-        
+        base.OnFocus();
     }
 
     public override void OnInteract()
@@ -36,7 +36,7 @@ public class Door : Interactable
 
     public override void OnLoseFocus()
     {
-        
+        base.OnLoseFocus();
     }
 
     private IEnumerator AutoClose()
