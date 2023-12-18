@@ -249,7 +249,7 @@ public class UIManager : MonoBehaviour
         overlay.SetCountdownVisibility(isVisible);
     }
 
-    
+
 
     public void ShowInteractPrompt(string interactKey)
     {
