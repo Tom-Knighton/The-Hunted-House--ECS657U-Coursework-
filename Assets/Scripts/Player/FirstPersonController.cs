@@ -209,9 +209,12 @@ public class FirstPersonController : MonoBehaviour
     // Current rotation in the X-axis (for looking up and down)
     private float rotationX = 0;
 
+    public static FirstPersonController instance;
+
     // Awake is called when the script instance is being loaded
     void Awake()
     {
+        instance = this;
         controls = new PlayerInputActions();
         playerCamera = GetComponentInChildren<Camera>();
         characterController = GetComponent<CharacterController>();
@@ -579,25 +582,36 @@ public class FirstPersonController : MonoBehaviour
     // Check for and focus/unfocus on interactable objects
     private void HandleInteractionCheck()
     {
-        // Raycast to detect interactable objects
-        if (Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out var hit, interactionDistance))
-        {
-            // If a new interactable is detected, focus on it
-            if (hit.collider.gameObject.layer == 9 && (currentInteractable == null || hit.collider.gameObject.GetInstanceID() != currentInteractable.gameObject.GetInstanceID()))
-            {
-                hit.collider.TryGetComponent(out currentInteractable);
+        RaycastHit hit;
+        bool hitAnInteractable = Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out hit, interactionDistance, interactionLayer);
 
+        if (hitAnInteractable)
+        {
+            // Check if we hit a different interactable object than the current one
+            if (currentInteractable == null || hit.collider.gameObject.GetInstanceID() != currentInteractable.gameObject.GetInstanceID())
+            {
+                // Lose focus on the previous interactable
+                if (currentInteractable != null)
+                {
+                    currentInteractable.OnLoseFocus();
+                }
+
+                // Focus on the new interactable
+                hit.collider.TryGetComponent(out currentInteractable);
                 if (currentInteractable)
                 {
                     currentInteractable.OnFocus();
                 }
             }
         }
-        // If no interactable is detected, lose focus on the current one
-        else if (currentInteractable)
+        else
         {
-            currentInteractable.OnLoseFocus();
-            currentInteractable = null;
+            // If no interactable is hit, lose focus on the current one
+            if (currentInteractable)
+            {
+                currentInteractable.OnLoseFocus();
+                currentInteractable = null;
+            }
         }
     }
 
