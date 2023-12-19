@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private CanvasSingleMessage defeatUI;
     [SerializeField] private RawImage fadeImage;
     [SerializeField] private TextMeshProUGUI interactPromptText;
+    [SerializeField] private TextBoxTextSetter textBoxTextSetter;
 
     // A FIFO queue of hints to display
     private HashSet<Hint> _hintQueue = new();
@@ -249,11 +250,9 @@ public class UIManager : MonoBehaviour
         overlay.SetCountdownVisibility(isVisible);
     }
 
-
-
-    public void ShowInteractPrompt(string interactKey)
+    public void ShowInteractableSpritePrompt()
     {
-        interactPromptText.text = $"Press [{interactKey}] to interact";
+        textBoxTextSetter.SetInteractText();
         interactPromptText.gameObject.SetActive(true);
     }
 
