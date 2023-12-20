@@ -186,6 +186,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private Vector3 interactionRayPoint = default;
     [SerializeField] private float interactionDistance = default;
     [SerializeField] private LayerMask interactionLayer = default;
+    [SerializeField] private LayerMask obstructionLayerMask;
     private Interactable currentInteractable;
     #endregion
     
@@ -582,32 +583,26 @@ public class FirstPersonController : MonoBehaviour
     // Check for and focus/unfocus on interactable objects
     private void HandleInteractionCheck()
     {
-        RaycastHit hit;
-        bool hitAnInteractable = Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out hit, interactionDistance, interactionLayer);
-
-        if (hitAnInteractable)
+        if (Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out RaycastHit hit, interactionDistance, interactionLayer))
         {
-            // Check if we hit a different interactable object than the current one
-            if (currentInteractable == null || hit.collider.gameObject.GetInstanceID() != currentInteractable.gameObject.GetInstanceID())
+            Interactable interactable = hit.collider.GetComponent<Interactable>();
+            if (interactable != null && interactable.IsInViewAndNotObstructed(playerCamera.transform, obstructionLayerMask))
             {
-                // Lose focus on the previous interactable
-                if (currentInteractable != null)
+                if (currentInteractable != interactable)
                 {
-                    currentInteractable.OnLoseFocus();
-                }
+                    if (currentInteractable != null)
+                    {
+                        currentInteractable.OnLoseFocus();
+                    }
 
-                // Focus on the new interactable
-                hit.collider.TryGetComponent(out currentInteractable);
-                if (currentInteractable)
-                {
+                    currentInteractable = interactable;
                     currentInteractable.OnFocus();
                 }
             }
         }
         else
         {
-            // If no interactable is hit, lose focus on the current one
-            if (currentInteractable)
+            if (currentInteractable != null)
             {
                 currentInteractable.OnLoseFocus();
                 currentInteractable = null;

@@ -36,7 +36,7 @@ public class PlayerUI : MonoBehaviour
     {
         UpdateHealth(100);
         UpdateStamina(100);
-        UpdateAttackCooldown(100);
+        UpdateAttackCooldown(0);
     }
 
     // Update the health UI elements

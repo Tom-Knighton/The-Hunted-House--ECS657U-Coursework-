@@ -12,6 +12,7 @@ namespace Items
         {
             GameManager.Instance.player.Inventory?.TryAddItemToInventory(this);
             Destroy(gameObject);
+            OnLoseFocus();
         }
     }
 }

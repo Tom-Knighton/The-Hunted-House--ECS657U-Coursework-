@@ -49,4 +49,22 @@ public abstract class Interactable : MonoBehaviour
         Debug.Log($"No valid binding index found. Defaulting to 'E'. Binding Index: {bindingIndex}");
         return "E";
     }
+    public bool IsInViewAndNotObstructed(Transform playerTransform, LayerMask obstructionLayers)
+    {
+        Vector3 directionToPlayer = playerTransform.position - transform.position;
+        float distanceToPlayer = directionToPlayer.magnitude;
+        directionToPlayer.Normalize();
+
+        // Check if there's an obstruction between the interactable and the player
+        if (Physics.Raycast(transform.position, directionToPlayer, out RaycastHit hit, distanceToPlayer, obstructionLayers))
+        {
+            // If the raycast hits something that is not the player, return false
+            if (hit.transform != playerTransform)
+            {
+                return false;
+            }
+        }
+        // No obstruction detected
+        return true;
+    }
 }
