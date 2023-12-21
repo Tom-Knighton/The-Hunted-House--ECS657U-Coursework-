@@ -18,8 +18,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private CanvasSingleMessage victoryUI;
     [SerializeField] private CanvasSingleMessage defeatUI;
     [SerializeField] private RawImage fadeImage;
-    [SerializeField] private TextMeshProUGUI interactPromptText;
-    [SerializeField] private TextBoxTextSetter textBoxTextSetter;
 
     // A FIFO queue of hints to display
     private HashSet<Hint> _hintQueue = new();
@@ -194,7 +192,7 @@ public class UIManager : MonoBehaviour
             }
             yield return null;
             FadeScreenIn(5f);
-            ShowHint("Press 'E' to interact with yellow highlighted objects", 5f);
+            ShowHint("Look at objects and interact with them", 5f);
             GameManager.Instance.EnablePlayers();
             ShowPlayerUI();
         }
@@ -248,17 +246,6 @@ public class UIManager : MonoBehaviour
     public void SetCountdownVisibility(bool isVisible)
     {
         overlay.SetCountdownVisibility(isVisible);
-    }
-
-    public void ShowInteractableSpritePrompt()
-    {
-        textBoxTextSetter.SetInteractText();
-        interactPromptText.gameObject.SetActive(true);
-    }
-
-    public void HideInteractPrompt()
-    {
-        interactPromptText.gameObject.SetActive(false);
     }
 
     // Processes and displays hints from the queue

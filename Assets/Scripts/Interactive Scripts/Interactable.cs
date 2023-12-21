@@ -23,7 +23,7 @@ public abstract class Interactable : MonoBehaviour
         {
             outline.ToggleOutline(true);
         }
-        UIManager.Instance.ShowInteractableSpritePrompt();
+        PlayerUI.Instance.ShowInteractPrompt();
     }
 
     public virtual void OnLoseFocus()
@@ -32,7 +32,7 @@ public abstract class Interactable : MonoBehaviour
         {
             outline.ToggleOutline(false);
         }
-        UIManager.Instance.HideInteractPrompt();
+        PlayerUI.Instance.HideInteractPrompt();
     }
 
     protected string GetInteractKey()
