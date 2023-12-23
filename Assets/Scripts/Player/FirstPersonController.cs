@@ -193,8 +193,8 @@ public class FirstPersonController : MonoBehaviour
     #region Crosshair
     // Crosshair settings
     [Header("Crosshair settings")]
-    [SerializeField] private float crosshairRestingSize = 50f;
-    [SerializeField] private float crosshairMaxSize = 80f;
+    [SerializeField] private float crosshairRestingSize = 100f;
+    [SerializeField] private float crosshairMaxSize = 175f;
     [SerializeField] private float crosshairSpeed = 5f;
     private float currentSize;
     #endregion
