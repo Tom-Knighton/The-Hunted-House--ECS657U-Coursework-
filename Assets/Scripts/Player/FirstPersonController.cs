@@ -198,7 +198,9 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float crosshairSpeed = 5f;
     private float currentSize;
     #endregion
-    
+
+    [SerializeField] private InventoryUI inventoryUI;
+
     // References to essential components
     private Camera playerCamera;
     private CharacterController characterController;
@@ -303,7 +305,10 @@ public class FirstPersonController : MonoBehaviour
                 HandleInteractionCheck();
                 HandleInteractionInput();
             }
-
+            if (controls.Gameplay.Inventory.triggered)
+            {
+                ToggleInventory();
+            }
             if (enableLandingSound)
             {
                 HandleLandingSound();
@@ -435,6 +440,24 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    private void ToggleInventory()
+    {
+        if (inventoryUI != null)
+        {
+            bool isInventoryActive = inventoryUI.gameObject.activeSelf;
+            inventoryUI.gameObject.SetActive(!isInventoryActive);
+
+            // Refresh the inventory display if we are opening the inventory
+            if (!isInventoryActive)
+            {
+                inventoryUI.RefreshInventoryDisplay();
+            }
+        }
+        else
+        {
+            Debug.LogError("InventoryUI reference not set in FirstPersonController.");
+        }
+    }
 
     // Handles jumping
     private void HandleJump()

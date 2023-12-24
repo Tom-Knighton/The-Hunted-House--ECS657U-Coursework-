@@ -18,6 +18,11 @@ public class InventoryUI : MonoBehaviour
         UpdateInventoryDisplay();
     }
 
+    public void RefreshInventoryDisplay()
+    {
+        UpdateInventoryDisplay();
+    }
+
     public void UpdateInventoryDisplay()
     {
         Debug.Log("Updating Inventory UI Display");
