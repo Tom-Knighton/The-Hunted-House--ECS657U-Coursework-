@@ -17,6 +17,16 @@ namespace UI
         private void Start()
         {
             _hintText = HintContainer.GetComponentInChildren<TextMeshProUGUI>();
+            ToggleFullScreenMessageRaycast(false);
+        }
+
+        // Call this method to toggle the raycast target on and off
+        public void ToggleFullScreenMessageRaycast(bool shouldBlockRaycasts)
+        {
+            if (fullScreenMessage != null)
+            {
+                fullScreenMessage.raycastTarget = shouldBlockRaycasts;
+            }
         }
 
         // Displays a hint message

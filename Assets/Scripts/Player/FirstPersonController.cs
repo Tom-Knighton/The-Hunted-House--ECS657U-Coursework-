@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Player.Inventory;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class FirstPersonController : MonoBehaviour
@@ -199,7 +200,11 @@ public class FirstPersonController : MonoBehaviour
     private float currentSize;
     #endregion
 
+    #region Inventory
     [SerializeField] private InventoryUI inventoryUI;
+    [SerializeField] private GameObject hotbarPanel;
+    private bool inventoryOpen = false;
+    #endregion
 
     // References to essential components
     private Camera playerCamera;
@@ -270,9 +275,11 @@ public class FirstPersonController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Always allow movement input handling, but apply movement only if CanMove is true
+        HandleMovementInput();
+
         if (CanMove)
         {
-            HandleMovementInput();
             HandleMouseLook();
 
             if (canJump)
@@ -305,10 +312,7 @@ public class FirstPersonController : MonoBehaviour
                 HandleInteractionCheck();
                 HandleInteractionInput();
             }
-            if (controls.Gameplay.Inventory.triggered)
-            {
-                ToggleInventory();
-            }
+
             if (enableLandingSound)
             {
                 HandleLandingSound();
@@ -328,14 +332,21 @@ public class FirstPersonController : MonoBehaviour
             {
                 HandleCrosshair();
             }
+        }
 
-            ApplyFinalMovements();
+        // Check the inventory toggle outside of the CanMove block so that it can be toggled at any time
+        if (controls.Gameplay.Inventory.triggered)
+        {
+            ToggleInventory();
+        }
 
-            if (wantsToStand && !IsObstacleAbove())
-            {
-                StartCoroutine(CrouchStand(false)); // Stand up
-                wantsToStand = false; // Reset the flag
-            }
+        // Apply gravity and final movements regardless of CanMove to ensure gravity is always applied
+        ApplyFinalMovements();
+
+        if (wantsToStand && !IsObstacleAbove())
+        {
+            StartCoroutine(CrouchStand(false)); // Stand up
+            wantsToStand = false; // Reset the flag
         }
     }
 
@@ -442,20 +453,30 @@ public class FirstPersonController : MonoBehaviour
 
     private void ToggleInventory()
     {
-        if (inventoryUI != null)
-        {
-            bool isInventoryActive = inventoryUI.gameObject.activeSelf;
-            inventoryUI.gameObject.SetActive(!isInventoryActive);
+        inventoryOpen = !inventoryOpen;
+        inventoryUI.gameObject.SetActive(inventoryOpen);
+        hotbarPanel.SetActive(inventoryOpen); // Toggle the hotbar panel visibility.
 
-            // Refresh the inventory display if we are opening the inventory
-            if (!isInventoryActive)
-            {
-                inventoryUI.RefreshInventoryDisplay();
-            }
-        }
-        else
+        // Lock or unlock the cursor based on whether the inventory is open
+        Cursor.lockState = inventoryOpen ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = inventoryOpen;
+
+        // If the inventory has just been opened, update the display
+        if (inventoryOpen)
         {
-            Debug.LogError("InventoryUI reference not set in FirstPersonController.");
+            inventoryUI.UpdateInventoryDisplay();
+        }
+
+        // Don't disable movement controls, only camera and interaction
+        if (inventoryOpen)
+        {
+            controls.Gameplay.MouseLook.Disable();
+            controls.Gameplay.Attack.Disable();
+            controls.Gameplay.Interact.Disable();
+        }
+        else // Re-enable controls when the inventory is closed
+        {
+            controls.Gameplay.Enable();
         }
     }
 
@@ -771,7 +792,11 @@ public class FirstPersonController : MonoBehaviour
             moveDirection += new Vector3(hitPointNormal.x, -hitPointNormal.y, hitPointNormal.z) * slopeSpeed;
         }
 
-        characterController.Move(moveDirection * Time.deltaTime);
+        // Only move the character if CanMove is true
+        if (CanMove)
+        {
+            characterController.Move(moveDirection * Time.deltaTime);
+        }
     }
 
     // Coroutine for stamina regeneration
