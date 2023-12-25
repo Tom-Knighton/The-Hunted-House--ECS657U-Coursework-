@@ -12,7 +12,6 @@ public class ResponsiveGridLayout : MonoBehaviour
 
     [Header("Layout Properties")]
     [SerializeField] private int columns = 4;
-    [SerializeField] private int rows = 2;
     [SerializeField] private Vector2 baseCellSize = new Vector2(100, 100);
     [SerializeField] private Vector2 basePadding = new Vector2(10, 10);
     [SerializeField] private Vector2 spacing = new Vector2(5, 5);

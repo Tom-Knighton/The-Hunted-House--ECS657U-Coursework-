@@ -7,7 +7,6 @@ public class Screenshot : MonoBehaviour
 {
     public string folderPath = "Assets/Screenshots";
     public string fileNamePrefix = "screenshot";
-    private Camera camera;
 
     void Start()
     {
@@ -27,20 +26,24 @@ public class Screenshot : MonoBehaviour
 
     void TakeScreenshot(string fullPath)
     {
-        if (camera == null)
+        Camera screenshotCamera = GetComponent<Camera>(); // Get the Camera component once
+        if (screenshotCamera == null)
         {
-            camera = GetComponent<Camera>();
+            Debug.LogError("Camera component not found on the object.");
+            return;
         }
 
-        RenderTexture rt = new RenderTexture(1028, 1028, 48);
-        camera.targetTexture = rt;
+        RenderTexture rt = new RenderTexture(1028, 1028, 24);
+        screenshotCamera.targetTexture = rt;
         Texture2D screenShot = new Texture2D(1028, 1028, TextureFormat.ARGB32, false);
-        camera.Render();
+        screenshotCamera.Render();
         RenderTexture.active = rt;
         screenShot.ReadPixels(new Rect(0, 0, 1028, 1028), 0, 0);
         screenShot.Apply();
-        camera.targetTexture = null;
-        RenderTexture.active = null;
+
+        // Reset the target texture and active render texture
+        screenshotCamera.targetTexture = null;
+        RenderTexture.active = null; // JC: Added to fix compile error
 
         if (Application.isEditor)
         {
@@ -53,6 +56,8 @@ public class Screenshot : MonoBehaviour
 
         byte[] bytes = screenShot.EncodeToPNG();
         System.IO.File.WriteAllBytes(fullPath, bytes);
+
+        // Refresh the AssetDatabase if we're in the Unity Editor
 #if UNITY_EDITOR
         AssetDatabase.Refresh();
 #endif

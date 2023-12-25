@@ -23,6 +23,12 @@ public class InventoryUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         UpdateInventoryDisplay();
     }
 
+    public void SwapItemSlots(InventorySlot slot1, InventorySlot slot2)
+    {
+        playerInventory.SwapSlots(slot1, slot2);
+        RefreshInventoryDisplay();
+    }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         // Get the slot that we started dragging
@@ -51,16 +57,16 @@ public class InventoryUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        // Get the slot we dropped the item onto
-        var result = eventData.pointerCurrentRaycast.gameObject.GetComponent<InventorySlotUI>();
-        if (result != null && originalSlot != null)
-        {
-            // Perform the swap or move logic here
-            playerInventory.SwapSlots(originalSlot, result.Slot);
-        }
         if (draggedItem != null)
         {
-            Destroy(draggedItem); // Remove the temporary dragged item icon
+            InventorySlotUI resultSlotUI = eventData.pointerCurrentRaycast.gameObject.GetComponent<InventorySlotUI>();
+            if (resultSlotUI == null)
+            {
+                // If the item was not dropped onto another slot, return it to the original slot
+                originalSlot.AddItem(draggedItem.GetComponent<InventorySlotUI>().Slot.Item);
+            }
+            Destroy(draggedItem); // Clean up the dragged item icon
+            RefreshInventoryDisplay(); // Refresh display to show changes
         }
     }
 

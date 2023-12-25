@@ -85,29 +85,32 @@ public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHa
 
     public void OnDrop(PointerEventData eventData)
     {
-        Debug.Log("OnDrop called");
-
-        if (eventData.pointerDrag == null)
-        {
-            Debug.Log("Event data does not contain a pointerDrag object");
-            return;
-        }
-
         InventorySlotUI droppedSlotUI = eventData.pointerDrag.GetComponent<InventorySlotUI>();
-
-        if (droppedSlotUI == null)
+        if (droppedSlotUI != null && this.Slot != null)
         {
-            Debug.Log("Dropped object is not an InventorySlotUI");
-            return;
-        }
+            if (droppedSlotUI.Slot.Item != null && this.Slot.Item != null &&
+                droppedSlotUI.Slot.Item.Name == this.Slot.Item.Name)
+            {
+                int totalQuantity = droppedSlotUI.Slot.Quantity + this.Slot.Quantity;
+                int stackQuantity = Mathf.Min(totalQuantity, this.Slot.Item.MaxStackableSize);
+                int remainingQuantity = totalQuantity - stackQuantity;
 
-        if (this.Slot == null)
-        {
-            Debug.Log("Current slot is null");
-            return;
-        }
+                this.Slot.SetItem(droppedSlotUI.Slot.Item, stackQuantity);
 
-        Debug.Log($"Swapping slots: {droppedSlotUI.Slot} with {this.Slot}");
-        inventoryUI.OnSlotItemDropped(droppedSlotUI, this);
+                if (remainingQuantity > 0)
+                {
+                    droppedSlotUI.Slot.SetItem(droppedSlotUI.Slot.Item, remainingQuantity);
+                }
+                else
+                {
+                    droppedSlotUI.Slot.ClearSlot();
+                }
+            }
+            else
+            {
+                inventoryUI.SwapItemSlots(droppedSlotUI.Slot, this.Slot);
+            }
+            inventoryUI.RefreshInventoryDisplay();
+        }
     }
 }

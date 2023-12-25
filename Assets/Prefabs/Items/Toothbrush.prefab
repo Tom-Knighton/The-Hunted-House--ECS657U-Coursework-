@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 7115713403435538451}
   - component: {fileID: 3286518760497906967}
   - component: {fileID: 125533301190306235}
-  - component: {fileID: 2109087599933640573}
+  - component: {fileID: 9195115080791250374}
   - component: {fileID: 303046184299589674}
   m_Layer: 9
   m_Name: Toothbrush
@@ -168,7 +168,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &2109087599933640573
+--- !u!114 &9195115080791250374
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -177,10 +177,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3524994586747963181}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7aa3b7ead5fadd4eacd056a48f6f9a4, type: 3}
+  m_Script: {fileID: 11500000, guid: aa357f62259afb840b814bb360b8869c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   pickUpPos: {fileID: 0}
+  icon: {fileID: 1476188468, guid: 7f98c8a8ebafa194aa428cefa5e84772, type: 3}
 --- !u!114 &303046184299589674
 MonoBehaviour:
   m_ObjectHideFlags: 0

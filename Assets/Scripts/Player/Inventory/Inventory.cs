@@ -29,8 +29,27 @@ namespace Player.Inventory
                 _hotbarSlots[i] = new InventorySlot();
             }
         }
+        public InventorySlot FindStackableSlot(IInventoryItem item)
+        {
+            foreach (var slot in _inventorySlots.Concat(_hotbarSlots))
+            {
+                if (slot.CanStackItem(item))
+                {
+                    return slot;
+                }
+            }
+            return null;
+        }
+
         public bool TryAddItemToInventory(IInventoryItem item)
         {
+            var stackableSlot = FindStackableSlot(item);
+            if (stackableSlot != null)
+            {
+                stackableSlot.AddItem(item);
+                NotifyInventoryChanged();
+                return true;
+            }
             // First, try to stack the item in an existing slot
             Debug.Log($"Trying to add {item.Name} to inventory");
             foreach (var slot in _inventorySlots)
@@ -55,6 +74,8 @@ namespace Player.Inventory
             // Inventory is full
             return false;
         }
+
+
 
         public bool HasItemWithName(string itemName)
         {
@@ -199,5 +220,11 @@ namespace Player.Inventory
         {
             return (Item != null) && (Item.Name == itemToCheck.Name) && (Quantity < Item.MaxStackableSize);
         }
+
+        public void ClearSlot()
+        {
+            SetItem(null, 0);
+        }
+
     }
 }

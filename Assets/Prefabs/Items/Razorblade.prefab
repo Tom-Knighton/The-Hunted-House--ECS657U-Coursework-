@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 33337736067108456}
   - component: {fileID: 8087144821826525531}
   - component: {fileID: 277651590967325371}
-  - component: {fileID: 578176024131407517}
+  - component: {fileID: 2171119311649697550}
   - component: {fileID: 603412401255781371}
   m_Layer: 9
   m_Name: Razorblade
@@ -135,7 +135,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &578176024131407517
+--- !u!114 &2171119311649697550
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -144,10 +144,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3055776358684293195}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7aa3b7ead5fadd4eacd056a48f6f9a4, type: 3}
+  m_Script: {fileID: 11500000, guid: 254dd11f21b11a14a9d81e357fa33fec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   pickUpPos: {fileID: 0}
+  icon: {fileID: -186930417, guid: a81847d727eab594790524f32a055f4d, type: 3}
 --- !u!114 &603412401255781371
 MonoBehaviour:
   m_ObjectHideFlags: 0
