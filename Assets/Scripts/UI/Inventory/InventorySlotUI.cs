@@ -88,7 +88,8 @@ public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHa
         InventorySlotUI droppedSlotUI = eventData.pointerDrag.GetComponent<InventorySlotUI>();
         if (droppedSlotUI != null && this.Slot != null)
         {
-            if (droppedSlotUI.Slot.Item != null && this.Slot.Item != null &&
+            // Check if the slot is not the same as the dropped slot
+            if (droppedSlotUI != this && droppedSlotUI.Slot.Item != null && this.Slot.Item != null &&
                 droppedSlotUI.Slot.Item.Name == this.Slot.Item.Name)
             {
                 int totalQuantity = droppedSlotUI.Slot.Quantity + this.Slot.Quantity;
@@ -106,7 +107,7 @@ public class InventorySlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHa
                     droppedSlotUI.Slot.ClearSlot();
                 }
             }
-            else
+            else if (droppedSlotUI != this)
             {
                 inventoryUI.SwapItemSlots(droppedSlotUI.Slot, this.Slot);
             }
