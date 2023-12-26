@@ -12,6 +12,7 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private Slider attackCooldownBar = default;
     [SerializeField] private TextMeshProUGUI healthText = default;
     [SerializeField] private RectTransform crosshair = default;
+    [SerializeField] private TextMeshProUGUI interactPromptText;
 
     [SerializeField] private FirstPersonController player;
 
@@ -36,7 +37,8 @@ public class PlayerUI : MonoBehaviour
     {
         UpdateHealth(100);
         UpdateStamina(100);
-        UpdateAttackCooldown(100);
+        UpdateAttackCooldown(0);
+        HideInteractPrompt();
     }
 
     // Update the health UI elements
@@ -65,4 +67,15 @@ public class PlayerUI : MonoBehaviour
     {
         crosshair.sizeDelta = new Vector2(currentCrosshair, currentCrosshair);
     }
+
+    public void ShowInteractPrompt()
+    {
+        interactPromptText.gameObject.SetActive(true);
+    }
+
+    public void HideInteractPrompt()
+    {
+        interactPromptText.gameObject.SetActive(false);
+    }
+
 }

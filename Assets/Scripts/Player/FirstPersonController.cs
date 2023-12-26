@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Player.Inventory;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class FirstPersonController : MonoBehaviour
@@ -186,18 +187,25 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private Vector3 interactionRayPoint = default;
     [SerializeField] private float interactionDistance = default;
     [SerializeField] private LayerMask interactionLayer = default;
+    [SerializeField] private LayerMask obstructionLayerMask;
     private Interactable currentInteractable;
     #endregion
     
     #region Crosshair
     // Crosshair settings
     [Header("Crosshair settings")]
-    [SerializeField] private float crosshairRestingSize = 50f;
-    [SerializeField] private float crosshairMaxSize = 80f;
+    [SerializeField] private float crosshairRestingSize = 100f;
+    [SerializeField] private float crosshairMaxSize = 175f;
     [SerializeField] private float crosshairSpeed = 5f;
     private float currentSize;
     #endregion
-    
+
+    #region Inventory
+    [SerializeField] private InventoryUI inventoryUI;
+    [SerializeField] private GameObject hotbarPanel;
+    private bool inventoryOpen = false;
+    #endregion
+
     // References to essential components
     private Camera playerCamera;
     private CharacterController characterController;
@@ -267,9 +275,11 @@ public class FirstPersonController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Always allow movement input handling, but apply movement only if CanMove is true
+        HandleMovementInput();
+
         if (CanMove)
         {
-            HandleMovementInput();
             HandleMouseLook();
 
             if (canJump)
@@ -322,14 +332,21 @@ public class FirstPersonController : MonoBehaviour
             {
                 HandleCrosshair();
             }
+        }
 
-            ApplyFinalMovements();
+        // Check the inventory toggle outside of the CanMove block so that it can be toggled at any time
+        if (controls.Gameplay.Inventory.triggered)
+        {
+            ToggleInventory();
+        }
 
-            if (wantsToStand && !IsObstacleAbove())
-            {
-                StartCoroutine(CrouchStand(false)); // Stand up
-                wantsToStand = false; // Reset the flag
-            }
+        // Apply gravity and final movements regardless of CanMove to ensure gravity is always applied
+        ApplyFinalMovements();
+
+        if (wantsToStand && !IsObstacleAbove())
+        {
+            StartCoroutine(CrouchStand(false)); // Stand up
+            wantsToStand = false; // Reset the flag
         }
     }
 
@@ -434,6 +451,34 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    private void ToggleInventory()
+    {
+        inventoryOpen = !inventoryOpen;
+        inventoryUI.gameObject.SetActive(inventoryOpen);
+        hotbarPanel.SetActive(inventoryOpen); // Toggle the hotbar panel visibility.
+
+        // Lock or unlock the cursor based on whether the inventory is open
+        Cursor.lockState = inventoryOpen ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = inventoryOpen;
+
+        // If the inventory has just been opened, update the display
+        if (inventoryOpen)
+        {
+            inventoryUI.UpdateInventoryDisplay();
+        }
+
+        // Don't disable movement controls, only camera and interaction
+        if (inventoryOpen)
+        {
+            controls.Gameplay.MouseLook.Disable();
+            controls.Gameplay.Attack.Disable();
+            controls.Gameplay.Interact.Disable();
+        }
+        else // Re-enable controls when the inventory is closed
+        {
+            controls.Gameplay.Enable();
+        }
+    }
 
     // Handles jumping
     private void HandleJump()
@@ -582,32 +627,26 @@ public class FirstPersonController : MonoBehaviour
     // Check for and focus/unfocus on interactable objects
     private void HandleInteractionCheck()
     {
-        RaycastHit hit;
-        bool hitAnInteractable = Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out hit, interactionDistance, interactionLayer);
-
-        if (hitAnInteractable)
+        if (Physics.Raycast(playerCamera.ViewportPointToRay(interactionRayPoint), out RaycastHit hit, interactionDistance, interactionLayer))
         {
-            // Check if we hit a different interactable object than the current one
-            if (currentInteractable == null || hit.collider.gameObject.GetInstanceID() != currentInteractable.gameObject.GetInstanceID())
+            Interactable interactable = hit.collider.GetComponent<Interactable>();
+            if (interactable != null && interactable.IsInViewAndNotObstructed(playerCamera.transform, obstructionLayerMask))
             {
-                // Lose focus on the previous interactable
-                if (currentInteractable != null)
+                if (currentInteractable != interactable)
                 {
-                    currentInteractable.OnLoseFocus();
-                }
+                    if (currentInteractable != null)
+                    {
+                        currentInteractable.OnLoseFocus();
+                    }
 
-                // Focus on the new interactable
-                hit.collider.TryGetComponent(out currentInteractable);
-                if (currentInteractable)
-                {
+                    currentInteractable = interactable;
                     currentInteractable.OnFocus();
                 }
             }
         }
         else
         {
-            // If no interactable is hit, lose focus on the current one
-            if (currentInteractable)
+            if (currentInteractable != null)
             {
                 currentInteractable.OnLoseFocus();
                 currentInteractable = null;
@@ -753,7 +792,11 @@ public class FirstPersonController : MonoBehaviour
             moveDirection += new Vector3(hitPointNormal.x, -hitPointNormal.y, hitPointNormal.z) * slopeSpeed;
         }
 
-        characterController.Move(moveDirection * Time.deltaTime);
+        // Only move the character if CanMove is true
+        if (CanMove)
+        {
+            characterController.Move(moveDirection * Time.deltaTime);
+        }
     }
 
     // Coroutine for stamina regeneration
