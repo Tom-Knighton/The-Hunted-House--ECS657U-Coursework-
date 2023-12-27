@@ -1,67 +1,56 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Door : Interactable
 {
-    private bool isOpen = false;
-    private bool canInteract = true;
-    private Animator anim;
-
+    private bool _isOpen = false;
+    private bool _canInteract = true;
+    private Animator _anim;
+    private static readonly int Dot = Animator.StringToHash("dot");
+    private static readonly int IsOpen = Animator.StringToHash("isOpen");
+    
     private void Start()
     {
-        anim = GetComponent<Animator>();
+        _anim = GetComponent<Animator>();
     }
-    public override void OnFocus()
-    {
-        base.OnFocus();
-    }
-
+    
     public override void OnInteract()
     {
-        if(canInteract)
-        {
-            isOpen = !isOpen;
+        if (!_canInteract) return;
+        
+        _isOpen = !_isOpen;
 
-            Vector3 doorTransformDirection = transform.TransformDirection(Vector3.forward);
-            Vector3 playerTransformDirection = FirstPersonController.instance.transform.position - transform.position;
-            float dot = Vector3.Dot(doorTransformDirection, playerTransformDirection);
+        var doorTransformDirection = transform.TransformDirection(Vector3.forward);
+        var playerTransformDirection = FirstPersonController.instance.transform.position - transform.position;
+        var dot = Vector3.Dot(doorTransformDirection, playerTransformDirection);
 
-            anim.SetFloat("dot", dot);
-            anim.SetBool("isOpen", isOpen);
+        _anim.SetFloat(Dot, dot);
+        _anim.SetBool(IsOpen, _isOpen);
 
-            StartCoroutine(AutoClose());
-        }
-    }
-
-    public override void OnLoseFocus()
-    {
-        base.OnLoseFocus();
+        StartCoroutine(AutoClose());
     }
 
     private IEnumerator AutoClose()
     {
-        while(isOpen)
+        while(_isOpen)
         {
-            yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(5);
             
-            if(Vector3.Distance(transform.position, FirstPersonController.instance.transform.position)> 3)
-            {
-                isOpen = false;
-                anim.SetFloat("dot", 0);
-                anim.SetBool("isOpen", isOpen) ;
-            }
+            _isOpen = false;
+            _anim.SetFloat(Dot, 0);
+            _anim.SetBool(IsOpen, _isOpen);
         }
     }
 
     private void Animator_LockInteraction()
     {
-        canInteract = false;
+        _canInteract = false;
     }
 
     private void Animator_UnlockInteraction()
     {
-        canInteract = true;
+        _canInteract = true;
     }
-
 }

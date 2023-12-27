@@ -133,4 +133,12 @@ public class EnemyAI : MonoBehaviour
         // Disable the FirstPersonController to prevent player inputs
         GameManager.Instance.DisablePlayer();
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out Door door))
+        {
+            door.OnInteract();
+        }
+    }
 }
