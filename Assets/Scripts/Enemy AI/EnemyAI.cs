@@ -104,7 +104,6 @@ public class EnemyAI : MonoBehaviour
 
     private void OnHealthChanged(float newHealth, float damageDealt)
     {
-        //TODO: At some point we can have separate enemy stages on health levels idk
         if (_localCanvas is not null)
         {
             _localCanvas.SetHealthBarPercentage((newHealth / _attackable.maxHealth) * 100);
