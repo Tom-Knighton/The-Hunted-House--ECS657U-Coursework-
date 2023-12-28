@@ -6,11 +6,12 @@ namespace Items
 {
     public class KeyBehaviour: PickupObject, IInventoryItem
     {
-        [SerializeField]
-        private Sprite icon;
+        [SerializeField] private Sprite icon;
+        [SerializeField] private GameObject model;
         public string Name => "GateKey";
         public int MaxStackableSize => 3;
         public Sprite Icon => icon;
+        public GameObject ItemModel => model;
 
         public override void OnInteract()
         {

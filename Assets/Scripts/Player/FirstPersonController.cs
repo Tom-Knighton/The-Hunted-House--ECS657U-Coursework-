@@ -5,6 +5,7 @@ using Player.Inventory;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class FirstPersonController : MonoBehaviour
 {
@@ -40,7 +41,7 @@ public class FirstPersonController : MonoBehaviour
     // Key bindings for controls
     private PlayerInputActions controls;
     #endregion
-    
+
     #region Movement
     // Movement speed settings
     [Header("Movement Parameters")]
@@ -58,7 +59,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField, Range(1, 180)] private float upperLookLimit = 80.0f;
     [SerializeField, Range(1, 180)] private float lowerLookLimit = 80.0f;
     #endregion
-    
+
     #region Stamina
     // Stamina settings
     [Header("Stamina Parameters")]
@@ -77,7 +78,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float jumpForce = 8.0f;
     [SerializeField] private float gravity = 30.0f;
     #endregion
-    
+
     #region Crouching
     // Crouching settings and state flags
     [Header("Crouch Parameters")]
@@ -91,7 +92,7 @@ public class FirstPersonController : MonoBehaviour
     private bool duringCrouchAnimation;
     private bool wantsToStand = false;
     #endregion
-    
+
     #region Attacking
     // Attack settings
     [Header("Attack Parameters")]
@@ -101,7 +102,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private LayerMask attackableLayers;
     private bool canAttack = true;
     #endregion
-    
+
     #region Headbobbing
     // Headbob settings
     [Header("Headbob Parameters")]
@@ -125,7 +126,7 @@ public class FirstPersonController : MonoBehaviour
     private float defaultFOV;
     private Coroutine zoomRoutine;
     #endregion
-    
+
     #region Footsteps
     // Footstep Settings
     [Header("FootstepParameters")]
@@ -155,7 +156,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private AudioClip landingClip;
     private bool wasInAir = false;
     #endregion
-   
+
     #region Sliding
     // SLIDING PARAMETERS
 
@@ -180,7 +181,7 @@ public class FirstPersonController : MonoBehaviour
         }
     }
     #endregion
-    
+
     #region Interaction
     // Interaction settings
     [Header("Interaction")]
@@ -190,7 +191,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private LayerMask obstructionLayerMask;
     private Interactable currentInteractable;
     #endregion
-    
+
     #region Crosshair
     // Crosshair settings
     [Header("Crosshair settings")]
@@ -201,9 +202,11 @@ public class FirstPersonController : MonoBehaviour
     #endregion
 
     #region Inventory
+    [Header("Inventory settings")]
     [SerializeField] private InventoryUI inventoryUI;
     [SerializeField] private GameObject hotbarPanel;
     private bool inventoryOpen = false;
+    private int currentEquippedSlot = 0;
     #endregion
 
     // References to essential components
@@ -237,7 +240,6 @@ public class FirstPersonController : MonoBehaviour
             concreteIndices = GenerateRandomIndex(concreteClips.Length);
             grassIndices = GenerateRandomIndex(grassClips.Length);
         }
-
         _attackable = GetComponent<Attackable>();
         Inventory = GetComponent<Inventory>();
     }
@@ -250,7 +252,7 @@ public class FirstPersonController : MonoBehaviour
             _attackable.OnHealthChanged.AddListener(OnHealthChanged);
             _attackable.OnDeath.AddListener(OnDeath);
         }
-
+        EquipItemInSlot(currentEquippedSlot);
         UpdateUIOnRespawn();
     }
 
@@ -258,7 +260,7 @@ public class FirstPersonController : MonoBehaviour
     {
         controls.Enable();
     }
-   private void OnDisable()
+    private void OnDisable()
     {
         controls.Disable();
     }
@@ -332,6 +334,8 @@ public class FirstPersonController : MonoBehaviour
             {
                 HandleCrosshair();
             }
+            HandleEquip();
+            DebugCurrentSlotInfo();
         }
 
         // Check the inventory toggle outside of the CanMove block so that it can be toggled at any time
@@ -478,6 +482,70 @@ public class FirstPersonController : MonoBehaviour
         {
             controls.Gameplay.Enable();
         }
+    }
+
+    private void HandleEquip()
+    {
+        if (controls.Gameplay.HotbarSlot1.triggered) { EquipItemInSlot(0); }
+        if (controls.Gameplay.HotbarSlot2.triggered) { EquipItemInSlot(1); }
+        if (controls.Gameplay.HotbarSlot3.triggered) { EquipItemInSlot(2); }
+        if (controls.Gameplay.HotbarSlot4.triggered) { EquipItemInSlot(3); }
+        UpdateEquippedItem();
+    }
+    private void EquipItemInSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= Inventory.HotbarSize)
+            return;
+        int previousEquippedSlot = currentEquippedSlot;
+        var item = Inventory.GetHotbarSlot(slotIndex).Item;
+        UnequipCurrentItem();
+
+        if (item != null)
+        {
+            item.ItemModel.SetActive(true);
+        }
+        currentEquippedSlot = slotIndex;
+    }
+    private void UnequipCurrentItem()
+    {
+        var currentItem = Inventory.GetHotbarSlot(currentEquippedSlot).Item;
+        if (currentItem != null)
+        {
+            currentItem.ItemModel.SetActive(false);
+        }
+    }
+
+    private void UpdateEquippedItem()
+    {
+        var currentSlotItem = Inventory.GetHotbarSlot(currentEquippedSlot).Item;
+        foreach (Transform child in playerCamera.transform)
+        {
+            child.gameObject.SetActive(false);
+        }
+        if (currentSlotItem != null)
+        {
+            currentSlotItem.ItemModel.SetActive(true);
+        }
+    }
+
+    private bool IsItemInHotbar(IInventoryItem item)
+    {
+        for (int i = 0; i < Inventory.HotbarSize; i++)
+        {
+            if (Inventory.GetHotbarSlot(i).Item == item)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void DebugCurrentSlotInfo()
+    {
+        var currentSlot = Inventory.GetHotbarSlot(currentEquippedSlot);
+        var currentItem = currentSlot != null ? currentSlot.Item : null;
+        string itemName = currentItem != null ? currentItem.Name : "None";
+        Debug.Log($"Current Slot: {currentEquippedSlot}, Item: {itemName}");
     }
 
     // Handles jumping

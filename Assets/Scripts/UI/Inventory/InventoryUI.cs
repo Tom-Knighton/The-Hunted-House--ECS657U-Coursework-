@@ -124,32 +124,6 @@ public class InventoryUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         }
     }
 
-    private void UpdateSlotDisplay(InventorySlot slot, GameObject slotUI)
-    {
-        Transform itemIconTransform = slotUI.transform.Find("ItemIcon");
-        if (itemIconTransform == null)
-        {
-            Debug.LogError("ItemIcon not found in slot");
-            return;
-        }
-
-        Image itemImage = itemIconTransform.GetComponent<Image>();
-        TextMeshProUGUI quantityText = slotUI.GetComponentInChildren<TextMeshProUGUI>();
-
-        if (!slot.IsEmpty)
-        {
-            itemImage.sprite = slot.Item.Icon;
-            itemImage.enabled = true;
-            quantityText.text = slot.Quantity.ToString();
-        }
-        else
-        {
-            itemImage.sprite = null;
-            itemImage.enabled = false;
-            quantityText.text = "";
-        }
-    }
-
     private void OnEnable()
     {
         // Subscribe to the inventory changed event

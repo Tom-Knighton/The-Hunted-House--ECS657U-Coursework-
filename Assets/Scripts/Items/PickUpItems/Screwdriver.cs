@@ -6,11 +6,12 @@ namespace Items
 {
     public class Screwdriver: PickupObject, IInventoryItem
     {
-        [SerializeField]
-        private Sprite icon;
+        [SerializeField] private Sprite icon;
+        [SerializeField] private GameObject model;
         public string Name => "Screwdriver";
         public int MaxStackableSize => 1;
         public Sprite Icon => icon;
+        public GameObject ItemModel => model;
         public override void OnInteract()
         {
             Debug.Log($"Attempting to add {Name} to inventory");

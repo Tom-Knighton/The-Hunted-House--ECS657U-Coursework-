@@ -7,5 +7,6 @@ namespace Player.Inventory
         public string Name { get; }
         public int MaxStackableSize { get; }
         Sprite Icon { get; }
+        GameObject ItemModel { get; }
     }
 }

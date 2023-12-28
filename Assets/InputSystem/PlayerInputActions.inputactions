@@ -85,6 +85,42 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "HotbarSlot1",
+                    "type": "Button",
+                    "id": "91011e6c-f20f-4d11-bf87-ba69cc1e7470",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "HotbarSlot2",
+                    "type": "Button",
+                    "id": "a0aa88db-d8af-4193-80bd-4d75b71ce831",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "HotbarSlot3",
+                    "type": "Button",
+                    "id": "7b213856-1ab2-4e77-93b8-7834ffc28191",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "HotbarSlot4",
+                    "type": "Button",
+                    "id": "45968746-136e-4a81-9220-b6f36257a171",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -360,6 +396,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "Inventory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "03d382bc-9e17-4410-9bff-c42cd763d490",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HotbarSlot1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4d0337db-18e2-4d89-a2d0-64839a7eb925",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HotbarSlot2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e64cccd5-7bc5-477b-aad4-7f618cfb798d",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HotbarSlot3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5b898436-3c38-4522-8338-8b0c1003c320",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HotbarSlot4",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

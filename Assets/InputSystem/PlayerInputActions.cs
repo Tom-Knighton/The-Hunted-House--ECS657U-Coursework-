@@ -107,6 +107,42 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HotbarSlot1"",
+                    ""type"": ""Button"",
+                    ""id"": ""91011e6c-f20f-4d11-bf87-ba69cc1e7470"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HotbarSlot2"",
+                    ""type"": ""Button"",
+                    ""id"": ""a0aa88db-d8af-4193-80bd-4d75b71ce831"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HotbarSlot3"",
+                    ""type"": ""Button"",
+                    ""id"": ""7b213856-1ab2-4e77-93b8-7834ffc28191"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HotbarSlot4"",
+                    ""type"": ""Button"",
+                    ""id"": ""45968746-136e-4a81-9220-b6f36257a171"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -384,6 +420,50 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Inventory"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""03d382bc-9e17-4410-9bff-c42cd763d490"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HotbarSlot1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4d0337db-18e2-4d89-a2d0-64839a7eb925"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HotbarSlot2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e64cccd5-7bc5-477b-aad4-7f618cfb798d"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HotbarSlot3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5b898436-3c38-4522-8338-8b0c1003c320"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HotbarSlot4"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -401,6 +481,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Gameplay_Interact = m_Gameplay.FindAction("Interact", throwIfNotFound: true);
         m_Gameplay_Zoom = m_Gameplay.FindAction("Zoom", throwIfNotFound: true);
         m_Gameplay_Inventory = m_Gameplay.FindAction("Inventory", throwIfNotFound: true);
+        m_Gameplay_HotbarSlot1 = m_Gameplay.FindAction("HotbarSlot1", throwIfNotFound: true);
+        m_Gameplay_HotbarSlot2 = m_Gameplay.FindAction("HotbarSlot2", throwIfNotFound: true);
+        m_Gameplay_HotbarSlot3 = m_Gameplay.FindAction("HotbarSlot3", throwIfNotFound: true);
+        m_Gameplay_HotbarSlot4 = m_Gameplay.FindAction("HotbarSlot4", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -471,6 +555,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Interact;
     private readonly InputAction m_Gameplay_Zoom;
     private readonly InputAction m_Gameplay_Inventory;
+    private readonly InputAction m_Gameplay_HotbarSlot1;
+    private readonly InputAction m_Gameplay_HotbarSlot2;
+    private readonly InputAction m_Gameplay_HotbarSlot3;
+    private readonly InputAction m_Gameplay_HotbarSlot4;
     public struct GameplayActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -484,6 +572,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         public InputAction @Interact => m_Wrapper.m_Gameplay_Interact;
         public InputAction @Zoom => m_Wrapper.m_Gameplay_Zoom;
         public InputAction @Inventory => m_Wrapper.m_Gameplay_Inventory;
+        public InputAction @HotbarSlot1 => m_Wrapper.m_Gameplay_HotbarSlot1;
+        public InputAction @HotbarSlot2 => m_Wrapper.m_Gameplay_HotbarSlot2;
+        public InputAction @HotbarSlot3 => m_Wrapper.m_Gameplay_HotbarSlot3;
+        public InputAction @HotbarSlot4 => m_Wrapper.m_Gameplay_HotbarSlot4;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -520,6 +612,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Inventory.started += instance.OnInventory;
             @Inventory.performed += instance.OnInventory;
             @Inventory.canceled += instance.OnInventory;
+            @HotbarSlot1.started += instance.OnHotbarSlot1;
+            @HotbarSlot1.performed += instance.OnHotbarSlot1;
+            @HotbarSlot1.canceled += instance.OnHotbarSlot1;
+            @HotbarSlot2.started += instance.OnHotbarSlot2;
+            @HotbarSlot2.performed += instance.OnHotbarSlot2;
+            @HotbarSlot2.canceled += instance.OnHotbarSlot2;
+            @HotbarSlot3.started += instance.OnHotbarSlot3;
+            @HotbarSlot3.performed += instance.OnHotbarSlot3;
+            @HotbarSlot3.canceled += instance.OnHotbarSlot3;
+            @HotbarSlot4.started += instance.OnHotbarSlot4;
+            @HotbarSlot4.performed += instance.OnHotbarSlot4;
+            @HotbarSlot4.canceled += instance.OnHotbarSlot4;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -551,6 +655,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Inventory.started -= instance.OnInventory;
             @Inventory.performed -= instance.OnInventory;
             @Inventory.canceled -= instance.OnInventory;
+            @HotbarSlot1.started -= instance.OnHotbarSlot1;
+            @HotbarSlot1.performed -= instance.OnHotbarSlot1;
+            @HotbarSlot1.canceled -= instance.OnHotbarSlot1;
+            @HotbarSlot2.started -= instance.OnHotbarSlot2;
+            @HotbarSlot2.performed -= instance.OnHotbarSlot2;
+            @HotbarSlot2.canceled -= instance.OnHotbarSlot2;
+            @HotbarSlot3.started -= instance.OnHotbarSlot3;
+            @HotbarSlot3.performed -= instance.OnHotbarSlot3;
+            @HotbarSlot3.canceled -= instance.OnHotbarSlot3;
+            @HotbarSlot4.started -= instance.OnHotbarSlot4;
+            @HotbarSlot4.performed -= instance.OnHotbarSlot4;
+            @HotbarSlot4.canceled -= instance.OnHotbarSlot4;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -579,5 +695,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         void OnInteract(InputAction.CallbackContext context);
         void OnZoom(InputAction.CallbackContext context);
         void OnInventory(InputAction.CallbackContext context);
+        void OnHotbarSlot1(InputAction.CallbackContext context);
+        void OnHotbarSlot2(InputAction.CallbackContext context);
+        void OnHotbarSlot3(InputAction.CallbackContext context);
+        void OnHotbarSlot4(InputAction.CallbackContext context);
     }
 }
