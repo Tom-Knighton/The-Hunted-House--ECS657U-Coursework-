@@ -57,6 +57,7 @@ namespace Game
                 UIManager.Instance.ShowOpeningScrawl();  // Show the opening narrative
             }
             _currentTime = DateTime.Parse("2023-01-01 20:00:00");
+            ChangedTo(GameSceneType.Inside);
         }
 
         private void Update()
@@ -117,9 +118,11 @@ namespace Game
             {
                 case GameSceneType.Inside:
                     AudioManager.Instance.PlayInsideRain();
+                    RenderSettings.fogDensity = 0.05f;
                     break;
                 case GameSceneType.Outside:
                     AudioManager.Instance.PlayOutsideRain();
+                    RenderSettings.fogDensity = 0.12f;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
