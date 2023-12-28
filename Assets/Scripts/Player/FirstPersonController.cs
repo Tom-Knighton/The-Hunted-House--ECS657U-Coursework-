@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Game;
 using JetBrains.Annotations;
 using Player.Inventory;
 using UnityEngine;
@@ -149,6 +150,7 @@ public class FirstPersonController : MonoBehaviour
     private int currentconcreteFootstepIndex = 0;
     private int currentGrassFootstepIndex = 0;
     private float crouchVolumeMultiplier = 0.5f;
+    private bool _wasLastInside = true;
     #endregion
 
     #region Jump/Land sounds
@@ -809,8 +811,9 @@ public class FirstPersonController : MonoBehaviour
 
         if (footstepTimer <= 0)
         {
+            var insideNow = true;
             // Raycast to determine surface type
-            if (Physics.Raycast(playerCamera.transform.position, Vector3.down, out RaycastHit hit, 3))
+            if (Physics.Raycast(playerCamera.transform.position, Vector3.down, out var hit, 3))
             {
                 // Adjust volume for crouch
                 footstepAudioSource.volume = isCrouching ? crouchVolumeMultiplier : 0.75f;
@@ -820,14 +823,17 @@ public class FirstPersonController : MonoBehaviour
                 switch (hit.collider.tag)
                 {
                     case "Footsteps/WOOD":
+                        insideNow = true;
                         footstepAudioSource.PlayOneShot(woodClips[woodIndices[currentWoodFootstepIndex]]);
                         ShiftIndex(ref currentWoodFootstepIndex, woodClips.Length, ref woodIndices);
                         break;
                     case "Footsteps/CONCRETE":
+                        insideNow = true;
                         footstepAudioSource.PlayOneShot(concreteClips[concreteIndices[currentconcreteFootstepIndex]]);
                         ShiftIndex(ref currentconcreteFootstepIndex, concreteClips.Length, ref concreteIndices);
                         break;
                     case "Footsteps/GRASS":
+                        insideNow = false;
                         footstepAudioSource.PlayOneShot(grassClips[grassIndices[currentGrassFootstepIndex]]);
                         ShiftIndex(ref currentGrassFootstepIndex, grassClips.Length, ref grassIndices);
                         break;
@@ -837,6 +843,12 @@ public class FirstPersonController : MonoBehaviour
             }
             // Reset footstep timer
             footstepTimer = GetCurrentOffset;
+
+            if (insideNow != _wasLastInside)
+            {
+                GameManager.Instance.ChangedTo(insideNow ? GameSceneType.Inside : GameSceneType.Outside);
+                _wasLastInside = insideNow;
+            }
         }
 
     }

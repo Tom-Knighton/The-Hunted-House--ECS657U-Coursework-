@@ -9,7 +9,7 @@ public class MainMenuController : MonoBehaviour
     public GameObject instructionsPanel;
     public void StartGame()
     {
-        GameManager.debugMode = false; // Ensure debug mode is off
+        GameManager.Instance.debugMode = false; // Ensure debug mode is off
         SceneManager.LoadScene("MainGame"); // Load the main game scene
     }
     // Method to open the instructions panel
@@ -27,7 +27,7 @@ public class MainMenuController : MonoBehaviour
     // Method to restart the game
     public void RestartGame()
     {
-        GameManager.debugMode = true; // Enable debug mode
+        GameManager.Instance.debugMode = true; // Enable debug mode
         UIManager.Instance.ShowPlayerUI(); // Show the player UI
         SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Reload the current scene
         gameObject.SetActive(false); // Deactivate the menu object

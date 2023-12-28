@@ -5,8 +5,12 @@ namespace Game
     public class AudioManager: MonoBehaviour
     {
         public AudioSource source;
+        private AudioSource _rainSource;
         
         public AudioClip phoneCall;
+
+        public AudioClip rainOutside;
+        public AudioClip rainInside;
         
         public static AudioManager Instance { get; private set; }
         
@@ -17,6 +21,9 @@ namespace Game
             {
                 Instance = this;
                 source = GetComponent<AudioSource>();
+
+                _rainSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
+                PlayInsideRain();
             }
             else if (Instance != this)
             {
@@ -31,5 +38,22 @@ namespace Game
             source.Play();
         }
 
+        /// <summary>
+        /// Plays the outside rain sound as a 2d sound
+        /// </summary>
+        public void PlayOutsideRain()
+        {
+            _rainSource.clip = rainOutside;
+            _rainSource.Play();
+        }
+        
+        /// <summary>
+        /// Plays the inside/muffled rain sound as a 2d sound
+        /// </summary>
+        public void PlayInsideRain()
+        {
+            _rainSource.clip = rainInside;
+            _rainSource.Play();
+        }
     }
 }

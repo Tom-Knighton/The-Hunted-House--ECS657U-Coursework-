@@ -15,7 +15,7 @@ namespace Game
 
         public static GameManager Instance; // Singleton instance
 
-        public static bool debugMode = true; // Flag for debug mode
+        [SerializeField] public bool debugMode = true; // Flag for debug mode
 
         private bool _introCompleted = false;
         public GameObject IntroBlockWall;
@@ -107,5 +107,29 @@ namespace Game
                 enemy.gameObject.SetActive(true); // Activate each enemy
             }
         }
+
+        /// <summary>
+        /// Notifies the game manager that the game has moved inside or outside
+        /// </summary>
+        public void ChangedTo(GameSceneType type)
+        {
+            switch (type)
+            {
+                case GameSceneType.Inside:
+                    AudioManager.Instance.PlayInsideRain();
+                    break;
+                case GameSceneType.Outside:
+                    AudioManager.Instance.PlayOutsideRain();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+    }
+
+    public enum GameSceneType
+    {
+        Outside,
+        Inside
     }
 }
