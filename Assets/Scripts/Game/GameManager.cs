@@ -7,7 +7,7 @@ namespace Game
     // Manages the overall game state, including the game timer and activation of player/enemies
     public class GameManager: MonoBehaviour
     {
-        private DateTime _gameEndTime = DateTime.Parse("2023-01-02 08:00:00"); // 8am the next day
+        private DateTime _gameEndTime = DateTime.Parse("2023-01-02 06:00:00"); // 8am the next day
         private DateTime _currentTime;
         
         [SerializeField] public FirstPersonController player;
@@ -56,7 +56,7 @@ namespace Game
                 }
                 UIManager.Instance.ShowOpeningScrawl();  // Show the opening narrative
             }
-            _currentTime = DateTime.Parse("2023-01-01 18:00:00");
+            _currentTime = DateTime.Parse("2023-01-01 20:00:00");
         }
 
         private void Update()
@@ -70,7 +70,7 @@ namespace Game
         private void UpdateTime()
         {
             // Advance the current time by a scaled amount of real time
-            _currentTime = _currentTime.AddMilliseconds(Time.deltaTime * 10000f);
+            _currentTime = _currentTime.AddSeconds(Time.deltaTime * 60f);
             // Update the UI with the time left until the game ends
             UIManager.Instance.UpdateTimeLeft(_gameEndTime - _currentTime);
 
