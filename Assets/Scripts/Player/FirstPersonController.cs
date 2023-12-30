@@ -99,6 +99,9 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float attackRange = 2.0f;
     [SerializeField] private float attackDamage = 10.0f;
     [SerializeField] private float attackCooldown = 1.0f;
+    [SerializeField] private Animator razorBrushAnimator; // Assign in inspector
+    [SerializeField] private float razorBrushAttackDamage = 50f;
+    [SerializeField] private GameObject razorBrush;
     [SerializeField] private LayerMask attackableLayers;
     private bool canAttack = true;
     #endregion
@@ -207,6 +210,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private GameObject hotbarPanel;
     private bool inventoryOpen = false;
     private int currentEquippedSlot = 0;
+    private IInventoryItem previouslyEquippedItem;
     #endregion
 
     // References to essential components
@@ -496,11 +500,15 @@ public class FirstPersonController : MonoBehaviour
     {
         if (slotIndex < 0 || slotIndex >= Inventory.HotbarSize)
             return;
-        int previousEquippedSlot = currentEquippedSlot;
         var item = Inventory.GetHotbarSlot(slotIndex).Item;
         UnequipCurrentItem();
 
-        if (item != null)
+        if (item != null && item.Name == "RazorBrush")
+        {
+            Debug.Log("RazorBrush is equipped.");
+            EquipRazorBrush();
+        }
+        else if (item != null)
         {
             item.ItemModel.SetActive(true);
         }
@@ -514,30 +522,45 @@ public class FirstPersonController : MonoBehaviour
             currentItem.ItemModel.SetActive(false);
         }
     }
-
-    private void UpdateEquippedItem()
+    private void EquipRazorBrush()
     {
-        var currentSlotItem = Inventory.GetHotbarSlot(currentEquippedSlot).Item;
-        foreach (Transform child in playerCamera.transform)
+        razorBrush.SetActive(true);
+        Debug.Log("RazorBrush is set active.");
+        razorBrushAnimator = razorBrush.GetComponent<Animator>();
+        if (razorBrushAnimator == null)
         {
-            child.gameObject.SetActive(false);
-        }
-        if (currentSlotItem != null)
-        {
-            currentSlotItem.ItemModel.SetActive(true);
+            Debug.LogError("RazorBrush Animator is not assigned!");
         }
     }
 
-    private bool IsItemInHotbar(IInventoryItem item)
+    private void UpdateEquippedItem()
     {
-        for (int i = 0; i < Inventory.HotbarSize; i++)
+        var currentSlot = Inventory.GetHotbarSlot(currentEquippedSlot);
+        var currentSlotItem = currentSlot?.Item;
+
+        // If the item has changed, update the equipped item.
+        if (previouslyEquippedItem != currentSlotItem)
         {
-            if (Inventory.GetHotbarSlot(i).Item == item)
+            // Deactivate the previous item if it exists.
+            if (previouslyEquippedItem?.ItemModel != null)
             {
-                return true;
+                previouslyEquippedItem.ItemModel.SetActive(false);
             }
+
+            // Activate the new item if it exists.
+            if (currentSlotItem?.ItemModel != null)
+            {
+                foreach (Transform child in playerCamera.transform)
+                {
+                    if (child.gameObject != currentSlotItem.ItemModel)
+                        child.gameObject.SetActive(false);
+                }
+                currentSlotItem.ItemModel.SetActive(true);
+            }
+
+            // Update the previously equipped item reference.
+            previouslyEquippedItem = currentSlotItem;
         }
-        return false;
     }
 
     private void DebugCurrentSlotInfo()
@@ -603,6 +626,28 @@ public class FirstPersonController : MonoBehaviour
     // Handles Attack
     private void HandleAttack()
     {
+        // Check if the current hotbar slot is null before accessing its properties
+        if (Inventory.GetHotbarSlot(currentEquippedSlot) != null &&
+           Inventory.GetHotbarSlot(currentEquippedSlot).Item != null &&
+           Inventory.GetHotbarSlot(currentEquippedSlot).Item.Name == "Razorbrush")
+        {
+            if (canAttack && controls.Gameplay.Attack.triggered)
+            {
+                Debug.Log("Attempting to perform RazorBrush attack.");
+                MeleeAttack();
+            }
+        }
+        else
+        {
+            if (canAttack && controls.Gameplay.Attack.triggered)
+            {
+                DefaultAttack();
+            }
+        }
+    }
+
+    private void DefaultAttack()
+    {
         if (canAttack && controls.Gameplay.Attack.triggered)
         {
             canAttack = false;
@@ -618,11 +663,29 @@ public class FirstPersonController : MonoBehaviour
                     enemy.Attack(attackDamage);
                 }
             }
-
             // Start cooldown
             StartCoroutine(AttackCooldown());
         }
+    }
+    private void MeleeAttack()
+    {
+        Debug.Log("Setting attack trigger for RazorBrush.");
+        // Play the attack animation
+        razorBrushAnimator.SetTrigger("Attack");
 
+        // Perform a raycast to check for hit
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out RaycastHit hit, attackRange, attackableLayers))
+        {
+            var enemy = hit.collider.GetComponent<Attackable>();
+            if (enemy != null)
+            {
+                print("Did damage with weapon");
+                enemy.Attack(razorBrushAttackDamage);
+            }
+        }
+
+        // Start cooldown
+        StartCoroutine(AttackCooldown());
     }
 
     // Handles headbobbing
