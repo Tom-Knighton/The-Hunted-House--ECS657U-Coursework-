@@ -6,12 +6,13 @@ namespace Items
 {
     public class Toothbrush : PickupObject, IInventoryItem
     {
-        [SerializeField]
-        private Sprite icon;
+        [SerializeField] private Sprite icon;
+        [SerializeField] private GameObject model;
 
         public string Name => "Toothbrush";
         public int MaxStackableSize => 5;
         public Sprite Icon => icon;
+        public GameObject ItemModel => model;
 
         public override void OnInteract()
         {

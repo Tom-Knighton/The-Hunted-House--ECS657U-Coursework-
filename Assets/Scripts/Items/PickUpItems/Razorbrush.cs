@@ -6,12 +6,13 @@ namespace Items
 {
     public class Razorbrush : PickupObject, IInventoryItem
     {
-        [SerializeField]
-        private Sprite icon;
+        [SerializeField] private Sprite icon;
+        [SerializeField] private GameObject model;
 
         public string Name => "Razorbrush";
         public int MaxStackableSize => 1;
         public Sprite Icon => icon;
+        public GameObject ItemModel => model;
 
         public override void OnInteract()
         {
