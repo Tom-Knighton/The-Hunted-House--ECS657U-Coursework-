@@ -12,6 +12,11 @@ namespace Game
         public AudioClip rainOutside;
         public AudioClip rainInside;
         
+        [Header("Footstep Audio")]
+        [SerializeField] public AudioClip[] woodClips = default;
+        [SerializeField] public AudioClip[] concreteClips = default;
+        [SerializeField] public AudioClip[] grassClips = default;
+        
         public static AudioManager Instance { get; private set; }
         
         private void Awake()

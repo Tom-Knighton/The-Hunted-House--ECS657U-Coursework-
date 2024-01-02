@@ -138,9 +138,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float crouchStepMultiplier = 1.5f;
     [SerializeField] private float sprintStepMultiplier = 0.6f;
     [SerializeField] private AudioSource footstepAudioSource = default;
-    [SerializeField] private AudioClip[] woodClips = default;
-    [SerializeField] private AudioClip[] concreteClips = default;
-    [SerializeField] private AudioClip[] grassClips = default;
+    
     private float footstepTimer = 0;
     private float GetCurrentOffset => isCrouching ? baseStepSpeed * crouchStepMultiplier : IsSprinting && (currentStamina > 0) ? baseStepSpeed * sprintStepMultiplier : baseStepSpeed;
     private int[] woodIndices;
@@ -240,12 +238,7 @@ public class FirstPersonController : MonoBehaviour
         currentStamina = maxStamina;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        if (useFootsteps)
-        {
-            woodIndices = GenerateRandomIndex(woodClips.Length);
-            concreteIndices = GenerateRandomIndex(concreteClips.Length);
-            grassIndices = GenerateRandomIndex(grassClips.Length);
-        }
+        
         _attackable = GetComponent<Attackable>();
         Inventory = GetComponent<Inventory>();
     }
@@ -260,6 +253,13 @@ public class FirstPersonController : MonoBehaviour
         }
         EquipItemInSlot(currentEquippedSlot);
         UpdateUIOnRespawn();
+        
+        if (useFootsteps)
+        {
+            woodIndices = GenerateRandomIndex(AudioManager.Instance.woodClips.Length);
+            concreteIndices = GenerateRandomIndex(AudioManager.Instance.concreteClips.Length);
+            grassIndices = GenerateRandomIndex(AudioManager.Instance.grassClips.Length);
+        }
     }
 
     private void OnEnable()
@@ -816,25 +816,25 @@ public class FirstPersonController : MonoBehaviour
             {
                 // Adjust volume for crouch
                 footstepAudioSource.volume = isCrouching ? crouchVolumeMultiplier : 0.75f;
-                footstepAudioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                footstepAudioSource.pitch = Random.Range(0.9f, 1.1f);
 
                 // Play sound based on surface
                 switch (hit.collider.tag)
                 {
                     case "Footsteps/WOOD":
                         insideNow = true;
-                        footstepAudioSource.PlayOneShot(woodClips[woodIndices[currentWoodFootstepIndex]]);
-                        ShiftIndex(ref currentWoodFootstepIndex, woodClips.Length, ref woodIndices);
+                        footstepAudioSource.PlayOneShot(AudioManager.Instance.woodClips[woodIndices[currentWoodFootstepIndex]]);
+                        ShiftIndex(ref currentWoodFootstepIndex, AudioManager.Instance.woodClips.Length, ref woodIndices);
                         break;
                     case "Footsteps/CONCRETE":
                         insideNow = true;
-                        footstepAudioSource.PlayOneShot(concreteClips[concreteIndices[currentconcreteFootstepIndex]]);
-                        ShiftIndex(ref currentconcreteFootstepIndex, concreteClips.Length, ref concreteIndices);
+                        footstepAudioSource.PlayOneShot(AudioManager.Instance.concreteClips[concreteIndices[currentconcreteFootstepIndex]]);
+                        ShiftIndex(ref currentconcreteFootstepIndex, AudioManager.Instance.concreteClips.Length, ref concreteIndices);
                         break;
                     case "Footsteps/GRASS":
                         insideNow = false;
-                        footstepAudioSource.PlayOneShot(grassClips[grassIndices[currentGrassFootstepIndex]]);
-                        ShiftIndex(ref currentGrassFootstepIndex, grassClips.Length, ref grassIndices);
+                        footstepAudioSource.PlayOneShot(AudioManager.Instance.grassClips[grassIndices[currentGrassFootstepIndex]]);
+                        ShiftIndex(ref currentGrassFootstepIndex, AudioManager.Instance.grassClips.Length, ref grassIndices);
                         break;
                     default:
                         break;
