@@ -568,9 +568,8 @@ public class FirstPersonController : MonoBehaviour
     private void DebugCurrentSlotInfo()
     {
         var currentSlot = Inventory.GetHotbarSlot(currentEquippedSlot);
-        var currentItem = currentSlot != null ? currentSlot.Item : null;
-        string itemName = currentItem != null ? currentItem.Name : "None";
-        Debug.Log($"Current Slot: {currentEquippedSlot}, Item: {itemName}");
+        var currentItem = currentSlot?.Item;
+        var itemName = currentItem != null ? currentItem.Name : "None";
     }
 
     // Handles jumping

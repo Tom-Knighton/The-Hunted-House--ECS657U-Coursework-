@@ -43,6 +43,7 @@ namespace Game
         /// </summary>
         public void PlayOutsideRain()
         {
+            _rainSource.loop = true;
             _rainSource.clip = rainOutside;
             _rainSource.Play();
         }
@@ -52,6 +53,7 @@ namespace Game
         /// </summary>
         public void PlayInsideRain()
         {
+            _rainSource.loop = true;
             _rainSource.clip = rainInside;
             _rainSource.Play();
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 namespace Enemy_AI
 {
@@ -52,12 +53,14 @@ namespace Enemy_AI
                 if (angle is < 130 and > -130f) // If player is within 90-ish degrees of forward vector (so enemy doesn't have eyes in back of head :))
                 {
                     var distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
-                    seen = !Physics.Raycast(transform.position, forwardDirection, distanceToPlayer, ObstacleMask);
-                }
-
-                if (seen)
-                {
-                    Debug.DrawLine(transform.position, player.transform.position, Color.red);
+                    var raycastPos = transform.position;
+                    raycastPos.y += 1;
+                    seen = !Physics.Raycast(raycastPos, forwardDirection, distanceToPlayer, ObstacleMask);
+                    
+                    if (seen)
+                    {
+                        Debug.DrawLine(raycastPos, player.transform.position, Color.red);
+                    }
                 }
                 
                 // If last seen does not match current,
