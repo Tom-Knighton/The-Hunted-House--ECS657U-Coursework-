@@ -22,7 +22,7 @@ public class EnemyAI : MonoBehaviour
     
     [SerializeField]
     public List<PatrolPoint> patrolPoints = new();
-
+    
     private static readonly int Speed = Animator.StringToHash("Speed");
 
     private void Awake()
@@ -92,10 +92,10 @@ public class EnemyAI : MonoBehaviour
             _stateManager.SwitchState(EEnemyAIState.Chasing);
         }
         // Otherwise, we have seen them and now lost them, so we want to search around where we last saw them and eventually return to patrolling
-        else if (_lastSeenPlayerPosition != Vector3.zero)
+        else
         {
-            _stateManager.Data.PatrolWasInterrupted = true;
-            _stateManager.Data.SearchesLeft = 5;
+             _stateManager.Data.PatrolWasInterrupted = true;
+            _stateManager.Data.SearchesLeft = 3;
             _stateManager.Data.SearchAroundPoint = _lastSeenPlayerPosition;
             _stateManager.SwitchState(EEnemyAIState.Searching);
         }

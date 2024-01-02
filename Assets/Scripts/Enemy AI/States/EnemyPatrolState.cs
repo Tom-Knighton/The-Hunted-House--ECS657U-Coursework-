@@ -47,7 +47,7 @@ namespace Enemy_AI.States
 
         public override void OnLeaveState(EnemyStateManager context)
         {
-            
+            context.NavMeshAgent.ResetPath();
         }
 
         // Calculate the index of the next patrol point

@@ -38,9 +38,9 @@ namespace Enemy_AI.States
                         // Start cooldown
                         context.StartCoroutine(AttackCooldown(context.Data.attackCooldown));
                     }
+                    
+                    return; // Exit early if attack occurred
                 }
-
-                return; // Exit early if attack occurred
             }
             
             // Every update, move towards the target's current position

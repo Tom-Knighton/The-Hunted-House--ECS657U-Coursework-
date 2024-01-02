@@ -118,7 +118,7 @@ namespace Game
             {
                 case GameSceneType.Inside:
                     AudioManager.Instance.PlayInsideRain();
-                    RenderSettings.fogDensity = 0.05f;
+                    RenderSettings.fogDensity = 0.025f;
                     break;
                 case GameSceneType.Outside:
                     AudioManager.Instance.PlayOutsideRain();
