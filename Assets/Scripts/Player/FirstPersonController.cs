@@ -209,7 +209,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private InventoryUI inventoryUI;
     [SerializeField] private GameObject hotbarPanel;
     private bool inventoryOpen = false;
-    private int currentEquippedSlot = 0;
+    public int currentEquippedSlot = 0;
     private IInventoryItem previouslyEquippedItem;
     #endregion
 
