@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Game
@@ -16,6 +19,11 @@ namespace Game
         [SerializeField] public AudioClip[] woodClips = default;
         [SerializeField] public AudioClip[] concreteClips = default;
         [SerializeField] public AudioClip[] grassClips = default;
+        
+        [Header("Enemy Sounds")]
+        [SerializeField] public AudioClip[] EnemyAttackClips;
+        [SerializeField] public AudioClip[] EnemyGetHitClips;
+        [SerializeField] public AudioClip[] EnemySpotsYouClips;
         
         public static AudioManager Instance { get; private set; }
         
@@ -61,6 +69,20 @@ namespace Game
             _rainSource.loop = true;
             _rainSource.clip = rainInside;
             _rainSource.Play();
+        }
+
+        /// <summary>
+        /// Returns a random audio clip from an array provided
+        /// </summary>
+        public AudioClip GetRandom(ICollection<AudioClip> clips)
+        {
+            return clips.ElementAt(Random.Range(0, clips.Count - 1));
+        }
+
+        public void PlaySpottedSound()
+        {
+            source.clip = EnemySpotsYouClips.FirstOrDefault();
+            source.Play();
         }
     }
 }

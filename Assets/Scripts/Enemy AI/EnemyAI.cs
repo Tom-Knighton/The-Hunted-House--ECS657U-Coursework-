@@ -17,6 +17,7 @@ public class EnemyAI : MonoBehaviour
     private Attackable _attackable;
     private EnemyUI _localCanvas;
     private Animator _animator;
+    private EnemyAudio _audio;
 
     private Vector3 _lastSeenPlayerPosition;
     
@@ -37,6 +38,7 @@ public class EnemyAI : MonoBehaviour
         _attackable = GetComponent<Attackable>();
         _localCanvas = GetComponent<EnemyUI>();
         _animator = GetComponent<Animator>();
+        _audio = GetComponent<EnemyAudio>();
     }
 
     // Set up the enemy AI
@@ -90,11 +92,13 @@ public class EnemyAI : MonoBehaviour
             _lastSeenPlayerPosition = newTransform.position;
             _stateManager.Data.ChasingTarget = newTransform;
             _stateManager.SwitchState(EEnemyAIState.Chasing);
+
+            AudioManager.Instance.PlaySpottedSound();
         }
         // Otherwise, we have seen them and now lost them, so we want to search around where we last saw them and eventually return to patrolling
         else
         {
-             _stateManager.Data.PatrolWasInterrupted = true;
+            _stateManager.Data.PatrolWasInterrupted = true;
             _stateManager.Data.SearchesLeft = 3;
             _stateManager.Data.SearchAroundPoint = _lastSeenPlayerPosition;
             _stateManager.SwitchState(EEnemyAIState.Searching);
@@ -121,6 +125,7 @@ public class EnemyAI : MonoBehaviour
                     _stateManager.Data.PatrolWasInterrupted = true;
                     _stateManager.SwitchState(EEnemyAIState.Chasing);
                 }
+                _audio?.GetHitSound();
             }
         }
     }

@@ -38,6 +38,9 @@ namespace Enemy_AI.States
                         
                         // Start cooldown
                         context.StartCoroutine(AttackCooldown(context.Data.attackCooldown));
+                        
+                        // Play attack sound
+                        context.AudioAgent?.AttackSound();
                     }
                     
                     return; // Exit early if attack occurred

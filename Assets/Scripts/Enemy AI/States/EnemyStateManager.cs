@@ -29,6 +29,9 @@ namespace Enemy_AI.States
 
         [NonSerialized]
         public NavMeshAgent NavMeshAgent;
+        
+        [NonSerialized]
+        public EnemyAudio AudioAgent;
 
         [NonSerialized] private Animator _animator;
 
@@ -41,6 +44,7 @@ namespace Enemy_AI.States
         {
             NavMeshAgent = GetComponent<NavMeshAgent>();
             _animator = GetComponent<Animator>();
+            AudioAgent = GetComponent<EnemyAudio>();
             
             // Initialize Data properties from serialized fields
             Data.attackRange = attackRange;
