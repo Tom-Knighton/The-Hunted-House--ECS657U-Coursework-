@@ -94,6 +94,7 @@ public class EnemyAI : MonoBehaviour
             _stateManager.SwitchState(EEnemyAIState.Chasing);
 
             AudioManager.Instance.PlaySpottedSound();
+            AudioManager.Instance.StartPlayerHeartbeat();
         }
         // Otherwise, we have seen them and now lost them, so we want to search around where we last saw them and eventually return to patrolling
         else
@@ -102,6 +103,7 @@ public class EnemyAI : MonoBehaviour
             _stateManager.Data.SearchesLeft = 3;
             _stateManager.Data.SearchAroundPoint = _lastSeenPlayerPosition;
             _stateManager.SwitchState(EEnemyAIState.Searching);
+            AudioManager.Instance.StopPlayerHeartbeat();
         }
     }
 
