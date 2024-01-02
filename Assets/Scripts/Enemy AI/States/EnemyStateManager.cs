@@ -12,7 +12,7 @@ namespace Enemy_AI.States
         [SerializeField] public LayerMask attackableLayerMask;
         [SerializeField] public float attackCooldown = 3f;
         [SerializeField] public float attackDamage = 20f;
-        [SerializeField] public float attackRange = 0.5f;
+        [SerializeField] public float attackRange = 1f;
 
         [SerializeField] public EEnemyAIState CurrentEState = EEnemyAIState.Chasing;
 

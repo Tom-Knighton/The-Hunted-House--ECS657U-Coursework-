@@ -113,7 +113,7 @@ public class EnemyAI : MonoBehaviour
             {
                 _localCanvas.ShowDamagePopup(damageDealt);
 
-
+                _stateManager.SafeTriggerAnimator("GetAttacked");
                 // If we were attacked by player, assume we can now see them/feel it and turn around if necessary
                 if (_stateManager.CurrentEState != EEnemyAIState.Chasing)
                 {
