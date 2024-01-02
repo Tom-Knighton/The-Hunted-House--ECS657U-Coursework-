@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Game;
 using JetBrains.Annotations;
 using Player.Inventory;
 using UnityEngine;
@@ -137,9 +138,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float crouchStepMultiplier = 1.5f;
     [SerializeField] private float sprintStepMultiplier = 0.6f;
     [SerializeField] private AudioSource footstepAudioSource = default;
-    [SerializeField] private AudioClip[] woodClips = default;
-    [SerializeField] private AudioClip[] concreteClips = default;
-    [SerializeField] private AudioClip[] grassClips = default;
+    
     private float footstepTimer = 0;
     private float GetCurrentOffset => isCrouching ? baseStepSpeed * crouchStepMultiplier : IsSprinting && (currentStamina > 0) ? baseStepSpeed * sprintStepMultiplier : baseStepSpeed;
     private int[] woodIndices;
@@ -149,6 +148,7 @@ public class FirstPersonController : MonoBehaviour
     private int currentconcreteFootstepIndex = 0;
     private int currentGrassFootstepIndex = 0;
     private float crouchVolumeMultiplier = 0.5f;
+    private bool _wasLastInside = true;
     #endregion
 
     #region Jump/Land sounds
@@ -238,12 +238,7 @@ public class FirstPersonController : MonoBehaviour
         currentStamina = maxStamina;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        if (useFootsteps)
-        {
-            woodIndices = GenerateRandomIndex(woodClips.Length);
-            concreteIndices = GenerateRandomIndex(concreteClips.Length);
-            grassIndices = GenerateRandomIndex(grassClips.Length);
-        }
+        
         _attackable = GetComponent<Attackable>();
         Inventory = GetComponent<Inventory>();
     }
@@ -258,6 +253,13 @@ public class FirstPersonController : MonoBehaviour
         }
         EquipItemInSlot(currentEquippedSlot);
         UpdateUIOnRespawn();
+        
+        if (useFootsteps)
+        {
+            woodIndices = GenerateRandomIndex(AudioManager.Instance.woodClips.Length);
+            concreteIndices = GenerateRandomIndex(AudioManager.Instance.concreteClips.Length);
+            grassIndices = GenerateRandomIndex(AudioManager.Instance.grassClips.Length);
+        }
     }
 
     private void OnEnable()
@@ -566,9 +568,8 @@ public class FirstPersonController : MonoBehaviour
     private void DebugCurrentSlotInfo()
     {
         var currentSlot = Inventory.GetHotbarSlot(currentEquippedSlot);
-        var currentItem = currentSlot != null ? currentSlot.Item : null;
-        string itemName = currentItem != null ? currentItem.Name : "None";
-        Debug.Log($"Current Slot: {currentEquippedSlot}, Item: {itemName}");
+        var currentItem = currentSlot?.Item;
+        var itemName = currentItem != null ? currentItem.Name : "None";
     }
 
     // Handles jumping
@@ -809,27 +810,31 @@ public class FirstPersonController : MonoBehaviour
 
         if (footstepTimer <= 0)
         {
+            var insideNow = true;
             // Raycast to determine surface type
-            if (Physics.Raycast(playerCamera.transform.position, Vector3.down, out RaycastHit hit, 3))
+            if (Physics.Raycast(playerCamera.transform.position, Vector3.down, out var hit, 3))
             {
                 // Adjust volume for crouch
                 footstepAudioSource.volume = isCrouching ? crouchVolumeMultiplier : 0.75f;
-                footstepAudioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                footstepAudioSource.pitch = Random.Range(0.9f, 1.1f);
 
                 // Play sound based on surface
                 switch (hit.collider.tag)
                 {
                     case "Footsteps/WOOD":
-                        footstepAudioSource.PlayOneShot(woodClips[woodIndices[currentWoodFootstepIndex]]);
-                        ShiftIndex(ref currentWoodFootstepIndex, woodClips.Length, ref woodIndices);
+                        insideNow = true;
+                        footstepAudioSource.PlayOneShot(AudioManager.Instance.woodClips[woodIndices[currentWoodFootstepIndex]]);
+                        ShiftIndex(ref currentWoodFootstepIndex, AudioManager.Instance.woodClips.Length, ref woodIndices);
                         break;
                     case "Footsteps/CONCRETE":
-                        footstepAudioSource.PlayOneShot(concreteClips[concreteIndices[currentconcreteFootstepIndex]]);
-                        ShiftIndex(ref currentconcreteFootstepIndex, concreteClips.Length, ref concreteIndices);
+                        insideNow = true;
+                        footstepAudioSource.PlayOneShot(AudioManager.Instance.concreteClips[concreteIndices[currentconcreteFootstepIndex]]);
+                        ShiftIndex(ref currentconcreteFootstepIndex, AudioManager.Instance.concreteClips.Length, ref concreteIndices);
                         break;
                     case "Footsteps/GRASS":
-                        footstepAudioSource.PlayOneShot(grassClips[grassIndices[currentGrassFootstepIndex]]);
-                        ShiftIndex(ref currentGrassFootstepIndex, grassClips.Length, ref grassIndices);
+                        insideNow = false;
+                        footstepAudioSource.PlayOneShot(AudioManager.Instance.grassClips[grassIndices[currentGrassFootstepIndex]]);
+                        ShiftIndex(ref currentGrassFootstepIndex, AudioManager.Instance.grassClips.Length, ref grassIndices);
                         break;
                     default:
                         break;
@@ -837,6 +842,12 @@ public class FirstPersonController : MonoBehaviour
             }
             // Reset footstep timer
             footstepTimer = GetCurrentOffset;
+
+            if (insideNow != _wasLastInside)
+            {
+                GameManager.Instance.ChangedTo(insideNow ? GameSceneType.Inside : GameSceneType.Outside);
+                _wasLastInside = insideNow;
+            }
         }
 
     }

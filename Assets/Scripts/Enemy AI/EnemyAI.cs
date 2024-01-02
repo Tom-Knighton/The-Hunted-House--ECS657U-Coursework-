@@ -17,12 +17,13 @@ public class EnemyAI : MonoBehaviour
     private Attackable _attackable;
     private EnemyUI _localCanvas;
     private Animator _animator;
+    private EnemyAudio _audio;
 
     private Vector3 _lastSeenPlayerPosition;
     
     [SerializeField]
     public List<PatrolPoint> patrolPoints = new();
-
+    
     private static readonly int Speed = Animator.StringToHash("Speed");
 
     private void Awake()
@@ -37,6 +38,7 @@ public class EnemyAI : MonoBehaviour
         _attackable = GetComponent<Attackable>();
         _localCanvas = GetComponent<EnemyUI>();
         _animator = GetComponent<Animator>();
+        _audio = GetComponent<EnemyAudio>();
     }
 
     // Set up the enemy AI
@@ -90,21 +92,24 @@ public class EnemyAI : MonoBehaviour
             _lastSeenPlayerPosition = newTransform.position;
             _stateManager.Data.ChasingTarget = newTransform;
             _stateManager.SwitchState(EEnemyAIState.Chasing);
+
+            AudioManager.Instance.PlaySpottedSound();
+            AudioManager.Instance.StartPlayerHeartbeat();
         }
         // Otherwise, we have seen them and now lost them, so we want to search around where we last saw them and eventually return to patrolling
-        else if (_lastSeenPlayerPosition != Vector3.zero)
+        else
         {
             _stateManager.Data.PatrolWasInterrupted = true;
-            _stateManager.Data.SearchesLeft = 5;
+            _stateManager.Data.SearchesLeft = 3;
             _stateManager.Data.SearchAroundPoint = _lastSeenPlayerPosition;
             _stateManager.SwitchState(EEnemyAIState.Searching);
+            AudioManager.Instance.StopPlayerHeartbeat();
         }
     }
 
 
     private void OnHealthChanged(float newHealth, float damageDealt)
     {
-        //TODO: At some point we can have separate enemy stages on health levels idk
         if (_localCanvas is not null)
         {
             _localCanvas.SetHealthBarPercentage((newHealth / _attackable.maxHealth) * 100);
@@ -113,6 +118,16 @@ public class EnemyAI : MonoBehaviour
             if (damageDealt > 0)
             {
                 _localCanvas.ShowDamagePopup(damageDealt);
+
+                _stateManager.SafeTriggerAnimator("GetAttacked");
+                // If we were attacked by player, assume we can now see them/feel it and turn around if necessary
+                if (_stateManager.CurrentEState != EEnemyAIState.Chasing)
+                {
+                    _stateManager.Data.ChasingTarget = FirstPersonController.instance.transform;
+                    _stateManager.Data.PatrolWasInterrupted = true;
+                    _stateManager.SwitchState(EEnemyAIState.Chasing);
+                }
+                _audio?.GetHitSound();
             }
         }
     }
@@ -132,5 +147,13 @@ public class EnemyAI : MonoBehaviour
 
         // Disable the FirstPersonController to prevent player inputs
         GameManager.Instance.DisablePlayer();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out Door door))
+        {
+            door.OnInteract();
+        }
     }
 }

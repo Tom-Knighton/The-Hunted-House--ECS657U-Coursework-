@@ -12,13 +12,15 @@ namespace Enemy_AI.States
         [SerializeField] public LayerMask attackableLayerMask;
         [SerializeField] public float attackCooldown = 3f;
         [SerializeField] public float attackDamage = 20f;
-        [SerializeField] public float attackRange = 0.5f;
+        [SerializeField] public float attackRange = 1f;
 
-        
+        [SerializeField] public EEnemyAIState CurrentEState = EEnemyAIState.Chasing;
+
         /// <summary>
         /// The current state of the AI's behaviour
         /// </summary>
-        public EnemyAIState CurrentState;
+        [SerializeField] private EnemyAIState CurrentState;
+
 
         /// <summary>
         /// Shared data accessible by each state
@@ -27,6 +29,9 @@ namespace Enemy_AI.States
 
         [NonSerialized]
         public NavMeshAgent NavMeshAgent;
+        
+        [NonSerialized]
+        public EnemyAudio AudioAgent;
 
         [NonSerialized] private Animator _animator;
 
@@ -39,6 +44,7 @@ namespace Enemy_AI.States
         {
             NavMeshAgent = GetComponent<NavMeshAgent>();
             _animator = GetComponent<Animator>();
+            AudioAgent = GetComponent<EnemyAudio>();
             
             // Initialize Data properties from serialized fields
             Data.attackRange = attackRange;
@@ -59,6 +65,7 @@ namespace Enemy_AI.States
         /// <param name="state">The EEnemyAIState, manager decides which state implementation this belongs to</param>
         public void SwitchState(EEnemyAIState state)
         {
+            CurrentEState = state;
             CurrentState?.OnLeaveState(this);
             CurrentState = state switch
             {

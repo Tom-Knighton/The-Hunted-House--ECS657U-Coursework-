@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 namespace Enemy_AI
 {
@@ -14,6 +15,7 @@ namespace Enemy_AI
         
         private List<Delegate> _callbacks = new();
         private bool _lastSeen;
+        private int _lastSeenTries = 0;
 
         // Method to add a listener for player detection changes
         public void AddPlayerSeenListener(Action<bool, Transform> callback)
@@ -21,7 +23,7 @@ namespace Enemy_AI
             _callbacks.Add(callback);
         }
         
-        private void Update()
+        private void FixedUpdate()
         {
             // Check for the player within a sphere around the enemy
             Physics.OverlapSphereNonAlloc(transform.position, 5f, _visionResults, PlayerLayerMask);
@@ -48,29 +50,49 @@ namespace Enemy_AI
                 var seen = false;
 
                 // Check if the player is within the enemy's field of view
-                if (angle is < 100 and > -99f) // If player is within 90-ish degrees of forward vector (so enemy doesn't have eyes in back of head :))
+                if (angle is < 130 and > -130f) // If player is within 90-ish degrees of forward vector (so enemy doesn't have eyes in back of head :))
                 {
                     var distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
-                    seen = !Physics.Raycast(transform.position, forwardDirection, distanceToPlayer, ObstacleMask);
+                    var raycastPos = transform.position;
+                    raycastPos.y += 1;
+                    seen = !Physics.Raycast(raycastPos, forwardDirection, distanceToPlayer, ObstacleMask);
+                    
+                    if (seen)
+                    {
+                        Debug.DrawLine(raycastPos, player.transform.position, Color.red);
+                    }
                 }
-
-                if (seen)
-                {
-                    Debug.DrawLine(transform.position, player.transform.position, Color.red);
-                }
-
+                
+                // If last seen does not match current,
+                // if we can see the player, immediately notify AI manager,
+                // If we lost player, wait 250 FixedUpdates (about 5s depending on editor settings) and if we still can't, then notify manager
                 if (_lastSeen != seen)
                 {
-                    UpdateCallbacks(seen, seen ? player.transform : null);
-                    _lastSeen = seen;
+                    if (seen)
+                    {
+                        UpdateCallbacks(true, player.transform);
+                        _lastSeen = seen;
+                        _lastSeenTries = 0;
+                        Debug.Log("Seen!");
+                    }
+                    else
+                    {
+                        _lastSeenTries++;
+                        if (_lastSeenTries > 250)
+                        {
+                            UpdateCallbacks(false, null);
+                            _lastSeen = seen;
+                            _lastSeenTries = 0;
+                            Debug.Log("Lost!");
+                        }
+                    }
                 }
             }
             catch
             {
                 player = null;
                 _visionResults = new Collider[1];
-                _lastSeen = false;
-                UpdateCallbacks(_lastSeen, null);
+                Debug.LogError("Vision broke");
             }
             
         }

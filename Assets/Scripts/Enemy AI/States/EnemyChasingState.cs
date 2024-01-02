@@ -15,6 +15,7 @@ namespace Enemy_AI.States
         {
             _cachedPosition = context.Data.ChasingTarget.position;
             context.NavMeshAgent.speed = 3f;
+            context.NavMeshAgent.stoppingDistance = 1.5f;
         }
 
         // Called every frame the enemy is in the chasing state
@@ -37,10 +38,13 @@ namespace Enemy_AI.States
                         
                         // Start cooldown
                         context.StartCoroutine(AttackCooldown(context.Data.attackCooldown));
+                        
+                        // Play attack sound
+                        context.AudioAgent?.AttackSound();
                     }
+                    
+                    return; // Exit early if attack occurred
                 }
-
-                return; // Exit early if attack occurred
             }
             
             // Every update, move towards the target's current position
@@ -54,7 +58,10 @@ namespace Enemy_AI.States
 
 
             // Work around a NavMeshAgent issue which causes the agent to ignore stopping distance
-            context.NavMeshAgent.SetDestination(_cachedPosition.Value);
+            if (Vector3.Distance(context.NavMeshAgent.transform.position, _cachedPosition.Value) > 1f)
+            {
+                context.NavMeshAgent.SetDestination(_cachedPosition.Value);
+            }
         }
 
         // Called when exiting the chasing state
@@ -62,6 +69,7 @@ namespace Enemy_AI.States
         {
             _cachedPosition = null;
             context.NavMeshAgent.speed = 1f;
+            context.NavMeshAgent.stoppingDistance = 0f;
             context.NavMeshAgent.ResetPath();
         }
 

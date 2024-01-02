@@ -18,10 +18,10 @@ namespace Enemy_AI.States
             var searchAroundPoint = context.Data.SearchAroundPoint;
             if (searchAroundPoint == Vector3.zero)
             {
-                return;
+                context.SwitchState(EEnemyAIState.Patrolling);
             }
             // Set agent to move to the search point
-            context.NavMeshAgent.stoppingDistance = 0;
+            context.NavMeshAgent.stoppingDistance = 0f;
             context.NavMeshAgent.SetDestination(searchAroundPoint);
             context.Data.SearchesLeft -= 1;
         }
@@ -58,6 +58,7 @@ namespace Enemy_AI.States
         public override void OnLeaveState(EnemyStateManager context)
         {
             context.NavMeshAgent.stoppingDistance = 1.5f;
+            context.NavMeshAgent.ResetPath();
         }
     }
 }
