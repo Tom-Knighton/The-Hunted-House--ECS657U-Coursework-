@@ -112,6 +112,15 @@ public class EnemyAI : MonoBehaviour
             if (damageDealt > 0)
             {
                 _localCanvas.ShowDamagePopup(damageDealt);
+
+
+                // If we were attacked by player, assume we can now see them/feel it and turn around if necessary
+                if (_stateManager.CurrentEState != EEnemyAIState.Chasing)
+                {
+                    _stateManager.Data.ChasingTarget = FirstPersonController.instance.transform;
+                    _stateManager.Data.PatrolWasInterrupted = true;
+                    _stateManager.SwitchState(EEnemyAIState.Chasing);
+                }
             }
         }
     }

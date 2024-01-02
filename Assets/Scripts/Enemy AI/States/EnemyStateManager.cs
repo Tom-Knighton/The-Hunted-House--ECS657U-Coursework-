@@ -14,12 +14,12 @@ namespace Enemy_AI.States
         [SerializeField] public float attackDamage = 20f;
         [SerializeField] public float attackRange = 0.5f;
 
-        [SerializeField] private EEnemyAIState CurrentStateDebug = EEnemyAIState.Chasing;
+        [SerializeField] public EEnemyAIState CurrentEState = EEnemyAIState.Chasing;
 
         /// <summary>
         /// The current state of the AI's behaviour
         /// </summary>
-        [SerializeField] public EnemyAIState CurrentState;
+        [SerializeField] private EnemyAIState CurrentState;
 
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Enemy_AI.States
         /// <param name="state">The EEnemyAIState, manager decides which state implementation this belongs to</param>
         public void SwitchState(EEnemyAIState state)
         {
-            CurrentStateDebug = state;
+            CurrentEState = state;
             CurrentState?.OnLeaveState(this);
             CurrentState = state switch
             {
