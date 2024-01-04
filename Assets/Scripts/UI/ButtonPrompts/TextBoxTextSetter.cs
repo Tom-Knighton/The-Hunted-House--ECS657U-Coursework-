@@ -62,8 +62,8 @@ public class TextBoxTextSetter : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"Unrecognized input device: {currentDevice}. Defaulting to Xbox sprites.");
-            return spriteAssetsList.SpriteAssets[2];
+            Debug.LogWarning($"Unrecognized input device: {currentDevice}. Defaulting to Keyboard sprites.");
+            return spriteAssetsList.SpriteAssets[0];
         }
     }
 }

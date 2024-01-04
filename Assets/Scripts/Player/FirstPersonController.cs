@@ -55,8 +55,8 @@ public class FirstPersonController : MonoBehaviour
     #region Looking
     // Mouse look sensitivity and constraints
     [Header("Look Parameters")]
-    [SerializeField, Range(1, 10)] private float lookSpeedX = 1.8f;
-    [SerializeField, Range(1, 10)] private float lookSpeedY = 1.5f;
+    [SerializeField, Range(1, 10)] private float lookSpeedX = 1f;
+    [SerializeField, Range(1, 10)] private float lookSpeedY = 1f;
     [SerializeField, Range(1, 180)] private float upperLookLimit = 80.0f;
     [SerializeField, Range(1, 180)] private float lowerLookLimit = 80.0f;
     #endregion
@@ -138,7 +138,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float crouchStepMultiplier = 1.5f;
     [SerializeField] private float sprintStepMultiplier = 0.6f;
     [SerializeField] private AudioSource footstepAudioSource = default;
-    
+
     private float footstepTimer = 0;
     private float GetCurrentOffset => isCrouching ? baseStepSpeed * crouchStepMultiplier : IsSprinting && (currentStamina > 0) ? baseStepSpeed * sprintStepMultiplier : baseStepSpeed;
     private int[] woodIndices;
@@ -238,13 +238,16 @@ public class FirstPersonController : MonoBehaviour
         currentStamina = maxStamina;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        
+
         _attackable = GetComponent<Attackable>();
         Inventory = GetComponent<Inventory>();
     }
 
     private void Start()
     {
+        DebugKeybinds();
+        lookSpeedX = PlayerPrefs.GetFloat("XSensitivity", 1f);
+        lookSpeedY = PlayerPrefs.GetFloat("YSensitivity", 1f);
         // If the _attackable component is present, subscribe to its events
         if (_attackable is not null)
         {
@@ -253,7 +256,7 @@ public class FirstPersonController : MonoBehaviour
         }
         EquipItemInSlot(currentEquippedSlot);
         UpdateUIOnRespawn();
-        
+
         if (useFootsteps)
         {
             woodIndices = GenerateRandomIndex(AudioManager.Instance.woodClips.Length);
@@ -261,6 +264,35 @@ public class FirstPersonController : MonoBehaviour
             grassIndices = GenerateRandomIndex(AudioManager.Instance.grassClips.Length);
         }
     }
+
+    // This method will list all keybinds for the FirstPersonController
+    public void DebugKeybinds()
+    {
+        if (controls == null)
+        {
+            Debug.LogError("[FirstPersonController] PlayerInputActions is not initialized.");
+            return;
+        }
+
+        // Access each action map in the control scheme
+        foreach (var actionMap in controls.asset.actionMaps)
+        {
+            Debug.Log($"Action Map: {actionMap.name}");
+
+            // For each action in the action map, list its bindings
+            foreach (var action in actionMap.actions)
+            {
+                Debug.Log($"  Action: {action.name}");
+
+                // List all bindings for this action
+                foreach (var binding in action.bindings)
+                {
+                    string bindingPath = binding.path;
+                    Debug.Log($"    Binding: {bindingPath}");
+                }
+            }
+        }
+}
 
     private void OnEnable()
     {
