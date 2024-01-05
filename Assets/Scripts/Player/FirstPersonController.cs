@@ -231,6 +231,7 @@ public class FirstPersonController : MonoBehaviour
     {
         instance = this;
         controls = new PlayerInputActions();
+        LoadBindingOverrides();
         playerCamera = GetComponentInChildren<Camera>();
         characterController = GetComponent<CharacterController>();
         defaultYpos = playerCamera.transform.localPosition.y;
@@ -293,6 +294,17 @@ public class FirstPersonController : MonoBehaviour
             }
         }
 }
+
+    private void LoadBindingOverrides()
+    {
+        var rebinds = PlayerPrefs.GetString("rebinds", string.Empty);
+        if (!string.IsNullOrEmpty(rebinds))
+        {
+            controls.LoadBindingOverridesFromJson(rebinds);
+        }
+        // Enable the controls after loading overrides
+        controls.Enable();
+    }
 
     private void OnEnable()
     {

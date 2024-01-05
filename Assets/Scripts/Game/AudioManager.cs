@@ -41,7 +41,6 @@ namespace Game
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
                 source = GetComponent<AudioSource>();
 
                 _rainSource = gameObject.AddComponent<AudioSource>();

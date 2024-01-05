@@ -5,8 +5,8 @@ using UnityEngine.SceneManagement;
 // Controller for the main menu interactions
 public class MainMenuController : MonoBehaviour
 {
-
     public GameObject SettingsPage;
+    public GameObject MainPage;
     public void StartGame()
     {
         SceneManager.LoadScene("MainGame"); // Load the main game scene
@@ -15,12 +15,15 @@ public class MainMenuController : MonoBehaviour
     public void OpenSettings()
     {
         SettingsPage.SetActive(true);
+        MainPage.SetActive(false);
+
     }
 
     // Method to close the instructions panel
     public void CloseSettings()
     {
         SettingsPage.SetActive(false); // Deactivate the settings panel
+        MainPage.SetActive(true);
     }
 
     // Method to restart the game
