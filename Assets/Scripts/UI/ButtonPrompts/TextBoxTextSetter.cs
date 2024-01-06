@@ -17,6 +17,9 @@ public class TextBoxTextSetter : MonoBehaviour
     {
         _playerInput = new PlayerInputActions();
         _textBox = GetComponent<TMP_Text>();
+        string rebinds = PlayerPrefs.GetString("rebinds", string.Empty);
+        if (!string.IsNullOrEmpty(rebinds))
+            _playerInput.LoadBindingOverridesFromJson(rebinds);
     }
 
     private void Start()

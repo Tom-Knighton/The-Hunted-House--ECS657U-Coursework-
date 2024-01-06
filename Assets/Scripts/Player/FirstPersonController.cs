@@ -246,7 +246,6 @@ public class FirstPersonController : MonoBehaviour
 
     private void Start()
     {
-        DebugKeybinds();
         lookSpeedX = PlayerPrefs.GetFloat("XSensitivity", 1f);
         lookSpeedY = PlayerPrefs.GetFloat("YSensitivity", 1f);
         // If the _attackable component is present, subscribe to its events
@@ -265,35 +264,6 @@ public class FirstPersonController : MonoBehaviour
             grassIndices = GenerateRandomIndex(AudioManager.Instance.grassClips.Length);
         }
     }
-
-    // This method will list all keybinds for the FirstPersonController
-    public void DebugKeybinds()
-    {
-        if (controls == null)
-        {
-            Debug.LogError("[FirstPersonController] PlayerInputActions is not initialized.");
-            return;
-        }
-
-        // Access each action map in the control scheme
-        foreach (var actionMap in controls.asset.actionMaps)
-        {
-            Debug.Log($"Action Map: {actionMap.name}");
-
-            // For each action in the action map, list its bindings
-            foreach (var action in actionMap.actions)
-            {
-                Debug.Log($"  Action: {action.name}");
-
-                // List all bindings for this action
-                foreach (var binding in action.bindings)
-                {
-                    string bindingPath = binding.path;
-                    Debug.Log($"    Binding: {bindingPath}");
-                }
-            }
-        }
-}
 
     private void LoadBindingOverrides()
     {
@@ -385,7 +355,6 @@ public class FirstPersonController : MonoBehaviour
                 HandleCrosshair();
             }
             HandleEquip();
-            DebugCurrentSlotInfo();
         }
 
         // Check the inventory toggle outside of the CanMove block so that it can be toggled at any time
@@ -551,7 +520,6 @@ public class FirstPersonController : MonoBehaviour
 
         if (item != null && item.Name == "RazorBrush")
         {
-            Debug.Log("RazorBrush is equipped.");
             EquipRazorBrush();
         }
         else if (item != null)
@@ -571,11 +539,9 @@ public class FirstPersonController : MonoBehaviour
     private void EquipRazorBrush()
     {
         razorBrush.SetActive(true);
-        Debug.Log("RazorBrush is set active.");
         razorBrushAnimator = razorBrush.GetComponent<Animator>();
         if (razorBrushAnimator == null)
         {
-            Debug.LogError("RazorBrush Animator is not assigned!");
         }
     }
 
@@ -609,12 +575,6 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
-    private void DebugCurrentSlotInfo()
-    {
-        var currentSlot = Inventory.GetHotbarSlot(currentEquippedSlot);
-        var currentItem = currentSlot?.Item;
-        var itemName = currentItem != null ? currentItem.Name : "None";
-    }
 
     // Handles jumping
     private void HandleJump()
@@ -678,7 +638,6 @@ public class FirstPersonController : MonoBehaviour
         {
             if (canAttack && controls.Gameplay.Attack.triggered)
             {
-                Debug.Log("Attempting to perform RazorBrush attack.");
                 MeleeAttack();
             }
         }
@@ -714,7 +673,6 @@ public class FirstPersonController : MonoBehaviour
     }
     private void MeleeAttack()
     {
-        Debug.Log("Setting attack trigger for RazorBrush.");
         // Play the attack animation
         razorBrushAnimator.SetTrigger("Attack");
 

@@ -51,7 +51,6 @@ namespace Player.Inventory
                 return true;
             }
             // First, try to stack the item in an existing slot
-            Debug.Log($"Trying to add {item.Name} to inventory");
             foreach (var slot in _inventorySlots)
             {
                 if (slot.CanStackItem(item))
@@ -163,7 +162,6 @@ namespace Player.Inventory
 
         private void NotifyInventoryChanged()
         {
-            Debug.Log("Inventory or Hotbar changed");
             InventoryChanged?.Invoke();
         }
 
@@ -187,7 +185,6 @@ namespace Player.Inventory
 
         public void AddItem(IInventoryItem newItem)
         {
-            Debug.Log($"Adding {newItem.Name} to slot. Current Item: {Item?.Name}, Current Quantity: {Quantity}");
             if (Item == null)
             {
                 Item = newItem;

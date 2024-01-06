@@ -176,7 +176,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             bindingIndex = action.bindings.IndexOf(x => x.id == bindingId);
             if (bindingIndex == -1)
             {
-                Debug.LogError($"Cannot find binding with ID '{bindingId}' on '{action}'", this);
                 return false;
             }
 
@@ -207,7 +206,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
             // Give listeners a chance to configure UI in response.
             m_UpdateBindingUIEvent?.Invoke(this, displayString, deviceLayoutName, controlPath);
-            Debug.Log($"[RebindActionUI] UpdateBindingDisplay called. Display string: {displayString}");
         }
 
         /// <summary>
@@ -237,7 +235,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         /// </summary>
         public void StartInteractiveRebind()
         {
-            Debug.Log($"[RebindActionUI] StartInteractiveRebind called for action {actionReference?.action.name}");
             if (!ResolveActionAndBinding(out var action, out var bindingIndex))
                 return;
 
@@ -256,7 +253,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
         private void PerformInteractiveRebind(InputAction action, int bindingIndex, bool allCompositeParts = false)
         {
-            Debug.Log($"[RebindActionUI] PerformInteractiveRebind called for action {action.name}, bindingIndex: {bindingIndex}");
             m_RebindOperation?.Cancel(); // Will null out m_RebindOperation.
 
             void CleanUp()

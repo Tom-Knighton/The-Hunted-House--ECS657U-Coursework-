@@ -10,9 +10,7 @@ public abstract class Interactable : MonoBehaviour
     public virtual void Awake()
     {
         gameObject.layer = 9;
-
         outlineComponents = new List<Outline>(GetComponentsInChildren<Outline>());
-
     }
 
     public abstract void OnInteract();
