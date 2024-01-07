@@ -161,6 +161,23 @@ public class FirstPersonController : MonoBehaviour
 
     private Vector3 hitPointNormal;
 
+    public Vector3 exitPosition;
+
+    public void SavePosition(){
+
+        exitPosition = new Vector3(PlayerPrefs.GetFloat("x"), PlayerPrefs.GetFloat("y"), PlayerPrefs.GetFloat("z"));
+    }
+
+    public void canMovement(){
+
+        CanMove = !CanMove;
+        canInteract = true;
+        if (canInteract){
+            HandleInteractionCheck();
+            HandleInteractionInput();
+        }
+    }
+
     // Check if player is sliding on a slope
     private bool IsSliding
     {
