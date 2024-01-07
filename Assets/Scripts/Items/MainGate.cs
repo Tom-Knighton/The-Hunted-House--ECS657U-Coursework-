@@ -6,6 +6,7 @@ namespace Items
     {
         private bool _hasSeenBefore = false; // If the player has interacted with this gate before
         private static float KeysRequired => GameManager.Instance.GameSettings.KeysRequired;
+        private const string GateKeyName = "GateKey";
         
         /// <summary>
         /// When the player interacts with the gate, open it and win the game if player has enough keys
@@ -13,6 +14,7 @@ namespace Items
         public override void OnInteract()
         {
             var totalKeyCount = GameManager.Instance.player.Inventory.GetItemCount("GateKey");
+            // Access the FirstPersonController instance to check the current equipped item
 
             if (totalKeyCount < KeysRequired)
             {
@@ -25,6 +27,16 @@ namespace Items
                 return;
             }
 
+            
+            var playerController = GameManager.Instance.player.GetComponent<FirstPersonController>();
+            var currentEquippedItem = playerController?.Inventory.GetHotbarSlot(playerController.currentEquippedSlot)?.Item;
+
+            if (currentEquippedItem?.Name != GateKeyName)
+            {
+                UIManager.Instance.ShowHint("You need to equip the keys in your inventory to use them");
+                return;
+            }
+            
             UIManager.Instance.ShowVictoryScreen();
         }
     }
