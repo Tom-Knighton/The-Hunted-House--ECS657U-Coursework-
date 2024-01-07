@@ -966,6 +966,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 634077508449925699}
+  - component: {fileID: 4406190891162940278}
   m_Layer: 0
   m_Name: Closet
   m_TagString: Untagged
@@ -997,6 +998,27 @@ Transform:
   - {fileID: 2907436219558889664}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &4406190891162940278
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3515063788131468986}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.8335934, y: 3.5496485, z: 1.3352966}
+  m_Center: {x: -0.028981209, y: 1.7360495, z: 0.57671535}
 --- !u!1 &3535743942042518099
 GameObject:
   m_ObjectHideFlags: 0

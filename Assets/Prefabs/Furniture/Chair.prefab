@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6192653632036867867}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Legs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 1546366491094781859}
   - component: {fileID: 1080646686198293558}
   - component: {fileID: 4117033889355271314}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Lower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ GameObject:
   - component: {fileID: 4095884290858917597}
   - component: {fileID: 2197025535538755563}
   - component: {fileID: 1469513895622540861}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: LeftFront
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -257,7 +257,7 @@ GameObject:
   - component: {fileID: 3899717123560829429}
   - component: {fileID: 4438004006595625094}
   - component: {fileID: 2781217933537527174}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Upper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -362,7 +362,7 @@ GameObject:
   - component: {fileID: 2745144424596133143}
   - component: {fileID: 9188471000753201037}
   - component: {fileID: 3428983792303558815}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: RightFront
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -467,7 +467,7 @@ GameObject:
   - component: {fileID: 8376459528659609968}
   - component: {fileID: 3855024344463307849}
   - component: {fileID: 7010375162937935073}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: RightBack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -569,7 +569,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7639435384502992418}
-  m_Layer: 0
+  - component: {fileID: 6482310678480906238}
+  m_Layer: 7
   m_Name: Chair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -594,6 +595,27 @@ Transform:
   - {fileID: 6192653632036867867}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &6482310678480906238
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7405095843366564999}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.50239646, y: 1.3468282, z: 0.75329065}
+  m_Center: {x: 0.019753277, y: 0.5729536, z: -0.31184024}
 --- !u!1 &8723814189309096568
 GameObject:
   m_ObjectHideFlags: 0
@@ -606,7 +628,7 @@ GameObject:
   - component: {fileID: 6537194764499100957}
   - component: {fileID: 7267081861132934175}
   - component: {fileID: 3091556247625800075}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: LeftBack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
