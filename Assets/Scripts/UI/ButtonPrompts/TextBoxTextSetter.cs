@@ -122,7 +122,7 @@ public class TextBoxTextSetter : MonoBehaviour
         }
         else if (currentDevice is Gamepad gamepad)
         {
-            if (gamepad is DualShockGamepad || gamepad is DualSenseGamepadHID)
+            if (gamepad is DualShockGamepad)
             {
                 selectedSpriteAsset = spriteAssetsList.SpriteAssets[1];
             }
