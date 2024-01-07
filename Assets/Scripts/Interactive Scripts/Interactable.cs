@@ -15,6 +15,7 @@ public abstract class Interactable : MonoBehaviour
 
     public abstract void OnInteract();
 
+    // Show an outline when looking at the object
     public virtual void OnFocus()
     {
         foreach (var outline in outlineComponents)
@@ -24,6 +25,7 @@ public abstract class Interactable : MonoBehaviour
         PlayerUI.Instance.ShowInteractPrompt();
     }
 
+    // Hide the outline when looking aways
     public virtual void OnLoseFocus()
     {
         foreach (var outline in outlineComponents)
@@ -33,6 +35,7 @@ public abstract class Interactable : MonoBehaviour
         PlayerUI.Instance.HideInteractPrompt();
     }
 
+    // gets the correct interact key for the input mode
     protected string GetInteractKey()
     {
         var controls = new PlayerInputActions();
@@ -47,6 +50,7 @@ public abstract class Interactable : MonoBehaviour
         Debug.Log($"No valid binding index found. Defaulting to 'E'. Binding Index: {bindingIndex}");
         return "E";
     }
+    
     public bool IsInViewAndNotObstructed(Transform playerTransform, LayerMask obstructionLayers)
     {
         Vector3 directionToPlayer = playerTransform.position - transform.position;

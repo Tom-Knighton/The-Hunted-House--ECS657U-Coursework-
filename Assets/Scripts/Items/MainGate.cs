@@ -5,7 +5,7 @@ namespace Items
     public class MainGate : PickupObject
     {
         private bool _hasSeenBefore = false; // If the player has interacted with this gate before
-        private static float KeysRequired => GameManager.Instance.GameSettings.KeysRequired;
+        private static float KeysRequired => CurrentGameSettings.Settings.KeysRequired;
         private const string GateKeyName = "GateKey";
         
         /// <summary>
@@ -28,16 +28,17 @@ namespace Items
             }
 
             
+            // If player has keys in hotbar
             var playerController = GameManager.Instance.player.GetComponent<FirstPersonController>();
             var currentEquippedItem = playerController?.Inventory.GetHotbarSlot(playerController.currentEquippedSlot)?.Item;
 
             if (currentEquippedItem?.Name != GateKeyName)
             {
-                UIManager.Instance.ShowHint("You need to equip the keys in your inventory to use them");
+                UIManager.Instance.ShowHint("You need to equip the keys to your first hotbar slot to use them");
                 return;
             }
             
-            UIManager.Instance.ShowVictoryScreen();
+            UIManager.Instance.ShowEndingCutscene();
         }
     }
 }

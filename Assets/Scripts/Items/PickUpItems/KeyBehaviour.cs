@@ -13,6 +13,9 @@ namespace Items
         public Sprite Icon => icon;
         public GameObject ItemModel => model;
 
+        /// <summary>
+        /// Adds a key to the inventory
+        /// </summary>
         public override void OnInteract()
         {
             Debug.Log($"Attempting to add {Name} to inventory");

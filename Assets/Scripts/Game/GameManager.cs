@@ -59,7 +59,7 @@ namespace Game
                 }
                 UIManager.Instance.ShowOpeningScrawl();  // Show the opening narrative
             }
-            
+
             _currentTime = DateTime.Parse("2023-01-01 20:00:00");
             ChangedTo(GameSceneType.Inside);
             SpawnKeys();

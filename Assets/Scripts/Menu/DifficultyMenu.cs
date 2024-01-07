@@ -60,6 +60,7 @@ namespace Menu
         };
 
 
+        // On a checkbox toggle, see which one it was and apply the relevant difficulty setting
         public void OnToggle(Toggle toggle)
         {
             if (!toggle.isOn)

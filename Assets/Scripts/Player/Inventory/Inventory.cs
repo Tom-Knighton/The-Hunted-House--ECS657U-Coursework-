@@ -85,7 +85,10 @@ namespace Player.Inventory
         {
             return _inventorySlots
                 .Where(slot => slot.Item != null && slot.Item.Name == itemName)
-                .Sum(slot => slot.Quantity);
+                .Sum(slot => slot.Quantity) +
+               _hotbarSlots
+                   .Where(h => h?.Item?.Name == itemName)
+                   .Sum(s => s.Quantity);
         }
 
         public bool MoveToHotbar(int inventoryIndex, int hotbarIndex)

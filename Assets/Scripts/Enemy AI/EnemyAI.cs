@@ -76,6 +76,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // Sets up the enemy with their health data according to user difficulty settings
     public void StartEnemy(EnemySpawnSettings settings)
     {
         if (_attackable is not null)
