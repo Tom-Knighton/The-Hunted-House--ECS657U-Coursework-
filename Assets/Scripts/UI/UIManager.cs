@@ -212,7 +212,7 @@ public class UIManager : MonoBehaviour
         {
             "I've managed to call the police...",
             "They traced the call but can't get here for a while...",
-            "I need to find a way out of this basement, but I can't be seen...",
+            "I need to find a way out of this house, but I can't be seen...",
         };
         
         var messagesShown = 0;
@@ -237,6 +237,44 @@ public class UIManager : MonoBehaviour
             GameManager.Instance.EnablePlayers();
             GameManager.Instance.EnableEnemies();
             ShowPlayerUI();
+        }
+    }
+
+    /// <summary>
+    /// Shows the ending cutscene and presents the victory scene at the end
+    /// </summary>
+    public void ShowEndingCutscene()
+    {
+        FadeScreenOut(0f);
+        GameManager.Instance.DisablePlayer();
+        HidePlayerUI();
+        var messages = new List<string>
+        {
+            "I've managed to find all the keys, and opened the gate...",
+            "I ran to the nearest police station and am finally safe,",
+            "For now...",
+        };
+        
+        var messagesShown = 0;
+        
+        StartCoroutine(ShowTextAndHold());
+        
+        return;
+        
+        IEnumerator ShowTextAndHold()
+        {
+            overlay.SetOverlayVisibility(true);
+            while (messagesShown < messages.Count)
+            {
+                overlay.SetFullScreenMessage(messages[messagesShown]);
+                yield return new WaitForSeconds(5f);
+                overlay.SetFullScreenMessage(string.Empty);
+                yield return new WaitForSeconds(1.5f);
+                messagesShown++;
+            }
+            yield return null;
+            FadeScreenIn(5f);
+            ShowVictoryScreen("You escaped!");
         }
     }
     

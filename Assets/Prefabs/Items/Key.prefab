@@ -431,10 +431,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9045966652578498925}
-  - component: {fileID: 7198677789848241252}
   - component: {fileID: 7352896502890950665}
   - component: {fileID: 8774655183324177196}
   - component: {fileID: 7790651666906545385}
+  - component: {fileID: -8880535219154190808}
   m_Layer: 9
   m_Name: Key
   m_TagString: Untagged
@@ -461,27 +461,6 @@ Transform:
   - {fileID: 7740582013695476384}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &7198677789848241252
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8625192035370378394}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.52, y: 0.25, z: 0.37}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &7352896502890950665
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -523,7 +502,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pickUpPos: {fileID: 0}
   icon: {fileID: -1145614266, guid: 5300ba43a4488054aa7fe659fe4d7670, type: 3}
-  prefab: {fileID: 0}
+  model: {fileID: 0}
 --- !u!114 &7790651666906545385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -542,3 +521,24 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!65 &-8880535219154190808
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8625192035370378394}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.3, y: 0.1, z: 0.1}
+  m_Center: {x: 0.1, y: 0, z: 0}

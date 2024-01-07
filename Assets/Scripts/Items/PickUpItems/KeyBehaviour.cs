@@ -9,14 +9,17 @@ namespace Items
         [SerializeField] private Sprite icon;
         [SerializeField] private GameObject model;
         public string Name => "GateKey";
-        public int MaxStackableSize => 3;
+        public int MaxStackableSize => GameManager.Instance.GameSettings.KeysRequired;
         public Sprite Icon => icon;
         public GameObject ItemModel => model;
 
+        /// <summary>
+        /// Adds a key to the inventory
+        /// </summary>
         public override void OnInteract()
         {
             Debug.Log($"Attempting to add {Name} to inventory");
-            bool added = GameManager.Instance.player.Inventory?.TryAddItemToInventory(this) ?? false;
+            var added = GameManager.Instance.player.Inventory?.TryAddItemToInventory(this) ?? false;
 
             if (added)
             {

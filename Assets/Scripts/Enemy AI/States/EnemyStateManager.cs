@@ -40,7 +40,7 @@ namespace Enemy_AI.States
         private EnemyAIState _searchingState = new EnemySearchState();
         private EnemyAIState _chasingState = new EnemyChasingState();
         
-        private void Awake()
+        private void Start()
         {
             NavMeshAgent = GetComponent<NavMeshAgent>();
             _animator = GetComponent<Animator>();

@@ -20,8 +20,8 @@ public class Door : Interactable
     {
         if (!_canInteract) return;
         
+        // Open the door away  from the player
         _isOpen = !_isOpen;
-
         var doorTransformDirection = transform.TransformDirection(Vector3.forward);
         var playerTransformDirection = FirstPersonController.instance.transform.position - transform.position;
         var dot = Vector3.Dot(doorTransformDirection, playerTransformDirection);
@@ -34,6 +34,7 @@ public class Door : Interactable
 
     private IEnumerator AutoClose()
     {
+        // Start a routine to close the door after 5 seconds
         while(_isOpen)
         {
             yield return new WaitForSeconds(5);

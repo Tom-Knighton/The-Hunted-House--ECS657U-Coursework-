@@ -15,7 +15,7 @@ namespace Items
         public override void OnInteract()
         {
             Debug.Log($"Attempting to add {Name} to inventory");
-            bool added = GameManager.Instance.player.Inventory?.TryAddItemToInventory(this) ?? false;
+            var added = GameManager.Instance.player.Inventory?.TryAddItemToInventory(this) ?? false;
 
             if (added)
             {

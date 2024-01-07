@@ -31,11 +31,13 @@ namespace Enemy_AI
             HandleFootsteps();
         }
 
+        // Play a grunt sound when attacking
         public void AttackSound()
         {
             _audioSource.PlayOneShot(AudioManager.Instance.GetRandom(AudioManager.Instance.EnemyAttackClips));
         }
         
+        // Play a grunt when getting hit
         public void GetHitSound()
         {
             _audioSource.PlayOneShot(AudioManager.Instance.GetRandom(AudioManager.Instance.EnemyGetHitClips));

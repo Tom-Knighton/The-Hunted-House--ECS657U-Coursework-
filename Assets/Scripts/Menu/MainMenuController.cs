@@ -7,6 +7,8 @@ public class MainMenuController : MonoBehaviour
 {
     public GameObject SettingsPage;
     public GameObject MainPage;
+    public GameObject DifficultyPage;
+    
     public void StartGame()
     {
         SceneManager.LoadScene("MainGame"); // Load the main game scene
@@ -40,5 +42,19 @@ public class MainMenuController : MonoBehaviour
     {
         SceneManager.LoadScene("MainMenu"); // Load the main menu scene
         gameObject.SetActive(false); // Deactivate the menu object
+    }
+
+    // Opens the difficulty menu
+    public void GoToDifficulty()
+    {
+        DifficultyPage.SetActive(true);
+        MainPage.SetActive(false);
+    }
+
+    // Closes the difficulty page
+    public void CloseDifficulty()
+    {
+        DifficultyPage.SetActive(false);
+        MainPage.SetActive(true);
     }
 }

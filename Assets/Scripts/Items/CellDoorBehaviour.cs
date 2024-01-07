@@ -20,7 +20,7 @@ namespace Items
             var currentEquippedItem = playerController?.Inventory.GetHotbarSlot(playerController.currentEquippedSlot)?.Item;
 
             // Check if the currently equipped item is a screwdriver
-            if (currentEquippedItem != null && currentEquippedItem.Name == "Screwdriver")
+            if (currentEquippedItem is { Name: "Screwdriver" })
             {
                 var hinge = GameObject.Find("Hinge");
                 transform.RotateAround(hinge.transform.position, Vector3.up, 90);
@@ -29,7 +29,16 @@ namespace Items
             }
             else
             {
-                UIManager.Instance.ShowHint("You need to find something to open the door with...");
+                var hasScrewdriver = playerController.Inventory.GetItemCount("Screwdriver") > 0;
+
+                if (hasScrewdriver)
+                {
+                    UIManager.Instance.ShowHint("You need to equip the screwdriver to your hotbar. Open your inventory to do this.");
+                }
+                else
+                {
+                    UIManager.Instance.ShowHint("You need to find something to open the door with...");
+                }
             }
         }
     }

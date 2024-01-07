@@ -23,6 +23,8 @@ public class EnemyAI : MonoBehaviour
     
     [SerializeField]
     public List<PatrolPoint> patrolPoints = new();
+
+    [SerializeField] public bool IsMainBoss = false;
     
     private static readonly int Speed = Animator.StringToHash("Speed");
 
@@ -72,6 +74,24 @@ public class EnemyAI : MonoBehaviour
                 _localCanvas.SetHealthBarPercentage((_attackable.health / _attackable.maxHealth) * 100);
             }
         }
+    }
+
+    // Sets up the enemy with their health data according to user difficulty settings
+    public void StartEnemy(EnemySpawnSettings settings)
+    {
+        if (_attackable is not null)
+        {
+            _attackable.maxHealth = IsMainBoss ? settings.MainBossHealth : settings.MiniBossHealth;
+            _attackable.health = IsMainBoss ? settings.MainBossHealth : settings.MiniBossHealth;
+            _attackable.regenRate = IsMainBoss ? settings.MainBossRegenRate : settings.MiniBossRegenRate;
+        }
+
+        if (_stateManager is not null)
+        {
+            _stateManager.attackDamage = IsMainBoss ? settings.MainBossAttack : settings.MiniBossAttack;
+        }
+        
+        gameObject.SetActive(true);
     }
 
     private void Update()
@@ -132,21 +152,11 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-
+    // On Death, notify the game manager and destroy the game object
     private void OnDeath()
     {
-        // Hide the player's UI
-        UIManager.Instance.HidePlayerUI();;
-
-        // Unlock and show the cursor
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
-        // Enable the victory screen
-        UIManager.Instance.ShowVictoryScreen("The boss is dead and you waited safely until the police arrived. You win!");
-
-        // Disable the FirstPersonController to prevent player inputs
-        GameManager.Instance.DisablePlayer();
+        GameManager.Instance.NotifyEnemyDied();
+        Destroy(gameObject);
     }
 
     private void OnTriggerEnter(Collider other)

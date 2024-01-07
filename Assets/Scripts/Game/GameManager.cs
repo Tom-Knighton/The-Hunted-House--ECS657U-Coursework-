@@ -1,24 +1,27 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Game
 {
     // Manages the overall game state, including the game timer and activation of player/enemies
     public class GameManager: MonoBehaviour
     {
-        private DateTime _gameEndTime = DateTime.Parse("2023-01-02 06:00:00"); // 8am the next day
-        private DateTime _currentTime;
-        
-        [SerializeField] public FirstPersonController player;
-        [SerializeField] private List<EnemyAI> enemies;
-
+        public GameSettings GameSettings => CurrentGameSettings.Settings; // The settings currently used in the game round
+        [SerializeField] public FirstPersonController player; // A reference to the current player object
+        [SerializeField] private List<EnemyAI> enemies; // A list of EnemyAI instances that *can* be spawned in
+        [SerializeField] public bool debugMode = true; // Flag for debug mode
+        public GameObject IntroBlockWall; // A reference to the intro blocking wall
+        public GameObject KeyPrefab; // A reference to the prefab to spawn keys with
+        public List<RoomData> KeyRoomData; // Places keys can be spawned
         public static GameManager Instance; // Singleton instance
 
-        [SerializeField] public bool debugMode = true; // Flag for debug mode
-
-        private bool _introCompleted = false;
-        public GameObject IntroBlockWall;
+        private bool _introCompleted = false; // Whether or not the intro has been completed
+        private DateTime _gameEndTime = DateTime.Parse("2023-01-02 06:00:00"); // 8am the next day
+        private DateTime _currentTime;
+        private int _enemiesKilled = 0; // The number of enemies killed in this round
 
         private void Awake()
         {
@@ -56,8 +59,10 @@ namespace Game
                 }
                 UIManager.Instance.ShowOpeningScrawl();  // Show the opening narrative
             }
+
             _currentTime = DateTime.Parse("2023-01-01 20:00:00");
             ChangedTo(GameSceneType.Inside);
+            SpawnKeys();
         }
 
         private void Update()
@@ -105,7 +110,7 @@ namespace Game
             _introCompleted = true;
             foreach (var enemy in enemies)
             {
-                enemy.gameObject.SetActive(true); // Activate each enemy
+                enemy.StartEnemy(GameSettings.EnemySettings); // Activate each enemy
             }
         }
 
@@ -126,6 +131,82 @@ namespace Game
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+
+        // Called from EnemyAI when they die
+        public void NotifyEnemyDied()
+        {
+            _enemiesKilled++;
+
+            // If player has killed all the enemies, show the win screen
+            if (_enemiesKilled >= enemies.Count)
+            {
+                // Hide the player's UI
+                UIManager.Instance.HidePlayerUI();;
+
+                // Unlock and show the cursor
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+
+                // Enable the victory screen
+                UIManager.Instance.ShowVictoryScreen("You killed your captors and waited safely until the police arrived. You win!");
+
+                // Disable the FirstPersonController to prevent player inputs
+                GameManager.Instance.DisablePlayer();
+            }
+        }
+
+        /// <summary>
+        /// Procedurally spawn the keys required by the difficulty setting.
+        /// The keys will spawn first where they are required, then any extra keys are spawned in
+        /// </summary>
+        private void SpawnKeys()
+        {
+            var spawnedKeysAt = new List<Transform>();
+            var keysToSpawn = GameSettings.KeysRequired;
+            var roomsRequired = KeyRoomData.Where(r => r.MustHaveKey);
+
+            if (roomsRequired.Count() > keysToSpawn)
+            {
+                Debug.LogError("The number of keys to spawn is less than required by the number of rooms, the keys for the min difficulty should be increased");
+            }
+
+            var random = new Random();
+            // First, spawn a key in all the rooms that MUST have a key
+            foreach (var room in roomsRequired)
+            {
+
+                var randomLocation = room.KeyPositions.ElementAtOrDefault(random.Next(0, room.KeyPositions.Count - 1));
+                if (randomLocation is null)
+                {
+                    Debug.LogError("Cannot spawn a key, a room may be setup with no key positions");
+                    continue;
+                }
+
+                Instantiate(KeyPrefab, randomLocation.position, randomLocation.rotation);
+                spawnedKeysAt.Add(randomLocation);
+            }
+            
+            // If there are any keys left to spawn, spawn them in randomly
+            var spawnedKeys = spawnedKeysAt.Count;
+            if (spawnedKeysAt.Count < keysToSpawn)
+            {
+                var allLocations = KeyRoomData.SelectMany(r => r.KeyPositions).ToList();
+                for (var i = 0; i < keysToSpawn - spawnedKeys; i++)
+                {
+                    var safeLocations = allLocations.Where(l => spawnedKeysAt.Contains(l) == false).ToList();
+                    if (!safeLocations.Any())
+                    {
+                        Debug.LogError("Could not spawn required keys...");
+                        GameSettings.KeysRequired = spawnedKeysAt.Count;
+                        return;
+                    }
+
+                    var locToSpawn = safeLocations.ElementAtOrDefault(random.Next(0, safeLocations.Count));
+                    Instantiate(KeyPrefab, locToSpawn.position, locToSpawn.rotation);
+                    spawnedKeysAt.Add(locToSpawn);
+                }
             }
         }
     }
