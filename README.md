@@ -14,6 +14,18 @@ A survival/stealth horror game in which you are trying to escape a house, you we
 - You can find weapons around the house to help you.
 - After calling the police, you *could* wait until they arrive, but that will take a long time, and the captors might realise what you've done...
 
+### How to play:
+- Select difficulty
+- By default: use WASD to move and mouse to look
+- E to interact
+- Left click to attack
+- Tab to open/close inventory, 1/2/3/4 to access hotbar slots
+- Shift to sprint
+- Ctrl to crouch
+- Escape to pause
+- Space to jump
+- You need to escape cell, collect keys and escape, or kill enemies, or survive until police arrive
+
 ### Features:
 - Three 'bosses' or enemies that will patrol, see you, attack and search for you.
 - Various weapons to find and use with varying damage stats
@@ -39,7 +51,6 @@ A survival/stealth horror game in which you are trying to escape a house, you we
 All assets are royalty free and their licenses allow us to use and distribute them in our game for free.
 |Type|Use|Link|
 |:-|:-|:-|
-|Texture|Grass||
 |Audio|Footsteps| https://pixabay.com/sound-effects/footsteps-on-wood-floor-14735/ and https://www.fesliyanstudios.com/play-mp3/6994|
 |Audio|Jumping SFX|https://freesound.org/people/acebrian/sounds/380471/|
 |Audio|Background|https://pixabay.com/sound-effects/creepy-soundscape-7036/|
@@ -50,6 +61,14 @@ All assets are royalty free and their licenses allow us to use and distribute th
 |3D Models|Flower Vases|https://assetstore.unity.com/packages/3d/vegetation/flowers/free-flower-ceramic-vases-187046|
 |3D Models|Shed| https://assetstore.unity.com/packages/3d/environments/urban/the-shed-10303|
 |3D Models|Toilet|https://assetstore.unity.com/packages/3d/props/furniture/toilet-pbr-148108|
+|3D Models|Characters|https://www.mixamo.com/|
+|Shader|Outline effect|https://assetstore.unity.com/packages/tools/particles-effects/quick-outline-115488|
+
+Tutorials loosely followed:
+- https://www.youtube.com/watch?v=JdGgrMWIknE
+- https://www.youtube.com/watch?v=2FTDa14nryI&list=PLfhbBaEcybmgidDH3RX_qzFM0mIxWJa21
+- https://www.youtube.com/watch?v=pPcYr3tL3Sc
+- https://www.youtube.com/watch?v=2H6hD-rH6wM&t=99s
 
 
 All other assets, textures, code made by us, excluding basic Unity shapes like capsules etc.
