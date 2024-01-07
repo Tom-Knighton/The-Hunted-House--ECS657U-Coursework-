@@ -132,21 +132,11 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-
+    // On Death, notify the game manager and destroy the game object
     private void OnDeath()
     {
-        // Hide the player's UI
-        UIManager.Instance.HidePlayerUI();;
-
-        // Unlock and show the cursor
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
-        // Enable the victory screen
-        UIManager.Instance.ShowVictoryScreen("The boss is dead and you waited safely until the police arrived. You win!");
-
-        // Disable the FirstPersonController to prevent player inputs
-        GameManager.Instance.DisablePlayer();
+        GameManager.Instance.NotifyEnemyDied();
+        Destroy(gameObject);
     }
 
     private void OnTriggerEnter(Collider other)

@@ -7,18 +7,16 @@ namespace Game
     // Manages the overall game state, including the game timer and activation of player/enemies
     public class GameManager: MonoBehaviour
     {
-        private DateTime _gameEndTime = DateTime.Parse("2023-01-02 06:00:00"); // 8am the next day
-        private DateTime _currentTime;
-        
-        [SerializeField] public FirstPersonController player;
-        [SerializeField] private List<EnemyAI> enemies;
-
+        [SerializeField] public FirstPersonController player; // A reference to the current player object
+        [SerializeField] private List<EnemyAI> enemies; // A list of EnemyAI instances that *can* be spawned in
+        [SerializeField] public bool debugMode = true; // Flag for debug mode
+        public GameObject IntroBlockWall; // A reference to the intro blocking wall
         public static GameManager Instance; // Singleton instance
 
-        [SerializeField] public bool debugMode = true; // Flag for debug mode
-
-        private bool _introCompleted = false;
-        public GameObject IntroBlockWall;
+        private bool _introCompleted = false; // Whether or not the intro has been completed
+        private DateTime _gameEndTime = DateTime.Parse("2023-01-02 06:00:00"); // 8am the next day
+        private DateTime _currentTime;
+        private int _enemiesKilled = 0; // The number of enemies killed in this round
 
         private void Awake()
         {
@@ -126,6 +124,29 @@ namespace Game
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+
+        // Called from EnemyAI when they die
+        public void NotifyEnemyDied()
+        {
+            _enemiesKilled++;
+
+            // If player has killed all the enemies, show the win screen
+            if (_enemiesKilled >= enemies.Count)
+            {
+                // Hide the player's UI
+                UIManager.Instance.HidePlayerUI();;
+
+                // Unlock and show the cursor
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+
+                // Enable the victory screen
+                UIManager.Instance.ShowVictoryScreen("You killed your captors and waited safely until the police arrived. You win!");
+
+                // Disable the FirstPersonController to prevent player inputs
+                GameManager.Instance.DisablePlayer();
             }
         }
     }
