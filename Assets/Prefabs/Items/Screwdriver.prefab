@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8889614456917450219}
   - component: {fileID: 8661615255981363954}
   - component: {fileID: 2882717519614556705}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 3970664466540772411}
   - component: {fileID: 5382045852666796758}
   - component: {fileID: 8033130657202867317}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cylinder.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -177,7 +177,8 @@ GameObject:
   - component: {fileID: 1629534885598061054}
   - component: {fileID: -3434924092755879485}
   - component: {fileID: -741733379843899429}
-  m_Layer: 0
+  - component: {fileID: 8233068035325289599}
+  m_Layer: 9
   m_Name: Screwdriver
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -250,6 +251,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 2.9842079, z: 1}
   m_Center: {x: 0, y: 0.99210393, z: 0}
+--- !u!114 &8233068035325289599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7902842072101690282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce18ef22da8a4e81812808c660f7c6a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickUpPos: {fileID: 0}
+  icon: {fileID: -1929773359, guid: c012397d447975440b7619f0fdba2325, type: 3}
+  model: {fileID: 0}
 --- !u!1 &8789951418265727838
 GameObject:
   m_ObjectHideFlags: 0
@@ -261,7 +277,7 @@ GameObject:
   - component: {fileID: 6760561006576745631}
   - component: {fileID: 560835131838095024}
   - component: {fileID: 8496795531147070818}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}

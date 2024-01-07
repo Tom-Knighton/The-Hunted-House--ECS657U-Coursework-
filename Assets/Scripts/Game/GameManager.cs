@@ -189,10 +189,11 @@ namespace Game
             }
             
             // If there are any keys left to spawn, spawn them in randomly
+            var spawnedKeys = spawnedKeysAt.Count;
             if (spawnedKeysAt.Count < keysToSpawn)
             {
                 var allLocations = KeyRoomData.SelectMany(r => r.KeyPositions).ToList();
-                for (var i = 0; i < keysToSpawn - spawnedKeysAt.Count; i++)
+                for (var i = 0; i < keysToSpawn - spawnedKeys; i++)
                 {
                     var safeLocations = allLocations.Where(l => spawnedKeysAt.Contains(l) == false).ToList();
                     if (!safeLocations.Any())
@@ -202,7 +203,7 @@ namespace Game
                         return;
                     }
 
-                    var locToSpawn = safeLocations.ElementAtOrDefault(random.Next(0, safeLocations.Count - 1));
+                    var locToSpawn = safeLocations.ElementAtOrDefault(random.Next(0, safeLocations.Count));
                     Instantiate(KeyPrefab, locToSpawn.position, locToSpawn.rotation);
                     spawnedKeysAt.Add(locToSpawn);
                 }
