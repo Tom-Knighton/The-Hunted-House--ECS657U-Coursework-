@@ -23,6 +23,8 @@ public class EnemyAI : MonoBehaviour
     
     [SerializeField]
     public List<PatrolPoint> patrolPoints = new();
+
+    [SerializeField] public bool IsMainBoss = false;
     
     private static readonly int Speed = Animator.StringToHash("Speed");
 
@@ -72,6 +74,23 @@ public class EnemyAI : MonoBehaviour
                 _localCanvas.SetHealthBarPercentage((_attackable.health / _attackable.maxHealth) * 100);
             }
         }
+    }
+
+    public void StartEnemy(EnemySpawnSettings settings)
+    {
+        if (_attackable is not null)
+        {
+            _attackable.maxHealth = IsMainBoss ? settings.MainBossHealth : settings.MiniBossHealth;
+            _attackable.health = IsMainBoss ? settings.MainBossHealth : settings.MiniBossHealth;
+            _attackable.regenRate = IsMainBoss ? settings.MainBossRegenRate : settings.MiniBossRegenRate;
+        }
+
+        if (_stateManager is not null)
+        {
+            _stateManager.attackDamage = IsMainBoss ? settings.MainBossAttack : settings.MiniBossAttack;
+        }
+        
+        gameObject.SetActive(true);
     }
 
     private void Update()

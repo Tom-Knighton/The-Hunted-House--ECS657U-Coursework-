@@ -21,7 +21,6 @@ public class Door : Interactable
         if (!_canInteract) return;
         
         _isOpen = !_isOpen;
-
         var doorTransformDirection = transform.TransformDirection(Vector3.forward);
         var playerTransformDirection = FirstPersonController.instance.transform.position - transform.position;
         var dot = Vector3.Dot(doorTransformDirection, playerTransformDirection);

@@ -1,30 +1,31 @@
 using Game;
-using System.Linq;
 
 namespace Items
 {
     public class MainGate : PickupObject
     {
-        private bool IsOpen = false;
-
+        private bool _hasSeenBefore = false; // If the player has interacted with this gate before
+        private static float KeysRequired => GameManager.Instance.GameSettings.KeysRequired;
+        
+        /// <summary>
+        /// When the player interacts with the gate, open it and win the game if player has enough keys
+        /// </summary>
         public override void OnInteract()
         {
-            if (IsOpen)
+            var totalKeyCount = GameManager.Instance.player.Inventory.GetItemCount("GateKey");
+
+            if (totalKeyCount < KeysRequired)
             {
-                UIManager.Instance.ShowHint("This gate is already open!");
+                if (!_hasSeenBefore)
+                {
+                    UIManager.Instance.ShowHint($"This looks like the way out! But it looks like I need {KeysRequired} keys to open it...");
+                    _hasSeenBefore = true;
+                }
+                UIManager.Instance.ShowHint($"It looks like I need {KeysRequired} keys to open this gate, I only have {totalKeyCount}...");
                 return;
             }
 
-            int totalKeyCount = GameManager.Instance.player.Inventory.GetItemCount("GateKey");
-
-            if (totalKeyCount < 3)
-            {
-                UIManager.Instance.ShowHint($"It looks like I need 3 keys to open this gate, I only have {totalKeyCount}...");
-                return;
-            }
-
-            UIManager.Instance.ShowHint("This will give weapon or open gate in the future (not implemented yet)");
-            IsOpen = true;
+            UIManager.Instance.ShowVictoryScreen();
         }
     }
 }
