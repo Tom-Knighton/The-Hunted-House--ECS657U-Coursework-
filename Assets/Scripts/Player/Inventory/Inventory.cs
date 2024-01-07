@@ -81,14 +81,36 @@ namespace Player.Inventory
             return _inventorySlots.Any(slot => slot.Item != null && slot.Item.Name == itemName);
         }
 
+        public bool RemoveItemByName(string itemName)
+        {
+            // Iterate through inventory slots
+            for (int i = 0; i < _inventorySlots.Length; i++)
+            {
+                if (_inventorySlots[i].Item != null && _inventorySlots[i].Item.Name == itemName)
+                {
+                    _inventorySlots[i].RemoveItem();
+                    return true; // Item was successfully removed
+                }
+            }
+
+            // Iterate through hotbar slots
+            for (int i = 0; i < _hotbarSlots.Length; i++)
+            {
+                if (_hotbarSlots[i].Item != null && _hotbarSlots[i].Item.Name == itemName)
+                {
+                    _hotbarSlots[i].RemoveItem();
+                    return true; // Item was successfully removed
+                }
+            }
+
+            return false; // Item was not found
+        }
+
         public int GetItemCount(string itemName)
         {
             return _inventorySlots
                 .Where(slot => slot.Item != null && slot.Item.Name == itemName)
-                .Sum(slot => slot.Quantity) +
-               _hotbarSlots
-                   .Where(h => h?.Item?.Name == itemName)
-                   .Sum(s => s.Quantity);
+                .Sum(slot => slot.Quantity);
         }
 
         public bool MoveToHotbar(int inventoryIndex, int hotbarIndex)

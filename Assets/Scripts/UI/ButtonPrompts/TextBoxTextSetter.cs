@@ -23,7 +23,7 @@ public class TextBoxTextSetter : MonoBehaviour
     private PlayerInput _playerInputComponent;
     private TMP_Text _textBox;
 
-
+    // Initialise
     private void Awake()
     {
         _playerInput = new PlayerInputActions();
@@ -37,15 +37,7 @@ public class TextBoxTextSetter : MonoBehaviour
     private void LoadBindingOverrides()
     {
         string rebinds = PlayerPrefs.GetString("rebinds", string.Empty);
-        if (!string.IsNullOrEmpty(rebinds))
-        {
             _playerInput.LoadBindingOverridesFromJson(rebinds);
-            Debug.Log("Loaded rebinds: " + rebinds); // Added debug statement
-        }
-        else
-        {
-            Debug.Log("No rebinds found in PlayerPrefs."); // Added debug statement for empty or missing rebinds
-        }
     }
 
 
@@ -79,10 +71,6 @@ public class TextBoxTextSetter : MonoBehaviour
             var interactKey = InputControlPath.ToHumanReadableString(binding.effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice);
             message = $"Press {interactKey} to interact";
         }
-        else
-        {
-            Debug.LogWarning("No valid binding found for the current control scheme.", this);
-        }
     }
 
     private bool AreKeybindsChanged()
@@ -99,7 +87,7 @@ public class TextBoxTextSetter : MonoBehaviour
         return keybindsAreDifferent;
     }
 
-
+    // Decides the text to set inside of the text box and figures out the binding to use
     private void SetText()
     {
         var currentDevice = InputSystem.GetDevice<InputDevice>();
@@ -124,7 +112,7 @@ public class TextBoxTextSetter : MonoBehaviour
         );
     }
 
-
+    // Chooses the sprite asset based on the current control scheme and even differentiates between playstation and xbox gamepads
     private TMP_SpriteAsset DetermineSpriteAsset(InputDevice currentDevice)
     {
         TMP_SpriteAsset selectedSpriteAsset;

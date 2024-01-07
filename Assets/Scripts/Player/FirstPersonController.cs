@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Game;
+using Items;
 using JetBrains.Annotations;
 using Player.Inventory;
 using UnityEngine;
@@ -205,14 +206,17 @@ public class FirstPersonController : MonoBehaviour
     #endregion
 
     #region Inventory
+    // Inventory settings
     [Header("Inventory settings")]
     [SerializeField] private InventoryUI inventoryUI;
     [SerializeField] private GameObject hotbarPanel;
+    [SerializeField] private GameObject razorbrushPrefab;
     private bool inventoryOpen = false;
     public int currentEquippedSlot = 0;
     private IInventoryItem previouslyEquippedItem;
     #endregion
 
+    // Pause settings
     [Header("Pause Menu")]
     [SerializeField] private PauseMenu pauseMenu;
 
@@ -247,6 +251,7 @@ public class FirstPersonController : MonoBehaviour
         Inventory = GetComponent<Inventory>();
     }
 
+    // Initialises on start
     private void Start()
     {
         lookSpeedX = PlayerPrefs.GetFloat("XSensitivity", 1f);
@@ -268,6 +273,7 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    // Loads the binding overrides for custom keybinds
     public void LoadBindingOverrides()
     {
         var rebinds = PlayerPrefs.GetString("rebinds", string.Empty);
@@ -358,6 +364,7 @@ public class FirstPersonController : MonoBehaviour
                 HandleCrosshair();
             }
             HandleEquip();
+            HandleCrafting();
         }
 
         // Apply gravity and final movements regardless of CanMove to ensure gravity is always applied
@@ -441,6 +448,7 @@ public class FirstPersonController : MonoBehaviour
         transform.rotation *= Quaternion.Euler(0, controls.Gameplay.MouseLook.ReadValue<Vector2>().x * lookSpeedX, 0);
     }
 
+    // Updates Look Sensitivity for both axis
     public void UpdateLookSensitivity(float xSensitivity, float ySensitivity)
     {
         lookSpeedX = xSensitivity;
@@ -545,6 +553,60 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    private void HandleCrafting()
+    {
+        // Check if inventory contains both "Razorblade" and "Toothbrush"
+        if (HasItemInInventoryOrHotbar("Razorblade") && HasItemInInventoryOrHotbar("Toothbrush"))
+        {
+            // Remove one Razorblade and one Toothbrush from the inventory
+            RemoveItemFromInventoryOrHotbar("Razorblade");
+            RemoveItemFromInventoryOrHotbar("Toothbrush");
+
+            // Create and add the Razorbrush to the inventory
+            GameObject razorbrushInstance = Instantiate(razorbrushPrefab);
+            IInventoryItem razorbrushItem = razorbrushInstance.GetComponent<IInventoryItem>();
+
+            if (razorbrushItem != null)
+            {
+                Inventory.TryAddItemToInventory(razorbrushItem);
+            }
+
+            Destroy(razorbrushInstance);
+        }
+    }
+
+    private bool HasItemInInventoryOrHotbar(string itemName)
+    {
+        // Check inventory
+        if (Inventory.HasItemWithName(itemName)) return true;
+
+        // Check hotbar
+        for (int i = 0; i < Inventory.HotbarSize; i++)
+        {
+            if (Inventory.GetHotbarSlot(i).Item != null && Inventory.GetHotbarSlot(i).Item.Name == itemName)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void RemoveItemFromInventoryOrHotbar(string itemName)
+    {
+        // Try to remove from inventory first
+        if (Inventory.RemoveItemByName(itemName)) return;
+
+        // Try to remove from hotbar
+        for (int i = 0; i < Inventory.HotbarSize; i++)
+        {
+            if (Inventory.GetHotbarSlot(i).Item != null && Inventory.GetHotbarSlot(i).Item.Name == itemName)
+            {
+                Inventory.GetHotbarSlot(i).RemoveItem();
+                break;
+            }
+        }
+    }
+
+    // Handles the equipping for all slots
     private void HandleEquip()
     {
         if (controls.Gameplay.HotbarSlot1.triggered) { EquipItemInSlot(0); }
@@ -553,6 +615,7 @@ public class FirstPersonController : MonoBehaviour
         if (controls.Gameplay.HotbarSlot4.triggered) { EquipItemInSlot(3); }
         UpdateEquippedItem();
     }
+    // Equips the item  in slot and specially checks for the RazorBrush
     private void EquipItemInSlot(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= Inventory.HotbarSize)
@@ -570,6 +633,7 @@ public class FirstPersonController : MonoBehaviour
         }
         currentEquippedSlot = slotIndex;
     }
+    // Unequips the current item
     private void UnequipCurrentItem()
     {
         var currentItem = Inventory.GetHotbarSlot(currentEquippedSlot).Item;
@@ -578,15 +642,14 @@ public class FirstPersonController : MonoBehaviour
             currentItem.ItemModel.SetActive(false);
         }
     }
+    // Equips the current item
     private void EquipRazorBrush()
     {
         razorBrush.SetActive(true);
         razorBrushAnimator = razorBrush.GetComponent<Animator>();
-        if (razorBrushAnimator == null)
-        {
-        }
     }
 
+    // Updates the equipped item
     private void UpdateEquippedItem()
     {
         var currentSlot = Inventory.GetHotbarSlot(currentEquippedSlot);
@@ -692,6 +755,7 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    // Default attack to perform if holding an item other than the razorbrush
     private void DefaultAttack()
     {
         if (canAttack && controls.Gameplay.Attack.triggered)
@@ -713,6 +777,7 @@ public class FirstPersonController : MonoBehaviour
             StartCoroutine(AttackCooldown());
         }
     }
+    // Attack to perform if holding the razorbrush
     private void MeleeAttack()
     {
         // Play the attack animation
@@ -1065,18 +1130,18 @@ public class FirstPersonController : MonoBehaviour
         duringCrouchAnimation = true;
 
         // Initialize crouch/stand parameters
-        float timeElapesd = 0;
+        float timeElapsed = 0;
         float targetHeight = isCrouching ? standingHeight : crouchHeight;
         float currentHeight = characterController.height;
         Vector3 targetCenter = isCrouching ? standingCenter : crouchingCenter;
         Vector3 currentCenter = characterController.center;
 
         // Lerp height and center during crouch/stand transition
-        while (timeElapesd < timeToCrouch)
+        while (timeElapsed < timeToCrouch)
         {
-            characterController.height = Mathf.Lerp(currentHeight, targetHeight, timeElapesd / timeToCrouch);
-            characterController.center = Vector3.Lerp(currentCenter, targetCenter, timeElapesd / timeToCrouch);
-            timeElapesd += Time.deltaTime;
+            characterController.height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / timeToCrouch);
+            characterController.center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / timeToCrouch);
+            timeElapsed += Time.deltaTime;
             yield return null;
         }
 

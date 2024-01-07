@@ -57,4 +57,9 @@ public class MainMenuController : MonoBehaviour
         DifficultyPage.SetActive(false);
         MainPage.SetActive(true);
     }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
 }
