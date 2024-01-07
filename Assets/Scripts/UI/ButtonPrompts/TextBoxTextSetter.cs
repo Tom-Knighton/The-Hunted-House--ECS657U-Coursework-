@@ -40,8 +40,14 @@ public class TextBoxTextSetter : MonoBehaviour
         if (!string.IsNullOrEmpty(rebinds))
         {
             _playerInput.LoadBindingOverridesFromJson(rebinds);
+            Debug.Log("Loaded rebinds: " + rebinds); // Added debug statement
+        }
+        else
+        {
+            Debug.Log("No rebinds found in PlayerPrefs."); // Added debug statement for empty or missing rebinds
         }
     }
+
 
     private void Start()
     {
@@ -56,7 +62,8 @@ public class TextBoxTextSetter : MonoBehaviour
 
     private void UpdateBinding()
     {
-
+        LoadBindingOverrides();
+        _playerInputComponent = GetComponent<PlayerInput>();
         // Get the current control scheme from the PlayerInput component
         var controlScheme = _playerInputComponent.currentControlScheme;
 
@@ -91,7 +98,6 @@ public class TextBoxTextSetter : MonoBehaviour
         bool keybindsAreDifferent = !defaultKeybinds.SequenceEqual(currentKeybinds);
         return keybindsAreDifferent;
     }
-
 
 
     private void SetText()

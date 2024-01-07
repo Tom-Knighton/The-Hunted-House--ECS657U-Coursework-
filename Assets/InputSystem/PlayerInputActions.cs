@@ -143,6 +143,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""b23ada71-f4fc-4835-8e83-8ca669706c3c"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -519,6 +528,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""HotbarSlot4"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ed71ac25-6048-438d-bac0-5d2104e49010"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8c446a4b-abb9-45a9-b270-a0fd0346742c"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -540,6 +571,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Gameplay_HotbarSlot2 = m_Gameplay.FindAction("HotbarSlot2", throwIfNotFound: true);
         m_Gameplay_HotbarSlot3 = m_Gameplay.FindAction("HotbarSlot3", throwIfNotFound: true);
         m_Gameplay_HotbarSlot4 = m_Gameplay.FindAction("HotbarSlot4", throwIfNotFound: true);
+        m_Gameplay_Pause = m_Gameplay.FindAction("Pause", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -614,6 +646,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_HotbarSlot2;
     private readonly InputAction m_Gameplay_HotbarSlot3;
     private readonly InputAction m_Gameplay_HotbarSlot4;
+    private readonly InputAction m_Gameplay_Pause;
     public struct GameplayActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -631,6 +664,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         public InputAction @HotbarSlot2 => m_Wrapper.m_Gameplay_HotbarSlot2;
         public InputAction @HotbarSlot3 => m_Wrapper.m_Gameplay_HotbarSlot3;
         public InputAction @HotbarSlot4 => m_Wrapper.m_Gameplay_HotbarSlot4;
+        public InputAction @Pause => m_Wrapper.m_Gameplay_Pause;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -679,6 +713,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @HotbarSlot4.started += instance.OnHotbarSlot4;
             @HotbarSlot4.performed += instance.OnHotbarSlot4;
             @HotbarSlot4.canceled += instance.OnHotbarSlot4;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -722,6 +759,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @HotbarSlot4.started -= instance.OnHotbarSlot4;
             @HotbarSlot4.performed -= instance.OnHotbarSlot4;
             @HotbarSlot4.canceled -= instance.OnHotbarSlot4;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -754,5 +794,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         void OnHotbarSlot2(InputAction.CallbackContext context);
         void OnHotbarSlot3(InputAction.CallbackContext context);
         void OnHotbarSlot4(InputAction.CallbackContext context);
+        void OnPause(InputAction.CallbackContext context);
     }
 }

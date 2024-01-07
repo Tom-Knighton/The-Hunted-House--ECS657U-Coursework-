@@ -39,4 +39,20 @@ public class SensitivitySettings : MonoBehaviour
         PlayerPrefs.Save(); // Save the changes immediately
         ySensitivityText.text = value.ToString("0.0") + "x"; // Update the text display
     }
+
+    // This method will be called when the "Confirm" button is clicked
+    public void ConfirmSensitivitySettings()
+    {
+        // Save the current slider values
+        PlayerPrefs.SetFloat("XSensitivity", xSensitivitySlider.value);
+        PlayerPrefs.SetFloat("YSensitivity", ySensitivitySlider.value);
+        PlayerPrefs.Save();
+
+        // Optionally, update other parts of the game that depend on these settings
+        // For example, you might need to update the sensitivity settings of the player controller
+        if (FirstPersonController.instance != null)
+        {
+            FirstPersonController.instance.UpdateLookSensitivity(xSensitivitySlider.value, ySensitivitySlider.value);
+        }
+    }
 }

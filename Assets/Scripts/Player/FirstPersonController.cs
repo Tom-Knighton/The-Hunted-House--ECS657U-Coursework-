@@ -213,6 +213,9 @@ public class FirstPersonController : MonoBehaviour
     private IInventoryItem previouslyEquippedItem;
     #endregion
 
+    [Header("Pause Menu")]
+    [SerializeField] private PauseMenu pauseMenu;
+
     // References to essential components
     private Camera playerCamera;
     private CharacterController characterController;
@@ -265,14 +268,13 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
-    private void LoadBindingOverrides()
+    public void LoadBindingOverrides()
     {
         var rebinds = PlayerPrefs.GetString("rebinds", string.Empty);
         if (!string.IsNullOrEmpty(rebinds))
         {
             controls.LoadBindingOverridesFromJson(rebinds);
         }
-        // Enable the controls after loading overrides
         controls.Enable();
     }
 
@@ -297,13 +299,14 @@ public class FirstPersonController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        HandleInput();
         // Always allow movement input handling, but apply movement only if CanMove is true
         HandleMovementInput();
 
         if (CanMove)
         {
             HandleMouseLook();
-
+            
             if (canJump)
             {
                 HandleJump();
@@ -357,12 +360,6 @@ public class FirstPersonController : MonoBehaviour
             HandleEquip();
         }
 
-        // Check the inventory toggle outside of the CanMove block so that it can be toggled at any time
-        if (controls.Gameplay.Inventory.triggered)
-        {
-            ToggleInventory();
-        }
-
         // Apply gravity and final movements regardless of CanMove to ensure gravity is always applied
         ApplyFinalMovements();
 
@@ -371,6 +368,45 @@ public class FirstPersonController : MonoBehaviour
             StartCoroutine(CrouchStand(false)); // Stand up
             wantsToStand = false; // Reset the flag
         }
+    }
+
+    private void HandleInput()
+    {
+        if (controls.Gameplay.Pause.triggered)
+        {
+            HandlePause();
+        }
+
+        if (controls.Gameplay.Inventory.triggered)
+        {
+            ToggleInventory();
+        }
+    }
+
+    private void HandlePause()
+    {
+        // Call the pause menu functionality
+        pauseMenu.TogglePauseMenu();
+
+        // Toggle player UI and controls based on the pause state
+        if (!CanMove)
+        {
+            // Game is paused, hide player UI 
+            UIManager.Instance.HidePlayerUI();
+        }
+        else
+        {
+            // Game is resumed, show player UI
+            UIManager.Instance.ShowPlayerUI();
+        }
+    }
+
+    public void ToggleMove()
+    {
+        // Toggle the current movement state and cursor visibility
+        CanMove = !CanMove;
+        Cursor.lockState = CanMove ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !CanMove;
     }
 
     // Calculate player movement based on input
@@ -403,6 +439,12 @@ public class FirstPersonController : MonoBehaviour
         rotationX = Mathf.Clamp(rotationX, -upperLookLimit, lowerLookLimit);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
         transform.rotation *= Quaternion.Euler(0, controls.Gameplay.MouseLook.ReadValue<Vector2>().x * lookSpeedX, 0);
+    }
+
+    public void UpdateLookSensitivity(float xSensitivity, float ySensitivity)
+    {
+        lookSpeedX = xSensitivity;
+        lookSpeedY = ySensitivity;
     }
 
     // Handles health change notifications
