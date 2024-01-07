@@ -13,6 +13,7 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI healthText = default;
     [SerializeField] private RectTransform crosshair = default;
     [SerializeField] private TextMeshProUGUI interactPromptText;
+    [SerializeField] private TextBoxTextSetter textBoxTextSetter;
 
     [SerializeField] private FirstPersonController player;
 
@@ -70,6 +71,7 @@ public class PlayerUI : MonoBehaviour
 
     public void ShowInteractPrompt()
     {
+        textBoxTextSetter.SetInteractText();
         interactPromptText.gameObject.SetActive(true);
     }
 

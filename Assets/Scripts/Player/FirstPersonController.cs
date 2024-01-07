@@ -55,8 +55,8 @@ public class FirstPersonController : MonoBehaviour
     #region Looking
     // Mouse look sensitivity and constraints
     [Header("Look Parameters")]
-    [SerializeField, Range(1, 10)] private float lookSpeedX = 1.8f;
-    [SerializeField, Range(1, 10)] private float lookSpeedY = 1.5f;
+    [SerializeField, Range(1, 10)] private float lookSpeedX = 1f;
+    [SerializeField, Range(1, 10)] private float lookSpeedY = 1f;
     [SerializeField, Range(1, 180)] private float upperLookLimit = 80.0f;
     [SerializeField, Range(1, 180)] private float lowerLookLimit = 80.0f;
     #endregion
@@ -138,7 +138,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float crouchStepMultiplier = 1.5f;
     [SerializeField] private float sprintStepMultiplier = 0.6f;
     [SerializeField] private AudioSource footstepAudioSource = default;
-    
+
     private float footstepTimer = 0;
     private float GetCurrentOffset => isCrouching ? baseStepSpeed * crouchStepMultiplier : IsSprinting && (currentStamina > 0) ? baseStepSpeed * sprintStepMultiplier : baseStepSpeed;
     private int[] woodIndices;
@@ -209,9 +209,12 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private InventoryUI inventoryUI;
     [SerializeField] private GameObject hotbarPanel;
     private bool inventoryOpen = false;
-    private int currentEquippedSlot = 0;
+    public int currentEquippedSlot = 0;
     private IInventoryItem previouslyEquippedItem;
     #endregion
+
+    [Header("Pause Menu")]
+    [SerializeField] private PauseMenu pauseMenu;
 
     // References to essential components
     private Camera playerCamera;
@@ -231,6 +234,7 @@ public class FirstPersonController : MonoBehaviour
     {
         instance = this;
         controls = new PlayerInputActions();
+        LoadBindingOverrides();
         playerCamera = GetComponentInChildren<Camera>();
         characterController = GetComponent<CharacterController>();
         defaultYpos = playerCamera.transform.localPosition.y;
@@ -238,13 +242,15 @@ public class FirstPersonController : MonoBehaviour
         currentStamina = maxStamina;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        
+
         _attackable = GetComponent<Attackable>();
         Inventory = GetComponent<Inventory>();
     }
 
     private void Start()
     {
+        lookSpeedX = PlayerPrefs.GetFloat("XSensitivity", 1f);
+        lookSpeedY = PlayerPrefs.GetFloat("YSensitivity", 1f);
         // If the _attackable component is present, subscribe to its events
         if (_attackable is not null)
         {
@@ -253,13 +259,23 @@ public class FirstPersonController : MonoBehaviour
         }
         EquipItemInSlot(currentEquippedSlot);
         UpdateUIOnRespawn();
-        
+
         if (useFootsteps)
         {
             woodIndices = GenerateRandomIndex(AudioManager.Instance.woodClips.Length);
             concreteIndices = GenerateRandomIndex(AudioManager.Instance.concreteClips.Length);
             grassIndices = GenerateRandomIndex(AudioManager.Instance.grassClips.Length);
         }
+    }
+
+    public void LoadBindingOverrides()
+    {
+        var rebinds = PlayerPrefs.GetString("rebinds", string.Empty);
+        if (!string.IsNullOrEmpty(rebinds))
+        {
+            controls.LoadBindingOverridesFromJson(rebinds);
+        }
+        controls.Enable();
     }
 
     private void OnEnable()
@@ -283,13 +299,14 @@ public class FirstPersonController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        HandleInput();
         // Always allow movement input handling, but apply movement only if CanMove is true
         HandleMovementInput();
 
         if (CanMove)
         {
             HandleMouseLook();
-
+            
             if (canJump)
             {
                 HandleJump();
@@ -341,13 +358,6 @@ public class FirstPersonController : MonoBehaviour
                 HandleCrosshair();
             }
             HandleEquip();
-            DebugCurrentSlotInfo();
-        }
-
-        // Check the inventory toggle outside of the CanMove block so that it can be toggled at any time
-        if (controls.Gameplay.Inventory.triggered)
-        {
-            ToggleInventory();
         }
 
         // Apply gravity and final movements regardless of CanMove to ensure gravity is always applied
@@ -358,6 +368,45 @@ public class FirstPersonController : MonoBehaviour
             StartCoroutine(CrouchStand(false)); // Stand up
             wantsToStand = false; // Reset the flag
         }
+    }
+
+    private void HandleInput()
+    {
+        if (controls.Gameplay.Pause.triggered)
+        {
+            HandlePause();
+        }
+
+        if (controls.Gameplay.Inventory.triggered)
+        {
+            ToggleInventory();
+        }
+    }
+
+    private void HandlePause()
+    {
+        // Call the pause menu functionality
+        pauseMenu.TogglePauseMenu();
+
+        // Toggle player UI and controls based on the pause state
+        if (!CanMove)
+        {
+            // Game is paused, hide player UI 
+            UIManager.Instance.HidePlayerUI();
+        }
+        else
+        {
+            // Game is resumed, show player UI
+            UIManager.Instance.ShowPlayerUI();
+        }
+    }
+
+    public void ToggleMove()
+    {
+        // Toggle the current movement state and cursor visibility
+        CanMove = !CanMove;
+        Cursor.lockState = CanMove ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !CanMove;
     }
 
     // Calculate player movement based on input
@@ -390,6 +439,12 @@ public class FirstPersonController : MonoBehaviour
         rotationX = Mathf.Clamp(rotationX, -upperLookLimit, lowerLookLimit);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
         transform.rotation *= Quaternion.Euler(0, controls.Gameplay.MouseLook.ReadValue<Vector2>().x * lookSpeedX, 0);
+    }
+
+    public void UpdateLookSensitivity(float xSensitivity, float ySensitivity)
+    {
+        lookSpeedX = xSensitivity;
+        lookSpeedY = ySensitivity;
     }
 
     // Handles health change notifications
@@ -507,7 +562,6 @@ public class FirstPersonController : MonoBehaviour
 
         if (item != null && item.Name == "RazorBrush")
         {
-            Debug.Log("RazorBrush is equipped.");
             EquipRazorBrush();
         }
         else if (item != null)
@@ -527,11 +581,9 @@ public class FirstPersonController : MonoBehaviour
     private void EquipRazorBrush()
     {
         razorBrush.SetActive(true);
-        Debug.Log("RazorBrush is set active.");
         razorBrushAnimator = razorBrush.GetComponent<Animator>();
         if (razorBrushAnimator == null)
         {
-            Debug.LogError("RazorBrush Animator is not assigned!");
         }
     }
 
@@ -565,12 +617,6 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
-    private void DebugCurrentSlotInfo()
-    {
-        var currentSlot = Inventory.GetHotbarSlot(currentEquippedSlot);
-        var currentItem = currentSlot?.Item;
-        var itemName = currentItem != null ? currentItem.Name : "None";
-    }
 
     // Handles jumping
     private void HandleJump()
@@ -634,7 +680,6 @@ public class FirstPersonController : MonoBehaviour
         {
             if (canAttack && controls.Gameplay.Attack.triggered)
             {
-                Debug.Log("Attempting to perform RazorBrush attack.");
                 MeleeAttack();
             }
         }
@@ -670,7 +715,6 @@ public class FirstPersonController : MonoBehaviour
     }
     private void MeleeAttack()
     {
-        Debug.Log("Setting attack trigger for RazorBrush.");
         // Play the attack animation
         razorBrushAnimator.SetTrigger("Attack");
 

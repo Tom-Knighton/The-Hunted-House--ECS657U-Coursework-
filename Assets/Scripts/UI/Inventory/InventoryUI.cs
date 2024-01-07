@@ -17,7 +17,6 @@ public class InventoryUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         // Ensure UI slots count matches the inventory and hotbar sizes
         if (inventorySlotUI.Length != playerInventory.InventorySize || hotbarSlotUI.Length != playerInventory.HotbarSize)
         {
-            Debug.LogError("UI slots count does not match the inventory or hotbar size.");
             return;
         }
         UpdateInventoryDisplay();
@@ -93,8 +92,6 @@ public class InventoryUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void UpdateInventoryDisplay()
     {
-        // Debug.Log("Updating Inventory and Hotbar UI Display");
-
         // Update inventory slots
         for (int i = 0; i < playerInventory.InventorySize; i++)
         {

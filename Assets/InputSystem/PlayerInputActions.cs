@@ -143,6 +143,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""b23ada71-f4fc-4835-8e83-8ca669706c3c"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -423,8 +432,30 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""e4349bba-c135-4b54-a2ee-25903e0b8ce0"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Inventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""03d382bc-9e17-4410-9bff-c42cd763d490"",
                     ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HotbarSlot1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bc1ab313-68a0-4dbd-ade7-b1325b4a0887"",
+                    ""path"": ""<Gamepad>/dpad/up"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -445,8 +476,30 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""2a83dceb-1e50-491b-a410-0227ff5c5fb9"",
+                    ""path"": ""<Gamepad>/dpad/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HotbarSlot2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""e64cccd5-7bc5-477b-aad4-7f618cfb798d"",
                     ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HotbarSlot3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""43b7e263-b666-40a8-a0c1-973c8c9e6730"",
+                    ""path"": ""<Gamepad>/dpad/down"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -462,6 +515,39 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""HotbarSlot4"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""651f8c19-3beb-4831-a9cd-67874f0d75b2"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HotbarSlot4"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ed71ac25-6048-438d-bac0-5d2104e49010"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8c446a4b-abb9-45a9-b270-a0fd0346742c"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -485,6 +571,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Gameplay_HotbarSlot2 = m_Gameplay.FindAction("HotbarSlot2", throwIfNotFound: true);
         m_Gameplay_HotbarSlot3 = m_Gameplay.FindAction("HotbarSlot3", throwIfNotFound: true);
         m_Gameplay_HotbarSlot4 = m_Gameplay.FindAction("HotbarSlot4", throwIfNotFound: true);
+        m_Gameplay_Pause = m_Gameplay.FindAction("Pause", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -559,6 +646,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_HotbarSlot2;
     private readonly InputAction m_Gameplay_HotbarSlot3;
     private readonly InputAction m_Gameplay_HotbarSlot4;
+    private readonly InputAction m_Gameplay_Pause;
     public struct GameplayActions
     {
         private @PlayerInputActions m_Wrapper;
@@ -576,6 +664,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         public InputAction @HotbarSlot2 => m_Wrapper.m_Gameplay_HotbarSlot2;
         public InputAction @HotbarSlot3 => m_Wrapper.m_Gameplay_HotbarSlot3;
         public InputAction @HotbarSlot4 => m_Wrapper.m_Gameplay_HotbarSlot4;
+        public InputAction @Pause => m_Wrapper.m_Gameplay_Pause;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -624,6 +713,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @HotbarSlot4.started += instance.OnHotbarSlot4;
             @HotbarSlot4.performed += instance.OnHotbarSlot4;
             @HotbarSlot4.canceled += instance.OnHotbarSlot4;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -667,6 +759,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @HotbarSlot4.started -= instance.OnHotbarSlot4;
             @HotbarSlot4.performed -= instance.OnHotbarSlot4;
             @HotbarSlot4.canceled -= instance.OnHotbarSlot4;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -699,5 +794,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         void OnHotbarSlot2(InputAction.CallbackContext context);
         void OnHotbarSlot3(InputAction.CallbackContext context);
         void OnHotbarSlot4(InputAction.CallbackContext context);
+        void OnPause(InputAction.CallbackContext context);
     }
 }

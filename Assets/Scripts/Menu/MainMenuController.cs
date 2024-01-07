@@ -5,23 +5,25 @@ using UnityEngine.SceneManagement;
 // Controller for the main menu interactions
 public class MainMenuController : MonoBehaviour
 {
-
-    public GameObject instructionsPanel;
+    public GameObject SettingsPage;
+    public GameObject MainPage;
     public void StartGame()
     {
-        GameManager.Instance.debugMode = false; // Ensure debug mode is off
         SceneManager.LoadScene("MainGame"); // Load the main game scene
     }
     // Method to open the instructions panel
-    public void OpenInstructions()
+    public void OpenSettings()
     {
-        instructionsPanel.SetActive(true);
+        SettingsPage.SetActive(true);
+        MainPage.SetActive(false);
+
     }
 
     // Method to close the instructions panel
-    public void CloseInstructions()
+    public void CloseSettings()
     {
-        instructionsPanel.SetActive(false); // Deactivate the instructions panel
+        SettingsPage.SetActive(false); // Deactivate the settings panel
+        MainPage.SetActive(true);
     }
 
     // Method to restart the game

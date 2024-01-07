@@ -252,8 +252,13 @@ public class UIManager : MonoBehaviour
 
     public void ShowInteractableSpritePrompt()
     {
-        textBoxTextSetter.SetInteractText();
+        RefreshInteractText();
         interactPromptText.gameObject.SetActive(true);
+    }
+
+    public void RefreshInteractText()
+    {
+        textBoxTextSetter.SetInteractText();
     }
 
     public void HideInteractPrompt()

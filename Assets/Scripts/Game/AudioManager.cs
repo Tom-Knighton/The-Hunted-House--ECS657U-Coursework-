@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Game
 {
@@ -47,15 +48,42 @@ namespace Game
                 _playerBreathingSource = gameObject.AddComponent<AudioSource>();
                 _backgroundSource = gameObject.AddComponent<AudioSource>();
 
-                PlayAmbiance();
-                PlayInsideRain();
-                PlayerBreathingSound();
+                if (SceneManager.GetActiveScene().name == "MainMenu")
+                {
+                    PlayAmbiance(); // Only play ambiance in the main menu
+                }
+                else
+                {
+                    InitializeForMainGame(); // Initialize other sounds for the main game
+                }
             }
             else if (Instance != this)
             {
                 Destroy(gameObject);// Destroy duplicate
                 return;
             }
+        }
+        private void Start()
+        {
+            // Apply the stored volume setting
+            float savedVolume = PlayerPrefs.GetFloat("Volume", 1f); 
+            SetVolume(savedVolume);
+        }
+
+        public void SetVolume(float volume)
+        {
+            source.volume = volume;
+            _backgroundSource.volume = volume;
+            _playerBreathingSource.volume = volume;
+            _playerRunningSource.volume = volume;
+            _rainSource.volume = volume;
+        }
+
+        private void InitializeForMainGame()
+        {
+            PlayAmbiance();
+            PlayInsideRain();
+            PlayerBreathingSound();
         }
 
         public void PlayAmbiance()
