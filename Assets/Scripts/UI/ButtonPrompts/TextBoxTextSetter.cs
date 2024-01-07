@@ -23,7 +23,7 @@ public class TextBoxTextSetter : MonoBehaviour
     private PlayerInput _playerInputComponent;
     private TMP_Text _textBox;
 
-
+    // Initialise
     private void Awake()
     {
         _playerInput = new PlayerInputActions();
@@ -87,7 +87,7 @@ public class TextBoxTextSetter : MonoBehaviour
         return keybindsAreDifferent;
     }
 
-
+    // Decides the text to set inside of the text box and figures out the binding to use
     private void SetText()
     {
         var currentDevice = InputSystem.GetDevice<InputDevice>();
@@ -112,7 +112,7 @@ public class TextBoxTextSetter : MonoBehaviour
         );
     }
 
-
+    // Chooses the sprite asset based on the current control scheme and even differentiates between playstation and xbox gamepads
     private TMP_SpriteAsset DetermineSpriteAsset(InputDevice currentDevice)
     {
         TMP_SpriteAsset selectedSpriteAsset;
