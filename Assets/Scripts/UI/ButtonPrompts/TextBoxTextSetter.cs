@@ -37,15 +37,7 @@ public class TextBoxTextSetter : MonoBehaviour
     private void LoadBindingOverrides()
     {
         string rebinds = PlayerPrefs.GetString("rebinds", string.Empty);
-        if (!string.IsNullOrEmpty(rebinds))
-        {
             _playerInput.LoadBindingOverridesFromJson(rebinds);
-            Debug.Log("Loaded rebinds: " + rebinds); // Added debug statement
-        }
-        else
-        {
-            Debug.Log("No rebinds found in PlayerPrefs."); // Added debug statement for empty or missing rebinds
-        }
     }
 
 
@@ -78,10 +70,6 @@ public class TextBoxTextSetter : MonoBehaviour
             var binding = _playerInput.Gameplay.Interact.bindings[bindingIndex];
             var interactKey = InputControlPath.ToHumanReadableString(binding.effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice);
             message = $"Press {interactKey} to interact";
-        }
-        else
-        {
-            Debug.LogWarning("No valid binding found for the current control scheme.", this);
         }
     }
 
