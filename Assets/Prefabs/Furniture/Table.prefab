@@ -114,7 +114,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6519192078395301719}
-  - component: {fileID: -6641023399454436804}
+  - component: {fileID: 5420834035036234959}
   m_Layer: 7
   m_Name: Table
   m_TagString: Untagged
@@ -139,8 +139,8 @@ Transform:
   - {fileID: 5470153994568869256}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &-6641023399454436804
-BoxCollider:
+--- !u!64 &5420834035036234959
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -157,9 +157,10 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
 --- !u!1 &5763113347376880787
 GameObject:
   m_ObjectHideFlags: 0
