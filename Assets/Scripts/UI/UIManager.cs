@@ -235,7 +235,7 @@ public class UIManager : MonoBehaviour
             yield return null;
             FadeScreenIn(5f);
             GameManager.Instance.EnablePlayers();
-            GameManager.Instance.EnableEnemies();
+            GameManager.Instance.DisableWall();
             ShowPlayerUI();
         }
     }
