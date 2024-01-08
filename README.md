@@ -4,6 +4,9 @@
 A survival/stealth horror game in which you are trying to escape a house, you were kidnapped and brought here. You must call the police and can wait for them to arrive - if you can survive that long...
 
 **! Uses LFS !**
+
+** OUR WEB BUILD WAS TOO BIG FOR GITHUB (OVER 100MB AND LFS WONT WORK FOR PAGES) **
+** YOU WILL HAVE TO DOWNLOAD TO RUN**
 ---
 
 ### Objectives:
