@@ -53,10 +53,7 @@ namespace Game
             {
                 // Disable player and enemies for non-debug mode
                 player.enabled = false;
-                foreach (var enemy in enemies)
-                {
-                    enemy.gameObject.SetActive(false);
-                }
+                EnableEnemies();
                 UIManager.Instance.ShowOpeningScrawl();  // Show the opening narrative
             }
 
@@ -102,12 +99,16 @@ namespace Game
             player.enabled = false;
         }
 
-        // Enables each enemy
-        public void EnableEnemies()
+        public void DisableWall()
         {
             IntroBlockWall.SetActive(false);
             UIManager.Instance.SetCountdownVisibility(true);
             _introCompleted = true;
+        }
+
+        // Enables each enemy
+        public void EnableEnemies()
+        {
             foreach (var enemy in enemies)
             {
                 enemy.StartEnemy(GameSettings.EnemySettings); // Activate each enemy
