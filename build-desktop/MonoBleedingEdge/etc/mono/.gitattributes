@@ -1,0 +1,16 @@
+4.5/DefaultWsdlHelpGenerator.aspx filter=lfs diff=lfs merge=lfs -text
+mconfig/config.xml filter=lfs diff=lfs merge=lfs -text
+2.0/machine.config filter=lfs diff=lfs merge=lfs -text
+4.0/DefaultWsdlHelpGenerator.aspx filter=lfs diff=lfs merge=lfs -text
+4.0/web.config filter=lfs diff=lfs merge=lfs -text
+2.0/web.config filter=lfs diff=lfs merge=lfs -text
+4.5/machine.config filter=lfs diff=lfs merge=lfs -text
+2.0/Browsers filter=lfs diff=lfs merge=lfs -text
+2.0/DefaultWsdlHelpGenerator.aspx filter=lfs diff=lfs merge=lfs -text
+4.0/Browsers filter=lfs diff=lfs merge=lfs -text
+4.5/Browsers filter=lfs diff=lfs merge=lfs -text
+4.5/settings.map filter=lfs diff=lfs merge=lfs -text
+4.5/web.config filter=lfs diff=lfs merge=lfs -text
+2.0/settings.map filter=lfs diff=lfs merge=lfs -text
+4.0/machine.config filter=lfs diff=lfs merge=lfs -text
+4.0/settings.map filter=lfs diff=lfs merge=lfs -text
